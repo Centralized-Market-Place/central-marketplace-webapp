@@ -83,6 +83,13 @@ export default function LoginPage() {
           <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700">
             {loading ? <Loader2 className="w-6 h-6 text-white" /> : "Login"}
           </Button>
+
+          <p className="text-center text-gray-600 text-sm">
+            Don&apos;t have an account?{" "}
+            <a href="/signup" className="text-indigo-600">
+              Register
+            </a>
+          </p>
         </form>
       </div>
     </div>

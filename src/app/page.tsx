@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import React from "react";
+import Link from 'next/link';
 
 export default function WelcomePage() {
+
   return (
     <div className="min-h-screen grid grid-rows-[20px_1fr_20px] items-center justify-items-center">
 
@@ -13,7 +15,7 @@ export default function WelcomePage() {
           Your one-stop shop for finding the best deals, products, and services all in one place. Start exploring today!
         </p>
         <Button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md shadow-lg">
-          Get Started
+          <Link href="/home">Get Started</Link>
         </Button>
       </main>
 
