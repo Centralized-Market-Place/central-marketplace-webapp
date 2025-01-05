@@ -3,7 +3,7 @@ import request from './index'
 
 export function login(params: Login) {
     return request({
-        url: '/login',
+        url: '/users/login',
         method: 'post',
         data: params
     })
@@ -11,7 +11,7 @@ export function login(params: Login) {
 
 export function register(params: Register) {
     return request({
-        url: '/register',
+        url: '/users/register',
         method: 'post',
         data: params
     })

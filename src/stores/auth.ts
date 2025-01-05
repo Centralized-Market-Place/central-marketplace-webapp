@@ -22,9 +22,17 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   token: typeof window !== "undefined" ? localStorage.getItem("token") : null,
   user:
-    typeof window !== "undefined"
-      ? JSON.parse(localStorage.getItem("user") || "null")
-      : null,
+  typeof window !== "undefined"
+  ? (() => {
+      try {
+        const userData = localStorage.getItem("user");
+        return userData ? JSON.parse(userData) : null;
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    })()
+  : null,
   isAuthenticated:
     typeof window !== "undefined" ? !!localStorage.getItem("token") : false,
   loading: false,
@@ -33,10 +41,15 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       set({ loading: true });
       const response = await loginApi(credentials);
-      const { token, user } = response.data;
+      const token = response.data["access_token"];
+      const user = JSON.parse(atob(token.split(".")[1])).sub;
+
+      console.log(user, 'user');
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
+
+      document.cookie = `token=${token}; path=/`;
 
       set({
         token,
@@ -53,6 +66,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         user: null,
         isAuthenticated: false,
       });
+      document.cookie = `token=; path=/;`;
       throw error;
     } finally {
       set({ loading: false });
@@ -63,18 +77,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       set({ loading: true });
       const response = await registerApi(userData);
-      const { token, user } = response.data;
-
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      set({
-        token,
-        user,
-        isAuthenticated: true,
-      });
-
-      window.location.href = "/home";
+      
+      if (response.status === 200) {
+        window.location.href = "/login";
+      }
     } catch (error) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -92,6 +98,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    document.cookie = `token=; path=/;`;
     set({
       token: null,
       user: null,
