@@ -1,32 +1,95 @@
+'use client';
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { signupSchema } from "@/lib/shemas/auth";
+
+interface SignupForm {
+  name: string;
+  username: string;
+  password: string;
+}
 
 export default function Signup() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupForm>({
+    resolver: yupResolver(signupSchema),
+  });
+
+  const onSubmit = async (data: SignupForm) => {
+    console.log(data);
+  };
+
   return (
     <div className="min-h-screen flex justify-center items-center">
       <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-6 text-center">Sign Up</h1>
-        <form className="space-y-6 w-[24rem]">
+        <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-6 text-center">
+          Sign Up
+        </h1>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-[24rem]">
           <div>
             <label htmlFor="name" className="block text-gray-600 text-sm mb-2">
               Your Full Name
             </label>
-            <Input id="name" type="text" placeholder="Enter your full name" />
+            <div className="flex flex-col gap-1">
+              <Input
+                {...register("name")}
+                type="text"
+                placeholder="Enter your full name"
+              />
+              {errors.name && (
+                <p className="text-red-500 text-sm">{errors.name.message}</p>
+              )}
+            </div>
           </div>
           <div>
-            <label htmlFor="username" className="block text-gray-600 text-sm mb-2">
+            <label
+              htmlFor="username"
+              className="block text-gray-600 text-sm mb-2"
+            >
               Username
             </label>
-            <Input id="username" type="text" placeholder="Choose a username" />
+            <div className="flex flex-col gap-1">
+              <Input
+                {...register("username")}
+                type="text"
+                placeholder="Choose a username"
+              />
+              {errors.username && (
+                <p className="text-red-500 text-sm">
+                  {errors.username.message}
+                </p>
+              )}
+            </div>
           </div>
           <div>
-            <label htmlFor="password" className="block text-gray-600 text-sm mb-2">
+            <label
+              htmlFor="password"
+              className="block text-gray-600 text-sm mb-2"
+            >
               Password
             </label>
-            <Input id="password" type="password" placeholder="Create a password" />
+            <div className="flex flex-col gap-1">
+              <Input
+                {...register("password")}
+                type="password"
+                placeholder="Password"
+              />
+              {errors.password && (
+                <p className="text-red-500 text-sm">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
           </div>
-          <Button className="w-full bg-indigo-600 hover:bg-indigo-700">Sign Up</Button>
+          <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700">
+            Sign Up
+          </Button>
         </form>
       </div>
     </div>
