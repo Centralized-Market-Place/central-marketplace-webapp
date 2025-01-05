@@ -5,23 +5,18 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signupSchema } from "@/lib/shemas/auth";
-
-interface SignupForm {
-  name: string;
-  username: string;
-  password: string;
-}
+import { Register } from "@/domain/auth";
 
 export default function Signup() {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignupForm>({
+  } = useForm<Register>({
     resolver: yupResolver(signupSchema),
   });
 
-  const onSubmit = async (data: SignupForm) => {
+  const onSubmit = async (data: Register) => {
     console.log(data);
   };
 

@@ -5,21 +5,18 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { loginSchema } from "@/lib/shemas/auth";
+import { Login } from "@/domain/auth";
 
-interface LoginForm {
-  username: string;
-  password: string;
-}
 
-export default function Login() {
+export default function LoginPage() {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginForm>({
+  } = useForm<Login>({
     resolver: yupResolver(loginSchema),
   });
-  const onSubmit = async (data: LoginForm) => {
+  const onSubmit = async (data: Login) => {
     console.log(data);
   };
 
