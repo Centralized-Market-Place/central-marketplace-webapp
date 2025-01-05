@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,9 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signupSchema } from "@/lib/shemas/auth";
 import { Register } from "@/domain/auth";
+import { useToast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/stores/auth";
+import { Loader2 } from "lucide-react";
 
 export default function Signup() {
   const {
@@ -15,9 +18,20 @@ export default function Signup() {
   } = useForm<Register>({
     resolver: yupResolver(signupSchema),
   });
+  const signup = useAuthStore((state) => state.register);
+  const loading = useAuthStore((state) => state.loading);
+  const { toast } = useToast();
 
   const onSubmit = async (data: Register) => {
-    console.log(data);
+    try {
+      await signup(data);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: `error occured: ${error}`,
+        description: "Invalid credentials. Please try again.",
+      });
+    }
   };
 
   return (
@@ -82,8 +96,11 @@ export default function Signup() {
               )}
             </div>
           </div>
-          <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700">
-            Sign Up
+          <Button
+            type="submit"
+            className="w-full bg-indigo-600 hover:bg-indigo-700"
+          >
+            {loading ? <Loader2 className="w-6 h-6 text-white" /> : "Sign Up"}
           </Button>
         </form>
       </div>

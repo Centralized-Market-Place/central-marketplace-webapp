@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +31,7 @@ export default function RootLayout({
         <div className="min-h-screen bg-gradient-to-b from-gray-100 via-white to-gray-50 font-[family-name:var(--font-geist-sans)]">
 
         {children}
+        <Toaster />
         </div>
       </body>
     </html>

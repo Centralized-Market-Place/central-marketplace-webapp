@@ -6,6 +6,9 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { loginSchema } from "@/lib/shemas/auth";
 import { Login } from "@/domain/auth";
+import { useAuthStore } from "@/stores/auth";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 
 export default function LoginPage() {
@@ -16,9 +19,23 @@ export default function LoginPage() {
   } = useForm<Login>({
     resolver: yupResolver(loginSchema),
   });
+  const login = useAuthStore(state => state.login);
+  const loading = useAuthStore(state => state.loading);
+  const { toast } = useToast();
+  
   const onSubmit = async (data: Login) => {
-    console.log(data);
+    try {
+        await login(data);
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: `error occured: ${error}`,
+          description: "Invalid credentials. Please try again.",
+        });
+      }
   };
+
+  
 
   return (
     <div className="min-h-screen flex justify-center items-center">
@@ -64,7 +81,7 @@ export default function LoginPage() {
             </div>
           </div>
           <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700">
-            Login
+            {loading ? <Loader2 className="w-6 h-6 text-white" /> : "Login"}
           </Button>
         </form>
       </div>
