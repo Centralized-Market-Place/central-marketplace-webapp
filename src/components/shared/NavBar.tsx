@@ -28,7 +28,7 @@ export default function Navbar() {
         <input
           type="text"
           placeholder="Search"
-          className="w-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 rounded-md pl-10 pr-16 py-2 focus:outline-none focus:ring-1 focus:ring-pink-500"
+          className="w-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 rounded-md pl-10 pr-16 py-2 focus:outline-none focus:ring-1 focus:ring-gray-600"
         />
         <div className="absolute inset-y-0 right-2 flex items-center space-x-1">
           <span className="text-xs text-gray-400 bg-gray-300 dark:bg-gray-600 px-1 rounded">Ctrl</span>
