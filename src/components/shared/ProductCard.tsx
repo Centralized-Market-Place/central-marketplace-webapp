@@ -71,7 +71,7 @@ export default function ProductCard({
 
   return (
     <>
-      <Card onClick={handleCardClick} className="cursor-pointer w-full max-w-xs rounded-xl shadow-md bg-white dark:bg-gray-800 hover:shadow-lg transition-shadow border-[0.1px] hover:border-gray-800 dark:hover:border-gray-700">
+      <Card onClick={handleCardClick} className="cursor-pointer w-full max-w-xs rounded-xl shadow-md bg-white dark:bg-gray-800 hover:shadow-lg transition-shadow border-[0.1px] hover:border-gray-300 dark:hover:border-gray-700">
         <CardHeader className="flex flex-col space-y-1">
           <div className="flex gap-2 items-center">
             <Image
