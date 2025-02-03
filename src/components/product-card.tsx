@@ -1,9 +1,8 @@
 "use client";
 
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Eye, MessageSquare, Share2 } from "lucide-react";
-import Link from "next/link";
+
 
 // Import Swiper React components and styles
 import { Swiper, SwiperSlide } from "swiper/react";
