@@ -118,7 +118,6 @@ export default function Home() {
           loader={<LoadingSpinner />}
           endMessage={
             <p className="text-center">
-              <b>Yay! You have seen it all</b>
             </p>
           }
         >
