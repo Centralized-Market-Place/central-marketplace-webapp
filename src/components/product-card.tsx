@@ -1,8 +1,9 @@
 "use client";
 
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Eye, MessageSquare, Share2 } from "lucide-react";
-
+import Link from "next/link";
 
 // Import Swiper React components and styles
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -17,7 +18,7 @@ interface ProductCardProps {
     forwards: number;
     reactions: [string, number][];
     posted_at: string;
-    images: string[];
+    images?: string[];
   };
 }
 
@@ -72,11 +73,11 @@ export function ProductCard({ product }: ProductCardProps) {
           </span>
         </div>
         {/* Uncomment the Link below if you wish to enable the detail view */}
-        {/* <Link href={`/product/${product.id}`}>
+        <Link href={`/product/${product.id}`}>
           <Button variant="secondary" size="sm">
             View Details
           </Button>
-        </Link> */}
+        </Link>
       </CardFooter>
     </Card>
   );

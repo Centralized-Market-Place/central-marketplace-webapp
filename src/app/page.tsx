@@ -16,6 +16,14 @@ interface Product {
   posted_at: string
 }
 
+function LoadingSpinner() {
+  return (
+    <div className="flex justify-center items-center py-6">
+      <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  )
+}
+
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([])
   const [search, setSearch] = useState("")
@@ -57,7 +65,8 @@ export default function Home() {
         } else {
           setProducts((prevProducts) => [...prevProducts, ...data.data.items])
         }
-        setHasMore(data.data.items.length === 20) // Assuming if we get less than 20 items, it's the last page
+        // If we receive less than 20 items, assume it's the last page
+        setHasMore(data.data.items.length === 20)
         console.log("Products set, count:", data.data.items.length)
       } catch (error) {
         console.error("Caught error:", error)
@@ -73,7 +82,7 @@ export default function Home() {
   useEffect(() => {
     setPage(1)
     fetchProducts(1, true)
-  }, [fetchProducts]) 
+  }, [fetchProducts])
 
   const loadMore = () => {
     if (!loading && hasMore) {
@@ -85,8 +94,7 @@ export default function Home() {
 
   return (
     <main className="container py-6 space-y-6 mx-auto">
-      <div className="max-w-2xl mx-auto text-center space-y-4  ">
-    
+      <div className="max-w-2xl mx-auto text-center space-y-4">
         <h1 className="text-3xl font-bold">Search and find anything</h1>
         <Input
           type="search"
@@ -97,30 +105,34 @@ export default function Home() {
         />
       </div>
 
-
       {error && <p className="text-center text-red-500">Error: {error}. Please try again later.</p>}
 
-      <InfiniteScroll
-        dataLength={products.length}
-        next={loadMore}
-        hasMore={hasMore}
-        loader={<h4 className="text-center">Loading...</h4>}
-        endMessage={
-          <p className="text-center">
-            <b>Yay! You have seen it all</b>
-          </p>
-        }
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      </InfiniteScroll>
+      {loading && products.length === 0 ? (
+        // Display spinner if initially loading and no products yet
+        <LoadingSpinner />
+      ) : (
+        <InfiniteScroll
+          dataLength={products.length}
+          next={loadMore}
+          hasMore={hasMore}
+          loader={<LoadingSpinner />}
+          endMessage={
+            <p className="text-center">
+              <b>Yay! You have seen it all</b>
+            </p>
+          }
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </InfiniteScroll>
+      )}
 
-      {loading && products.length === 0 && <p className="text-center">Loading products...</p>}
-      {!loading && !error && products.length === 0 && <p className="text-center">No products found.</p>}
+      {!loading && !error && products.length === 0 && (
+        <p className="text-center">No products found.</p>
+      )}
     </main>
   )
 }
-
