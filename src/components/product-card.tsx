@@ -8,6 +8,7 @@ import Link from "next/link";
 // Import Swiper React components and styles
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
+import Image from "next/image";
 
 interface ProductCardProps {
   product: {
@@ -32,7 +33,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <Swiper spaceBetween={10} slidesPerView={1}>
               {product.images.map((image, index) => (
                 <SwiperSlide key={index}>
-                  <img
+                  <Image
                     src={image}
                     alt={`Product Image ${index + 1}`}
                     className="object-cover w-full h-full"
