@@ -26,10 +26,11 @@ export default function SignUpPage() {
         <CardContent>
           <SignUpForm
             onSave={(userRegister: UserRegister) => {
+                console.log("user", userRegister)
               signUp({
                 userRegister,
                 onSuccess: () => {
-                  router.push("/");
+                  router.push("/login");
                 },
               });
             }}
@@ -41,7 +42,7 @@ export default function SignUpPage() {
             type="button"
             variant="link"
             className="w-full"
-            onClick={() => router.push("/signup")}
+            onClick={() => router.push("/login")}
           >
             {"Need an account? Register"}
           </Button>

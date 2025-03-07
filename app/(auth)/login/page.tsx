@@ -29,7 +29,7 @@ export default function LoginPage() {
               login({
                 userLogin,
                 onSuccess: () => {
-                  router.push("/signup");
+                  router.push("/");
                 },
               });
             }}

@@ -1,7 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
-import { Button } from "./ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Eye, MessageSquare, Share2 } from "lucide-react";
 import Link from "next/link";
 
@@ -35,8 +40,10 @@ export function ProductCard({ product }: ProductCardProps) {
                 <SwiperSlide key={index}>
                   <Image
                     src={image}
+                    width={400}
+                    height={500}
                     alt={`Product Image ${index + 1}`}
-                    className="object-cover w-full h-full"
+                    layout="responsive"
                   />
                 </SwiperSlide>
               ))}

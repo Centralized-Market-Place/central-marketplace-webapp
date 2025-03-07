@@ -3,7 +3,6 @@
 import { Button } from "../ui/button";
 import { Moon, Sun, User } from "lucide-react";
 import Link from "next/link";
-import { useStore } from "../../store/store";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,14 +10,13 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useTheme } from "next-themes";
+import { useAuthContext } from "@/providers/auth-context";
 
 export function Header() {
-  const { user, setUser } = useStore();
+  const { user, logout} = useAuthContext();
   const { setTheme, theme } = useTheme();
 
-  const handleLogout = () => {
-    setUser(null);
-  };
+ 
 
   return (
     <header className="border-b">
@@ -37,7 +35,7 @@ export function Header() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={handleLogout}>
+                <DropdownMenuItem onClick={logout}>
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>

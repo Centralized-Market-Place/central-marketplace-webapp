@@ -8,9 +8,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "../../components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { UserRegister, UserRegisterSchema } from "../shema";
 import { Button } from "../../components/ui/button";
+import LoadingIcon from "@/components/state/loading";
+import { PasswordInput } from "@/components/common/password-input";
 
 export default function SignUpForm({
   onSave,
@@ -28,6 +30,7 @@ export default function SignUpForm({
       confirmPassword: "",
     },
   });
+  const password = useWatch({ control: form.control, name: "password" });
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSave)} className="space-y-4">
@@ -75,11 +78,38 @@ export default function SignUpForm({
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input
-                  type="password"
-                  placeholder="Enter your password"
-                  disabled={isLoading}
+                <PasswordInput
                   {...field}
+                  disabled={isLoading}
+                  onChange={field.onChange}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Confirm Password</FormLabel>
+              <FormControl>
+                <PasswordInput
+                  {...field}
+                  disabled={isLoading}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    if (password !== e.target.value) {
+                      form.setError("confirmPassword", {
+                        type: "manual",
+                        message: "Passwords do not match",
+                      });
+                    } else {
+                      form.clearErrors("confirmPassword");
+                    }
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -88,6 +118,7 @@ export default function SignUpForm({
         />
 
         <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading && <LoadingIcon className="w-4 h-4" />}
           Sign Up
         </Button>
       </form>

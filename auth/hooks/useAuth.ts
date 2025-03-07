@@ -3,14 +3,18 @@ import { apiPost } from "../../services/api";
 import {
   AuthResponse,
   AuthResponseSchema,
+  User,
   UserLogin,
   UserRegister,
+  UserSchema,
 } from "../shema";
 import { useAuthContext } from "../../providers/auth-context";
+import { useAlert } from "@/providers/alert-provider";
 
 export function useAuth() {
   const baseUrl = `/api/v1/users`;
-  const { setUser, setToken } = useAuthContext();
+  const { setCredential } = useAuthContext();
+  const alert = useAlert();
   const login = async ({
     userLogin,
   }: {
@@ -32,25 +36,21 @@ export function useAuth() {
     onSuccess?: () => void;
     onError?: () => void;
   }) => {
-    return apiPost<AuthResponse>(
-      `${baseUrl}/register`,
-      AuthResponseSchema,
-      userRegister
-    );
+    return apiPost<User>(`${baseUrl}/register`, UserSchema, userRegister);
   };
 
   const signUpMutation = useMutation({
     mutationFn: signUp,
     onSuccess: (data, variables) => {
       const { onSuccess } = variables;
-      setUser(data.data.user);
-      setToken(data.data.token);
       onSuccess?.();
+      alert?.success("logged in successfully!");
     },
     onError: (_error, variables) => {
       console.log("error", _error);
       const { onError } = variables;
       onError?.();
+      alert?.error("Error occurred when trying to sign up");
     },
   });
 
@@ -59,13 +59,14 @@ export function useAuth() {
     onSuccess: (data, variables) => {
       const { onSuccess } = variables;
       onSuccess?.();
-      setUser(data.data.user);
-      setToken(data.data.token);
+      setCredential(data.data.user, data.data.token);
+      alert?.success("logged in Successfully!");
     },
     onError: (_error, variables) => {
       console.log("error", _error);
       const { onError } = variables;
       onError?.();
+      alert?.error("Error occurred when trying to login");
     },
   });
 

@@ -4,20 +4,27 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { User } from "../auth/shema";
 import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import LoadingIcon from "@/components/state/loading";
 
 const PUBLIC_PATH = ["/login", "/signup"];
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  setToken: (token: string) => void;
-  setUser: (user: User) => void;
+  setCredential: (user: User, token: string) => void;
+  logout: () => void;
   isAuthenticated: boolean;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
+const AuthLoading = () => {
+  return (
+    <div className="flex h-screen w-screen items-center justify-center gap-4">
+      <LoadingIcon className="w-4 h-4" /> Loading...
+    </div>
+  );
+};
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -40,7 +47,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (!loading || !user) {
+    console.log(loading, user);
+    if (!loading && !user) {
       if (!PUBLIC_PATH.includes(pathName)) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
@@ -50,14 +58,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [loading, user, pathName, router, query]);
 
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  };
+
+  const setCredential = (user: User, token: string) => {
+    setUser(user);
+    setToken(token);
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
+  };
+
   const value: AuthContextType = {
     user,
     token,
+    logout,
     isAuthenticated: !!user,
     loading,
-    setUser,
-    setToken,
+    setCredential,
   };
+
+  if (loading) return <AuthLoading />;
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

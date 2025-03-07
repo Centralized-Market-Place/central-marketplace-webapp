@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import LoadingIcon from "@/components/state/loading";
+import { PasswordInput } from "@/components/common/password-input";
 
 export default function LoginForm({
   onSave,
@@ -36,16 +38,16 @@ export default function LoginForm({
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel> Email </FormLabel>{" "}
+              <FormLabel> Email </FormLabel>
               <FormControl>
                 <Input
                   type="email"
                   placeholder="Enter your email"
                   disabled={isLoading}
                   {...field}
-                />{" "}
-              </FormControl>{" "}
-              <FormMessage />{" "}
+                />
+              </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -54,24 +56,23 @@ export default function LoginForm({
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel> Password </FormLabel>{" "}
+              <FormLabel> Password </FormLabel>
               <FormControl>
-                <Input
-                  type="password"
-                  placeholder="Enter your password"
-                  disabled={isLoading}
+                <PasswordInput
                   {...field}
-                />{" "}
-              </FormControl>{" "}
-              <FormMessage />{" "}
+                  disabled={isLoading}
+                  onChange={field.onChange}
+                />
+              </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
         <Button type="submit" disabled={isLoading} className="w-full">
-          {" "}
-          Login{" "}
-        </Button>{" "}
-      </form>{" "}
+          {isLoading && <LoadingIcon className="w-4 h-4" />}
+          Login
+        </Button>
+      </form>
     </Form>
   );
 }
