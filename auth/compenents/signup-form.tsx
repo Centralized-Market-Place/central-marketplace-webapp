@@ -14,10 +14,10 @@ import { Button } from "../../components/ui/button";
 
 export default function SignUpForm({
   onSave,
-  disabled = false,
+  isLoading = false,
 }: {
   onSave: (data: UserRegister) => void;
-  disabled?: boolean;
+  isLoading?: boolean;
 }) {
   const form = useForm<UserRegister>({
     resolver: zodResolver(UserRegisterSchema),
@@ -40,7 +40,7 @@ export default function SignUpForm({
               <FormControl>
                 <Input
                   placeholder="Enter your full name"
-                  disabled={disabled}
+                  disabled={isLoading}
                   {...field}
                 />
               </FormControl>
@@ -59,7 +59,7 @@ export default function SignUpForm({
                 <Input
                   type="email"
                   placeholder="Enter your email"
-                  disabled={disabled}
+                  disabled={isLoading}
                   {...field}
                 />
               </FormControl>
@@ -78,7 +78,7 @@ export default function SignUpForm({
                 <Input
                   type="password"
                   placeholder="Enter your password"
-                  disabled={disabled}
+                  disabled={isLoading}
                   {...field}
                 />
               </FormControl>
@@ -87,7 +87,7 @@ export default function SignUpForm({
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={disabled}>
+        <Button type="submit" className="w-full" disabled={isLoading}>
           Sign Up
         </Button>
       </form>

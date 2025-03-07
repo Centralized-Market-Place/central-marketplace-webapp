@@ -43,7 +43,7 @@ export default function Home() {
           ...(debouncedSearch && { query: debouncedSearch }),
         });
 
-        const url = `https://central-marketplace-backend.onrender.com/products/?${params}`;
+        const url = `api/v1/products/?${params}`;
         console.log("Fetching from URL:", url);
 
         const response = await fetch(url);

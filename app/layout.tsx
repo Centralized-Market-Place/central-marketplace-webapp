@@ -4,6 +4,8 @@ import { Header } from "../components/layout/header";
 import "./globals.css";
 import type React from "react";
 import QueryProvider from "../providers/query-provider";
+import { AuthProvider } from "../providers/auth-context";
+import { AlertProvider } from "@/providers/alert-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,15 +18,19 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <QueryProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Header />
-            {children}
-          </ThemeProvider>
+          <AlertProvider>
+            <AuthProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+              >
+                <Header />
+                {children}
+              </ThemeProvider>
+            </AuthProvider>
+          </AlertProvider>
         </QueryProvider>
       </body>
     </html>

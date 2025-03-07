@@ -11,14 +11,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Input } from "../../components/ui/input";
+import { Input } from "@/components/ui/input";
 
 export default function LoginForm({
   onSave,
-  disabled = false,
+  isLoading = false,
 }: {
   onSave: (data: UserLogin) => void;
-  disabled: boolean;
+  isLoading: boolean;
 }) {
   const form = useForm<UserLogin>({
     resolver: zodResolver(UserLoginSchema),
@@ -27,6 +27,7 @@ export default function LoginForm({
       password: "",
     },
   });
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSave)} className="space-y-4">
@@ -40,7 +41,7 @@ export default function LoginForm({
                 <Input
                   type="email"
                   placeholder="Enter your email"
-                  disabled={disabled}
+                  disabled={isLoading}
                   {...field}
                 />{" "}
               </FormControl>{" "}
@@ -58,7 +59,7 @@ export default function LoginForm({
                 <Input
                   type="password"
                   placeholder="Enter your password"
-                  disabled={disabled}
+                  disabled={isLoading}
                   {...field}
                 />{" "}
               </FormControl>{" "}
@@ -66,7 +67,7 @@ export default function LoginForm({
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={disabled} className="w-full">
+        <Button type="submit" disabled={isLoading} className="w-full">
           {" "}
           Login{" "}
         </Button>{" "}

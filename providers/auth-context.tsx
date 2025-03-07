@@ -1,19 +1,17 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import {
-  UserSchema,
-  User,
-  AuthResponseSchema,
-  UserLogin,
-} from "../auth/shema";
-import { apiGet, apiPost } from "../services/api";
+import { User } from "../auth/shema";
+import { usePathname, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+
+const PUBLIC_PATH = ["/login", "/signup"];
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (user: UserLogin) => Promise<void>;
-  logout: () => void;
+  setToken: (token: string) => void;
+  setUser: (user: User) => void;
   isAuthenticated: boolean;
   loading: boolean;
 }
@@ -24,65 +22,47 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const pathName = usePathname();
+  const router = useRouter();
+  const query = useQueryClient();
 
   useEffect(() => {
-    const storedToken = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("token="))
-      ?.split("=")[1];
-
-    if (storedToken) {
-      setToken(storedToken);
-      fetchUser(storedToken);
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    if (token && user) {
+      setUser(JSON.parse(user));
+      setToken(token);
     } else {
-      setLoading(false);
+      setUser(null);
+      setToken(null);
     }
+    setLoading(false);
   }, []);
 
-  const fetchUser = async (token: string) => {
-    try {
-      const result = await apiGet("/api/users/me", UserSchema, token);
-      setUser(result.data);
-    } catch (error) {
-      console.error("Failed to fetch user:", error);
-      logout();
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (!loading || !user) {
+      if (!PUBLIC_PATH.includes(pathName)) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        router.push("/login");
+        query.clear();
+      }
     }
-  };
+  }, [loading, user, pathName, router, query]);
 
-  const login = async (userLogin: UserLogin) => {
-    const result = await apiPost(
-      "/api/auth/login",
-      AuthResponseSchema,
-      userLogin
-    );
-
-    setUser(result.data.user);
-    setToken(result.data.token);
-
-    document.cookie = `token=${result.data.token}; path=/; max-age=86400; Secure; SameSite=Strict`;
-  };
-
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    document.cookie = "token=; path=/; max-age=0;";
-  };
-
-  const value = {
+  const value: AuthContextType = {
     user,
     token,
-    login,
-    logout,
     isAuthenticated: !!user,
     loading,
+    setUser,
+    setToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => {
+export const useAuthContext = () => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");

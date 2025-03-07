@@ -1,9 +1,16 @@
 import { useMutation } from "@tanstack/react-query";
 import { apiPost } from "../../services/api";
-import { User, UserLogin, UserRegister, UserSchema } from "../shema";
+import {
+  AuthResponse,
+  AuthResponseSchema,
+  UserLogin,
+  UserRegister,
+} from "../shema";
+import { useAuthContext } from "../../providers/auth-context";
 
 export function useAuth() {
   const baseUrl = `/api/v1/users`;
+  const { setUser, setToken } = useAuthContext();
   const login = async ({
     userLogin,
   }: {
@@ -11,7 +18,11 @@ export function useAuth() {
     onSuccess?: () => void;
     onError?: () => void;
   }) => {
-    return apiPost<User>(`${baseUrl}/login`, UserSchema, userLogin);
+    return apiPost<AuthResponse>(
+      `${baseUrl}/login`,
+      AuthResponseSchema,
+      userLogin
+    );
   };
 
   const signUp = async ({
@@ -21,37 +32,47 @@ export function useAuth() {
     onSuccess?: () => void;
     onError?: () => void;
   }) => {
-    return apiPost<User>(`${baseUrl}/register`, UserSchema, userRegister);
+    return apiPost<AuthResponse>(
+      `${baseUrl}/register`,
+      AuthResponseSchema,
+      userRegister
+    );
   };
 
   const signUpMutation = useMutation({
     mutationFn: signUp,
     onSuccess: (data, variables) => {
-        const { onSuccess } = variables;
-        onSuccess?.();
+      const { onSuccess } = variables;
+      setUser(data.data.user);
+      setToken(data.data.token);
+      onSuccess?.();
     },
-    onError: (error, variables) => {
-        const { onError } = variables;
-        onError?.();
-    }
+    onError: (_error, variables) => {
+      console.log("error", _error);
+      const { onError } = variables;
+      onError?.();
+    },
   });
 
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (data, variables) => {
-        const { onSuccess } = variables;
-        onSuccess?.();
+      const { onSuccess } = variables;
+      onSuccess?.();
+      setUser(data.data.user);
+      setToken(data.data.token);
     },
-    onError: (error, variables) => {
-        const { onError } = variables;
-        onError?.();
-    }
+    onError: (_error, variables) => {
+      console.log("error", _error);
+      const { onError } = variables;
+      onError?.();
+    },
   });
 
-    return {
-        login: loginMutation.mutate,
-        signUp: signUpMutation.mutate,
-        signUpLoading: signUpMutation.isPending,
-        loginLoading: loginMutation.isPending,
-    };
+  return {
+    login: loginMutation.mutate,
+    signUp: signUpMutation.mutate,
+    signUpLoading: signUpMutation.isPending,
+    loginLoading: loginMutation.isPending,
+  };
 }
