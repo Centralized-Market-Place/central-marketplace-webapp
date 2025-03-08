@@ -35,10 +35,15 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { CustomSidebarTrigger } from "./sidebar-trigger";
+import { useAuthContext } from "@/providers/auth-context";
 
 export function AppSidebar() {
   const { state } = useSidebar();
+  const { user } = useAuthContext();
 
+  if (!user) {
+    return null;
+  }
   return (
     <Sidebar collapsible="icon" className="mt-16">
       <SidebarHeader className="flex flex-col items-start gap-4 px-4 pt-4">

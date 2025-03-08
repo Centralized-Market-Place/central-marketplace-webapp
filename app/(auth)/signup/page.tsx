@@ -18,7 +18,7 @@ export default function SignUpPage() {
   const { signUp, signUpLoading } = useAuth();
 
   return (
-    <main className="container max-w-md py-12 mx-auto">
+    <main className="container m-16 max-w-md py-12 mx-auto">
       <Card>
         <CardHeader>
           <CardTitle>{"SignUp"}</CardTitle>
@@ -26,7 +26,7 @@ export default function SignUpPage() {
         <CardContent>
           <SignUpForm
             onSave={(userRegister: UserRegister) => {
-                console.log("user", userRegister)
+              console.log("user", userRegister);
               signUp({
                 userRegister,
                 onSuccess: () => {
