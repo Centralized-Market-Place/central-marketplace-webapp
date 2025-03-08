@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import LoadingIcon from "@/components/state/loading";
 
-const PUBLIC_PATH = ["/login", "/signup"];
+const PUBLIC_PATH = ["/login", "/signup", "/"];
 
 interface AuthContextType {
   user: User | null;
@@ -45,6 +45,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
     setLoading(false);
   }, []);
+
+
+  console.log("pathname", pathName)
 
   useEffect(() => {
     console.log(loading, user);

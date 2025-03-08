@@ -1,65 +1,46 @@
-"use client"
+"use client";
 
-import { use, useEffect, useState } from "react"
-import { Eye, MessageSquare, Share2 } from "lucide-react"
+import { useState } from "react";
+import { Eye, MessageSquare, Share2 } from "lucide-react";
+import { useParams } from "next/navigation";
+import Image from "next/image";
+import { useProduct } from "@/products/hooks/useProduct";
 
-export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  
-  const { id } = use(params)
+export default function ProductPage() {
+  const { id } = useParams<{ id: string }>();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [product, setProduct] = useState<any>()
-  const [loading, setLoading] = useState(true)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const {product, isLoading, isError} = useProduct(id);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await fetch(`https://central-marketplace-backend.onrender.com/products/${id}`)
-        const data = await response.json()
-        setProduct(data)
-      } catch (error) {
-        console.error("Error fetching product:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
 
-    fetchProduct()
-  }, [id])
-
-  if (loading) {
-    return <div>Loading...</div>
+  if (isLoading || !product) {
+    return <div>Loading...</div>;
   }
 
-  if (!product) {
-    return <div>Product not found</div>
+  if (isError) {
+    return <div>Product not found</div>;
   }
 
-  // Normalize the posted date string (limit fractional seconds to 3 digits)
-  const normalizeDateString = (dateString?: string): string =>
-    dateString ? dateString.replace(/(\.\d{3})\d+/, "$1") : ""
-  const normalizedDateString = normalizeDateString(product.posted_at)
-  const postedDate = new Date(normalizedDateString)
-  const formattedDate = !isNaN(postedDate.getTime())
+  const postedDate = product.postedAt
+  const formattedDate =postedDate?.getTime()
     ? postedDate.toLocaleDateString()
-    : "Unknown Date"
+    : "Unknown Date";
 
-  const images: string[] = product.images || []
-  const hasImages = images.length > 0
+  const images: string[] = product.images || [];
+  const hasImages = images.length > 0;
 
   const handlePrev = () => {
     setCurrentImageIndex((prevIndex) =>
       prevIndex === 0 ? images.length - 1 : prevIndex - 1
-    )
-  }
+    );
+  };
 
   const handleNext = () => {
     setCurrentImageIndex((prevIndex) =>
       prevIndex === images.length - 1 ? 0 : prevIndex + 1
-    )
-  }
+    );
+  };
 
   return (
     <main className="container py-6">
@@ -68,12 +49,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         <div className="relative  sm:w-4/5 sm:h-4/5 bg-muted rounded-lg mb-6 overflow-hidden mx-auto">
           {hasImages ? (
             <>
-              <img
-                src={images[currentImageIndex]}
-                alt={`Product Image ${currentImageIndex + 1}`}
-                className="object-cover w-full h-full cursor-pointer"
-                onClick={() => setIsModalOpen(true)}
-              />
+              <div className="size-64 relative">
+                <Image
+                  src={images[currentImageIndex]}
+                  alt={`Product Image ${currentImageIndex + 1}`}
+                  layout="fill"
+                  objectFit="cover"
+                />
+              </div>
               {images.length > 1 && (
                 <>
                   <button
@@ -98,7 +81,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           )}
         </div>
 
-        {/* Modal Popup */}
         {isModalOpen && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
@@ -111,11 +93,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               >
                 Close
               </button>
-              <img
-                src={images[currentImageIndex]}
-                alt={`Product Image ${currentImageIndex + 1}`}
-                className="max-w-full max-h-screen rounded-lg"
-              />
+              <div className="size-64 relative">
+                <Image
+                  src={images[currentImageIndex]}
+                  alt={`Product Image ${currentImageIndex + 1}`}
+                  layout="fill"
+                  objectFit="cover"
+                />
+              </div>
             </div>
           </div>
         )}
@@ -151,5 +136,5 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         </div>
       </div>
     </main>
-  )
+  );
 }

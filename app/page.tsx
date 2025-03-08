@@ -1,20 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import { Input } from "../components/ui/input";
 import { ProductCard } from "../components/product-card";
 import { useDebounce } from "../hooks/use-debounce";
 import InfiniteScroll from "react-infinite-scroll-component";
-
-interface Product {
-  id: string;
-  name: string | null;
-  description: string | null;
-  views: number;
-  forwards: number;
-  reactions: [string, number][];
-  posted_at: string;
-}
+import { ProductFilter } from "@/products/schema";
+import { DEFAULT_FILTERS, useProducts } from "@/products/hooks/useProducts";
+import LoadingIcon from "@/components/state/loading";
 
 function LoadingSpinner() {
   return (
@@ -25,75 +18,20 @@ function LoadingSpinner() {
 }
 
 export default function Home() {
-  const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const debouncedSearch = useDebounce(search, 500);
+  const [filters, setFilters] = useState<ProductFilter>(DEFAULT_FILTERS);
+  const debouncedSearch = useDebounce(filters.query, 500);
 
-  const fetchProducts = useCallback(
-    async (pageNumber: number, isNewSearch = false) => {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams({
-          page: pageNumber.toString(),
-          page_size: "20",
-          ...(debouncedSearch && { query: debouncedSearch }),
-        });
+  const { products, isLoading, isError , error} = useProducts({
+    ...filters,
+    query: debouncedSearch,
+  });
 
-        const url = `api/v1/products/?${params}`;
-        console.log("Fetching from URL:", url);
-
-        const response = await fetch(url);
-        console.log("Response status:", response.status);
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log(
-          "Received data:",
-          JSON.stringify(data).slice(0, 200) + "..."
-        );
-
-        if (!data || !data.data || !Array.isArray(data.data.items)) {
-          throw new Error("Invalid data structure received from API");
-        }
-
-        if (isNewSearch) {
-          setProducts(data.data.items);
-        } else {
-          setProducts((prevProducts) => [...prevProducts, ...data.data.items]);
-        }
-        // If we receive less than 20 items, assume it's the last page
-        setHasMore(data.data.items.length === 20);
-        console.log("Products set, count:", data.data.items.length);
-      } catch (error) {
-        console.error("Caught error:", error);
-        console.error("Error details:", JSON.stringify(error, null, 2));
-        setError(
-          error instanceof Error ? error.message : "An unknown error occurred"
-        );
-      } finally {
-        setLoading(false);
-      }
-    },
-    [debouncedSearch]
-  );
-
-  useEffect(() => {
-    setPage(1);
-    fetchProducts(1, true);
-  }, [fetchProducts]);
+  console.log("products", products, isLoading, isError, error)
 
   const loadMore = () => {
-    if (!loading && hasMore) {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      fetchProducts(nextPage);
+    if (!isLoading && !products.length) {
+      setFilters({ ...filters, page: filters.page + 1 });
     }
   };
 
@@ -110,20 +48,19 @@ export default function Home() {
         />
       </div>
 
-      {error && (
+      {isError && (
         <p className="text-center text-red-500">
-          Error: {error}. Please try again later.
+          Error: occurred. Please try again later.
         </p>
       )}
 
-      {loading && products.length === 0 ? (
-        // Display spinner if initially loading and no products yet
-        <LoadingSpinner />
+      {isLoading && products.length === 0 ? (
+        <LoadingIcon className="size-8" />
       ) : (
         <InfiniteScroll
           dataLength={products.length}
           next={loadMore}
-          hasMore={hasMore}
+          hasMore={products.length == filters.pageSize}
           loader={<LoadingSpinner />}
           endMessage={<p className="text-center"></p>}
         >
@@ -135,7 +72,7 @@ export default function Home() {
         </InfiniteScroll>
       )}
 
-      {!loading && !error && products.length === 0 && (
+      {!isLoading && !isError && products.length === 0 && (
         <p className="text-center">No products found.</p>
       )}
     </main>

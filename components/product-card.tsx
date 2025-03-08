@@ -9,23 +9,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Eye, MessageSquare, Share2 } from "lucide-react";
 import Link from "next/link";
-
-// Import Swiper React components and styles
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import Image from "next/image";
+import { Product } from "@/products/schema";
 
 interface ProductCardProps {
-  product: {
-    id: string;
-    name: string | null;
-    description: string | null;
-    views: number;
-    forwards: number;
-    reactions: [string, number][];
-    posted_at: string;
-    images?: string[];
-  };
+  product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
@@ -33,18 +23,20 @@ export function ProductCard({ product }: ProductCardProps) {
     <Card className="h-full flex flex-col">
       <CardHeader>
         {product.images && product.images.length > 0 ? (
-          // Fixed container height for the carousel
           <div className="h-64 relative overflow-hidden rounded-lg bg-muted">
             <Swiper spaceBetween={10} slidesPerView={1}>
               {product.images.map((image, index) => (
                 <SwiperSlide key={index}>
-                  <Image
-                    src={image}
-                    width={400}
-                    height={500}
-                    alt={`Product Image ${index + 1}`}
-                    layout="responsive"
-                  />
+                  <div className="h-64 relative">
+                    <Image
+                      src={image}
+                      alt={`Product Image ${index + 1}`}
+                      layout="fill"
+                      objectFit="cover"
+                      sizes="size-64"
+                      className="rounded-lg"
+                    />
+                  </div>
                 </SwiperSlide>
               ))}
             </Swiper>
