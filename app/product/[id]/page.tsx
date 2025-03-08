@@ -5,6 +5,7 @@ import { Eye, MessageSquare, Share2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { useProduct } from "@/products/hooks/useProduct";
+import LoadingIcon from "@/components/state/loading";
 
 export default function ProductPage() {
   const { id } = useParams<{ id: string }>();
@@ -15,11 +16,11 @@ export default function ProductPage() {
 
 
   if (isLoading || !product) {
-    return <div>Loading...</div>;
+    return <div className="w-full h-full mx-auto my-auto"><LoadingIcon className="size-8" /></div>;
   }
 
   if (isError) {
-    return <div>Product not found</div>;
+    return <div className="text-center">Product not found</div>;
   }
 
   const postedDate = product.postedAt

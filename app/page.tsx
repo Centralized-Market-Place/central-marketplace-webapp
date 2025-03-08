@@ -5,7 +5,6 @@ import { Input } from "../components/ui/input";
 import { ProductCard } from "../components/product-card";
 import { useDebounce } from "../hooks/use-debounce";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { ProductFilter } from "@/products/schema";
 import { DEFAULT_FILTERS, useProducts } from "@/products/hooks/useProducts";
 import LoadingIcon from "@/components/state/loading";
 
@@ -19,25 +18,16 @@ function LoadingSpinner() {
 
 export default function Home() {
   const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState<ProductFilter>(DEFAULT_FILTERS);
-  const debouncedSearch = useDebounce(filters.query, 500);
+  const debouncedSearch = useDebounce(search, 500);
 
-  const { products, isLoading, isError , error} = useProducts({
-    ...filters,
+  const { products, isLoading, isError , hasNextPage, fetchNextPage} = useProducts({
+    ...DEFAULT_FILTERS,
     query: debouncedSearch,
   });
 
-  console.log("products", products, isLoading, isError, error)
-
-  const loadMore = () => {
-    if (!isLoading && !products.length) {
-      setFilters({ ...filters, page: filters.page + 1 });
-    }
-  };
-
   return (
-    <main className="container py-6 space-y-6 mx-auto">
-      <div className="max-w-2xl mx-auto text-center space-y-4">
+    <main className="container mt-20 px-4 mx-auto">
+      <div className="max-w-2xl mx-auto text-center mb-4 space-y-4">
         <h1 className="text-3xl font-bold">Search and find anything</h1>
         <Input
           type="search"
@@ -59,8 +49,8 @@ export default function Home() {
       ) : (
         <InfiniteScroll
           dataLength={products.length}
-          next={loadMore}
-          hasMore={products.length == filters.pageSize}
+          next={fetchNextPage}
+          hasMore={!!hasNextPage}
           loader={<LoadingSpinner />}
           endMessage={<p className="text-center"></p>}
         >

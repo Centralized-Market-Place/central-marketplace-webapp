@@ -13,13 +13,11 @@ import { useTheme } from "next-themes";
 import { useAuthContext } from "@/providers/auth-context";
 
 export function Header() {
-  const { user, logout} = useAuthContext();
+  const { user, logout } = useAuthContext();
   const { setTheme, theme } = useTheme();
 
- 
-
   return (
-    <header className="border-b">
+    <header className="border-b fixed top-0 left-0 w-full bg-white dark:bg-background z-50">
       <div className="container flex items-center justify-between h-16 ml-20">
         <Link href="/" className="font-bold text-xl">
           Marketplace
@@ -35,9 +33,7 @@ export function Header() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={logout}>
-                  Logout
-                </DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
