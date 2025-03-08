@@ -46,17 +46,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(false);
   }, []);
 
-
-  console.log("pathname", pathName)
+  console.log("pathname", pathName);
 
   useEffect(() => {
-    console.log(loading, user);
     if (!loading && !user) {
       if (!PUBLIC_PATH.includes(pathName)) {
+        setLoading(true);
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         router.push("/login");
         query.clear();
+        setLoading(false);
       }
     }
   }, [loading, user, pathName, router, query]);
