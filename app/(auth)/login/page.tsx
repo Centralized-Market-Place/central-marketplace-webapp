@@ -18,7 +18,7 @@ export default function LoginPage() {
   const { login, loginLoading } = useAuth();
 
   return (
-    <main className="container max-w-md py-12 mx-auto">
+    <main className="container max-w-md mt-16 py-12 mx-auto">
       <Card>
         <CardHeader>
           <CardTitle>{"Login"}</CardTitle>
