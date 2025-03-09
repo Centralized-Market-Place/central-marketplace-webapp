@@ -43,7 +43,7 @@ const TelegramLoginButton = () => {
   }, [telegramLogin, router]);
 
   return (
-    <div>
+    <div className="my-1 mb-2">
       <div id="telegram-login-container" />
     </div>
   );

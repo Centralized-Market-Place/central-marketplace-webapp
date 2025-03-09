@@ -18,16 +18,26 @@ export const UserRegisterSchema = z.object({
 
 export const UserRole = z.enum(["USER", "SELLER", "ADMIN"])
 
+export const TelegramDataSchema = z.object({
+    telegram_id: z.number(),
+    first_name: z.string(),
+    last_name: z.string().nullable(),
+    username: z.string().nullable(),
+    photo_url: z.string().nullable(),
+    auth_date: z.date(),
+})
+
 export const UserSchema = z.object({
     id: z.string(),
     name: z.string(),
-    email: z.string().email(),
+    email: z.string().email().nullable(),
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
     image: z.string().nullable(),
     role: UserRole,
     lastLogin: z.coerce.date().nullable(),
     isVerified: z.boolean(),
+    telegram: TelegramDataSchema.nullable(),
 
 })
 
@@ -52,3 +62,5 @@ export type User = z.infer<typeof UserSchema>;
 export type UserRoleType = z.infer<typeof UserRole>;
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;
 export type TelegramLogin = z.infer<typeof TelegramLoginSchema>;
+export type TelegramData = z.infer<typeof TelegramDataSchema>;
+
