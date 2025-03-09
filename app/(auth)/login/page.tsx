@@ -38,7 +38,7 @@ export default function LoginPage() {
           />
         </CardContent>
         <CardFooter className="flex flex-col items-center">
-          <TelegramLoginButton login />
+          <TelegramLoginButton />
           <Button
             type="button"
             variant="link"

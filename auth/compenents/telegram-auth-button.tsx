@@ -1,8 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { TelegramLogin } from "../shema";
-import { Button } from "@/components/ui/button";
+
 import { useRouter } from "next/navigation";
 
 declare global {
@@ -11,14 +11,11 @@ declare global {
   }
 }
 
-const TelegramLoginButton = ({ login = false}: { login?: boolean }) => {
-  const [showWidget, setShowWidget] = useState(false);
+const TelegramLoginButton = () => {
   const router = useRouter();
-  const { telegramLogin, telegramLoginLoading } = useAuth();
+  const { telegramLogin } = useAuth();
 
   useEffect(() => {
-    if (!showWidget) return;
-
     window.onTelegramAuth = async (user: TelegramLogin) => {
       console.log("Telegram auth callback received user:", user);
       telegramLogin({
@@ -43,18 +40,11 @@ const TelegramLoginButton = ({ login = false}: { login?: boolean }) => {
     return () => {
       delete window.onTelegramAuth;
     };
-  }, [showWidget, telegramLogin, router]);
+  }, [telegramLogin, router]);
 
   return (
     <div>
-      <Button
-        disabled={telegramLoginLoading}
-        onClick={() => setShowWidget(true)}
-      >
-        {login ? "Login with Telegram" : "Register with Telegram"}
-      </Button>
-
-      {showWidget && <div id="telegram-login-container" />}
+      <div id="telegram-login-container" />
     </div>
   );
 };
