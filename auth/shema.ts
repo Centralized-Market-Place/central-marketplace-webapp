@@ -27,7 +27,7 @@ export const UserRole = z.enum(["USER", "SELLER", "ADMIN"]);
 
 export const TelegramDataSchema = z.object({
   telegramId: z.number(),
-  firstNme: z.string(),
+  firstName: z.string(),
   lastName: z.string().nullable(),
   username: z.string().nullable(),
   photoUrl: z.string().nullable(),
