@@ -54,7 +54,7 @@ const TelegramLoginButton = ({ login = false}: { login?: boolean }) => {
         {login ? "Login with Telegram" : "Register with Telegram"}
       </Button>
 
-      {showWidget && <div className="hidden" id="telegram-login-container" />}
+      {showWidget && <div id="telegram-login-container" />}
     </div>
   );
 };
