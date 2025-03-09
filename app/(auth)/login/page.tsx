@@ -12,6 +12,7 @@ import {
 import LoginForm from "@/auth/compenents/login-form";
 import { useAuth } from "@/auth/hooks/useAuth";
 import { UserLogin } from "@/auth/shema";
+import TelegramLoginButton from "@/auth/compenents/telegram-auth-button";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,7 +37,8 @@ export default function LoginPage() {
             isLoading={loginLoading}
           />
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex flex-col items-center">
+          <TelegramLoginButton login />
           <Button
             type="button"
             variant="link"

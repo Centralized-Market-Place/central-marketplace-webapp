@@ -31,6 +31,16 @@ export const UserSchema = z.object({
 
 })
 
+export const TelegramLoginSchema = z.object({
+    id: z.number(),
+    first_name: z.string(),
+    last_name: z.string().nullable(),
+    username: z.string().nullable(),
+    photo_url: z.string().nullable(),
+    auth_date: z.number(),
+    hash: z.string(),
+})
+
 export const AuthResponseSchema = z.object({
     user: UserSchema,
     token: z.string(),
@@ -41,3 +51,4 @@ export type UserRegister = z.infer<typeof UserRegisterSchema>;
 export type User = z.infer<typeof UserSchema>;
 export type UserRoleType = z.infer<typeof UserRole>;
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;
+export type TelegramLogin = z.infer<typeof TelegramLoginSchema>;
