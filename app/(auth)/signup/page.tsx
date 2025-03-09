@@ -12,6 +12,7 @@ import {
 import { useAuth } from "@/auth/hooks/useAuth";
 import { UserRegister } from "@/auth/shema";
 import SignUpForm from "@/auth/compenents/signup-form";
+import TelegramLoginButton from "@/auth/compenents/telegram-auth-button";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -37,7 +38,8 @@ export default function SignUpPage() {
             isLoading={signUpLoading}
           />
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex flex-col items-center">
+          <TelegramLoginButton />
           <Button
             type="button"
             variant="link"

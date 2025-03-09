@@ -3,6 +3,7 @@ import { apiPost } from "../../services/api";
 import {
   AuthResponse,
   AuthResponseSchema,
+  TelegramLogin,
   User,
   UserLogin,
   UserRegister,
@@ -28,6 +29,25 @@ export function useAuth() {
       userLogin
     );
   };
+
+  const loginWithTelegram =  async (
+    {
+      telegramLogin
+    } : {
+      telegramLogin: TelegramLogin;
+      onSuccess?: () => void;
+      onError?: () => void;
+
+    }
+  ) => {
+
+    return apiPost<AuthResponse>(
+      `${baseUrl}/telegram`,
+      AuthResponseSchema,
+      telegramLogin
+    );
+
+  }
 
   const signUp = async ({
     userRegister,
@@ -70,10 +90,30 @@ export function useAuth() {
     },
   });
 
+  const telegramLoginMutation = useMutation({
+    mutationFn: loginWithTelegram,
+    onSuccess: (data, variables) => {
+      const { onSuccess } = variables;
+      onSuccess?.();
+      setCredential(data.data.user, data.data.token);
+      alert?.success("logged in Successfully!");
+    },
+    onError: (_error, variables) => {
+      console.log("error", _error);
+      const { onError } = variables;
+      onError?.();
+      alert?.error("Error occurred when trying to login");
+    },
+  });
+
+
+
   return {
     login: loginMutation.mutate,
     signUp: signUpMutation.mutate,
     signUpLoading: signUpMutation.isPending,
     loginLoading: loginMutation.isPending,
+    telegramLogin: telegramLoginMutation.mutate,
+    telegramLoginLoading: telegramLoginMutation.isPending,
   };
 }
