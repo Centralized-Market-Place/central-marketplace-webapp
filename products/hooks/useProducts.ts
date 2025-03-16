@@ -9,6 +9,7 @@ export const DEFAULT_FILTERS: ProductFilter = {
   query: "",
   sortBy: "createdAt",
   sortDesc: true,
+  channelId: "",
 };
 
 const buildQuery = (filters: ProductFilter) => {
@@ -22,11 +23,14 @@ const buildQuery = (filters: ProductFilter) => {
   if (filters.sortDesc) {
     query += `&sortDesc=${filters.sortDesc}`;
   }
+  if (filters.channelId) {
+    query += `&channelId=${filters.channelId}`;
+  }
   return query;
 };
 
 export function useProducts(filters: ProductFilter = DEFAULT_FILTERS) {
-  const baseUrl = `api/v1/products`;
+  const baseUrl = `/api/v1/products`;
   const query = buildQuery(filters);
 
   const getProducts = ({ pageParam = 1 }: { pageParam?: number }) => {

@@ -38,6 +38,7 @@ export const ProductFilterSchema = z.object({
   query: z.string().optional(),
   sortBy: z.string().optional(),
   sortDesc: z.boolean().optional(),
+  channelId: z.string().optional(),
 });
 
 export type Category = z.infer<typeof CategorySchema>;
