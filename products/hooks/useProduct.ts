@@ -16,8 +16,6 @@ export function useProduct(productId: string) {
         queryFn: getProduct,
     })
 
-    console.log("error", productQuery.error);
-
     return {
         product: productQuery.data?.data,
         isLoading: productQuery.isLoading,
