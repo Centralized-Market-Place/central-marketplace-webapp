@@ -23,7 +23,7 @@ interface ProductModalProps {
 
 export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
   const [activeTab, setActiveTab] = useState("details")
-  const { createReaction, isLoading } = useReaction()
+  const { createReaction, isLoading } = useReaction(product.id)
   const { isAuthenticated } = useAuthContext()
 
   const handleReaction = (reactionType: "upvote" | "downvote") => {

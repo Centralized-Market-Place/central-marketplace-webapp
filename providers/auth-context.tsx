@@ -46,8 +46,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(false);
   }, []);
 
-  console.log("pathname", pathName);
-
   useEffect(() => {
     if (!loading && !user) {
       if (!PUBLIC_PATH.includes(pathName)) {
@@ -60,7 +58,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     }
     if (!loading && user) {
-      console.log("user", user);
       if (["/login", "/signup"].includes(pathName)) {
         router.push("/");
       }

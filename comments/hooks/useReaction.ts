@@ -3,10 +3,10 @@ import { Reaction, ReactionSave, ReactionSchema } from "../schema";
 import { apiGet, apiPost } from "@/services/api";
 import { useAuthContext } from "@/providers/auth-context";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { productKeys } from "@/products/utils";
-import { commentKeys, reactionKeys } from "../utils";
 import humps from "humps";
 import { API_URL } from "@/lib/utils";
+import { commentKeys, reactionKeys } from "../utils";
+import { productKeys } from "@/products/utils";
 
 export function useReaction(targetId: string) {
   const baseUrl = `${API_URL}/api/v1/reactions/`;
@@ -42,13 +42,17 @@ export function useReaction(targetId: string) {
       const { onSuccess } = varaibles;
       alert?.success("Reaction created successfully");
       onSuccess?.();
+      queryClient.invalidateQueries({
+        queryKey: reactionKeys.detail(targetId),
+      });
       if (data.data.targetType === "product") {
         queryClient.invalidateQueries({
-          queryKey: productKeys.all,
+          queryKey: productKeys.detail(targetId),
         });
-      } else if (data.data.targetType === "comment") {
+      }
+      if (data.data.targetType === "comment") {
         queryClient.invalidateQueries({
-          queryKey: commentKeys.all,
+          queryKey: commentKeys.detail(targetId),
         });
       }
     },

@@ -67,7 +67,6 @@ export function useAuth() {
       alert?.success("logged in successfully!");
     },
     onError: (_error, variables) => {
-      console.log("error", _error);
       const { onError } = variables;
       onError?.();
       alert?.error("Error occurred when trying to sign up");
@@ -83,7 +82,6 @@ export function useAuth() {
       alert?.success("logged in Successfully!");
     },
     onError: (_error, variables) => {
-      console.log("error", _error);
       const { onError } = variables;
       onError?.();
       alert?.error("Error occurred when trying to login");
@@ -99,7 +97,6 @@ export function useAuth() {
       alert?.success("logged in Successfully!");
     },
     onError: (_error, variables) => {
-      console.log("error", _error);
       const { onError } = variables;
       onError?.();
       alert?.error("Error occurred when trying to login");

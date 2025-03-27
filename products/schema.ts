@@ -1,4 +1,3 @@
-import { ReactionType } from "@/comments/schema";
 import { z } from "zod";
 
 export const CategorySchema = z.object({

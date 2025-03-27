@@ -16,6 +16,7 @@ import { cn, formatNumber } from "@/lib/utils";
 import { useReaction } from "@/comments/hooks/useReaction";
 import { useAuthContext } from "@/providers/auth-context";
 import { SwiperSlide, Swiper } from "swiper/react";
+import { useProduct } from "../hooks/useProduct";
 
 interface ProductCardProps {
   product: Product;
@@ -23,7 +24,10 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { createReaction, isLoading, reaction, isReactionLoading } = useReaction(product.id);
+  const { createReaction, isLoading, reaction, isReactionLoading } =
+    useReaction(product.id);
+
+  const { product: freshProduct } = useProduct(product.id);
   const { isAuthenticated } = useAuthContext();
 
   const handleReaction = (reactionType: "upvote" | "downvote") => {
@@ -34,9 +38,6 @@ export function ProductCard({ product }: ProductCardProps) {
         targetId: product.id,
         targetType: "product",
         reactionType,
-      },
-      onSuccess: () => {
-        // Reaction created successfully
       },
     });
   };
@@ -111,34 +112,34 @@ export function ProductCard({ product }: ProductCardProps) {
                 size="sm"
                 className="flex items-center gap-1"
                 onClick={() => handleReaction("upvote")}
-                disabled={isLoading || !isAuthenticated}
+                disabled={isLoading || !isAuthenticated || isReactionLoading}
               >
                 <ThumbsUp
                   size={14}
                   className={cn(
-                    product.myReaction &&
-                      product.myReaction === "upvote" &&
-                      "stroke-primary fill-primary"
+                    reaction &&
+                      reaction.reactionType === "upvote" &&
+                      "fill-current"
                   )}
                 />
-                {formatNumber(product.upvotes)}
+                {formatNumber(freshProduct?.upvotes || 0)}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 className="flex items-center gap-1"
                 onClick={() => handleReaction("downvote")}
-                disabled={isLoading || !isAuthenticated}
+                disabled={isLoading || !isAuthenticated || isReactionLoading}
               >
                 <ThumbsDown
                   size={14}
                   className={cn(
-                    product.myReaction &&
-                      product.myReaction === "downvote" &&
-                      "stroke-primary fill-primary"
+                    reaction &&
+                      reaction.reactionType === "downvote" &&
+                      "fill-current"
                   )}
                 />
-                {formatNumber(product.downvotes)}
+                {formatNumber(freshProduct?.downvotes || 0)}
               </Button>
             </div>
           </div>
