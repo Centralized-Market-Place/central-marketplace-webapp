@@ -2,28 +2,29 @@
 
 import { useState } from "react";
 import { Input } from "../components/ui/input";
-import { ProductCard } from "../components/product-card";
+import { ProductCard } from "@/products/components/product-card";
 import { useDebounce } from "../hooks/use-debounce";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { DEFAULT_FILTERS, useProducts } from "@/products/hooks/useProducts";
 import LoadingIcon from "@/components/state/loading";
 
-function LoadingSpinner() {
-  return (
-    <div className="flex justify-center items-center py-6">
-      <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-    </div>
-  );
-}
+// function LoadingSpinner() {
+//   return (
+//     <div className="flex justify-center items-center py-6">
+//       <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+//     </div>
+//   );
+// }
 
 export default function Home() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const { products, isLoading, isError , hasNextPage, fetchNextPage} = useProducts({
-    ...DEFAULT_FILTERS,
-    query: debouncedSearch,
-  });
+  const { products, isLoading, isError, hasNextPage, fetchNextPage } =
+    useProducts({
+      ...DEFAULT_FILTERS,
+      query: debouncedSearch,
+    });
 
   return (
     <main className="container mt-20 px-4 mx-auto">
@@ -51,7 +52,16 @@ export default function Home() {
           dataLength={products.length}
           next={fetchNextPage}
           hasMore={!!hasNextPage}
-          loader={<LoadingSpinner />}
+          loader={
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-72 bg-muted animate-pulse rounded-lg my-6"
+                ></div>
+              ))}
+            </div>
+          }
           endMessage={<p className="text-center"></p>}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

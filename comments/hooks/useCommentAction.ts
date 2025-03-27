@@ -4,9 +4,10 @@ import { Comment, CommentSave, CommentSchema } from "../schema";
 import { useAuthContext } from "@/providers/auth-context";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { commentKeys } from "../utils";
+import { API_URL } from "@/lib/utils";
 
 export function useCommentAction(productId: string) {
-  const baseUrl = `/api/v1/posts/${productId}/comments`;
+  const baseUrl = `${API_URL}/api/v1/posts/${productId}/comments`;
   const alert = useAlert();
   const queryClient = useQueryClient();
   const { token } = useAuthContext();

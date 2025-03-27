@@ -1,3 +1,4 @@
+import { ReactionType } from "@/comments/schema";
 import { z } from "zod";
 
 export const CategorySchema = z.object({
@@ -21,6 +22,8 @@ export const ProductSchema = z.object({
   images: z.array(z.string()),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  upvotes: z.number(),
+  downvotes: z.number(),
   postedAt: z.coerce.date().optional(),
   reactions: z.array(z.tuple([z.string(), z.number()])),
 });

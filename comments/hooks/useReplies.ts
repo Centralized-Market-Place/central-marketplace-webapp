@@ -2,12 +2,13 @@ import { apiGet } from "@/services/api";
 import { Comments, CommentsSchema } from "../schema";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { replyKeys } from "../utils";
+import { API_URL } from "@/lib/utils";
 
 const buildQuery = (page: number, size: number) => {
   return `?page=${page}&pageSize=${size}`;
 };
 export function useReplies(size: number, commentId: string) {
-  const baseUrl = `/api/v1/comments/${commentId}/replies`;
+  const baseUrl = `${API_URL}/api/v1/comments/${commentId}/replies`;
 
   const getReplies = ({ pageParam = 1 }: { pageParam?: number }) => {
     const queryString = buildQuery(pageParam, size);
