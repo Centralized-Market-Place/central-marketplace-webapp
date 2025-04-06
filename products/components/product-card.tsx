@@ -1,6 +1,5 @@
 "use client";
 
-import type { Product } from "@/products/schema";
 import {
   Card,
   CardContent,
@@ -19,15 +18,16 @@ import { SwiperSlide, Swiper } from "swiper/react";
 import { useProduct } from "../hooks/useProduct";
 
 interface ProductCardProps {
-  product: Product;
+  productId: string;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ productId }: ProductCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user } = useAuthContext();
   const { createReaction, isLoading, reaction, isReactionLoading } =
-    useReaction(product.id);
+    useReaction(productId);
 
-  const { product: freshProduct } = useProduct(product.id);
+  const { product, isLoading: isProductLoading } = useProduct(productId);
   const { isAuthenticated } = useAuthContext();
 
   const handleReaction = (reactionType: "upvote" | "downvote") => {
@@ -35,30 +35,36 @@ export function ProductCard({ product }: ProductCardProps) {
 
     createReaction({
       reactionSave: {
-        targetId: product.id,
+        targetId: productId,
         targetType: "product",
         reactionType,
       },
     });
   };
 
+  if (isProductLoading || !product) {
+    return (
+      <div className="h-[28rem] bg-muted animate-pulse rounded-lg my-6"></div>
+    );
+  }
+
   return (
     <>
-      <Card className="h-full rounded-lg flex flex-col transition-all duration-200 hover:shadow-md">
-        <CardHeader className="p-0">
+      <Card className="h-[28rem] flex flex-col transition-all duration-200 hover:shadow-md">
+        <CardHeader className="h-[14rem] p-0 overflow-hidden">
           {product.images && product.images.length > 0 ? (
-            <div className="h-64 relative overflow-hidden rounded-lg bg-muted">
+            <div className="h-full relative overflow-hidden bg-muted">
               <Swiper spaceBetween={10} slidesPerView={1}>
                 {product.images.map((image, index) => (
                   <SwiperSlide key={index}>
-                    <div className="h-64 relative">
+                    <div className="h-full relative">
                       <Image
                         src={image}
                         alt={`Product Image ${index + 1}`}
-                        layout="fill"
                         objectFit="cover"
-                        sizes="size-64"
-                        className="rounded-lg"
+                        width={500}
+                        height={500}
+                        className="w-full h-full object-cover"
                       />
                     </div>
                   </SwiperSlide>
@@ -66,25 +72,25 @@ export function ProductCard({ product }: ProductCardProps) {
               </Swiper>
             </div>
           ) : (
-            <div className="aspect-square relative bg-muted rounded-lg">
+            <div className="h-full relative bg-muted">
               <p className="absolute inset-0 flex items-center justify-center text-muted-foreground">
                 No Images Available
               </p>
             </div>
           )}
         </CardHeader>
-        <CardContent className="flex-grow p-4">
+        <CardContent className="h-[9rem] p-4 overflow-hidden">
           <h3 className="font-semibold text-lg line-clamp-1">
             {product.name || "Unnamed Product"}
           </h3>
-          <p className="text-muted-foreground text-sm truncate mt-1">
+          <p className="text-muted-foreground text-sm line-clamp-3 mt-1">
             {product.description || "No description available"}
           </p>
           {product.price !== null && product.price !== undefined && (
             <p className="font-bold mt-2">${product.price.toFixed(2)}</p>
           )}
         </CardContent>
-        <CardFooter className="p-4 pt-0 flex flex-col gap-2">
+        <CardFooter className="h-[5rem] p-4 pt-0 flex flex-col gap-2">
           <div className="flex items-center justify-between w-full text-sm text-muted-foreground">
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1">
@@ -105,7 +111,7 @@ export function ProductCard({ product }: ProductCardProps) {
               View Details
             </Button>
           </div>
-          <div className="flex items-center justify-between w-full mt-2">
+          {user && (
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
@@ -122,7 +128,7 @@ export function ProductCard({ product }: ProductCardProps) {
                       "fill-current"
                   )}
                 />
-                {formatNumber(freshProduct?.upvotes || 0)}
+                {formatNumber(product?.upvotes || 0)}
               </Button>
               <Button
                 variant="outline"
@@ -139,10 +145,10 @@ export function ProductCard({ product }: ProductCardProps) {
                       "fill-current"
                   )}
                 />
-                {formatNumber(freshProduct?.downvotes || 0)}
+                {formatNumber(product?.downvotes || 0)}
               </Button>
             </div>
-          </div>
+          )}
         </CardFooter>
       </Card>
 

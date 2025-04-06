@@ -11,9 +11,10 @@ import {
 } from "../shema";
 import { useAuthContext } from "../../providers/auth-context";
 import { useAlert } from "@/providers/alert-provider";
+import { API_URL } from "@/lib/utils";
 
 export function useAuth() {
-  const baseUrl = `/api/v1/users`;
+  const baseUrl = `${API_URL}/api/v1/users`;
   const { setCredential } = useAuthContext();
   const alert = useAlert();
   const login = async ({

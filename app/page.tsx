@@ -6,7 +6,6 @@ import { ProductCard } from "@/products/components/product-card";
 import { useDebounce } from "../hooks/use-debounce";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { DEFAULT_FILTERS, useProducts } from "@/products/hooks/useProducts";
-import LoadingIcon from "@/components/state/loading";
 
 // function LoadingSpinner() {
 //   return (
@@ -45,9 +44,7 @@ export default function Home() {
         </p>
       )}
 
-      {isLoading && products.length === 0 ? (
-        <LoadingIcon className="size-8" />
-      ) : (
+      {
         <InfiniteScroll
           dataLength={products.length}
           next={fetchNextPage}
@@ -57,20 +54,20 @@ export default function Home() {
               {Array.from({ length: 8 }).map((_, index) => (
                 <div
                   key={index}
-                  className="h-72 bg-muted animate-pulse rounded-lg my-6"
+                  className="h-[400px] bg-muted animate-pulse rounded-lg"
                 ></div>
               ))}
             </div>
           }
           endMessage={<p className="text-center"></p>}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.id} productId={product.id} />
             ))}
           </div>
         </InfiniteScroll>
-      )}
+      }
 
       {!isLoading && !isError && products.length === 0 && (
         <p className="text-center">No products found.</p>

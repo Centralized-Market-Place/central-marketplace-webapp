@@ -1,15 +1,23 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import type { Comment } from "@/comments/schema"
-import { Avatar } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { useReaction } from "@/comments/hooks/useReaction"
-import { useReplyAction } from "@/comments/hooks/useReplyAction"
-import { useAuthContext } from "@/providers/auth-context"
-import { formatDistanceToNow } from "date-fns"
-import { ThumbsDown, ThumbsUp, Trash2, Edit, X, Check } from "lucide-react"
+import { useState } from "react";
+import type { Comment } from "@/comments/schema";
+import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useReaction } from "@/comments/hooks/useReaction";
+import { useReplyAction } from "@/comments/hooks/useReplyAction";
+import { useAuthContext } from "@/providers/auth-context";
+import { formatDistanceToNow } from "date-fns";
+import {
+  ThumbsDown,
+  ThumbsUp,
+  Trash2,
+  Edit,
+  X,
+  Check,
+  User2,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,26 +27,33 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 interface ReplyItemProps {
-  reply: Comment
-  commentId: string
+  reply: Comment;
+  commentId: string;
 }
 
 export function ReplyItem({ reply, commentId }: ReplyItemProps) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [editText, setEditText] = useState(reply.message)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(reply.message);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const { createReaction, isLoading: isReactionLoading } = useReaction()
-  const { updateReply, deleteReply, isUpdatingReply, isDeletingReply } = useReplyAction(commentId)
-  const { isAuthenticated, user } = useAuthContext()
+  const { createReaction, isLoading, reaction, isReactionLoading } =
+    useReaction(reply.id);
+  const { updateReply, deleteReply, isUpdatingReply, isDeletingReply } =
+    useReplyAction(commentId);
+  const { isAuthenticated, user } = useAuthContext();
 
-  const isReplyOwner = user?.id === reply.userId
+  const isReplyOwner = user?.id === reply.userId;
+  const [reacted, setReacted] = useState({
+    like: 0,
+    dislike: 0,
+  });
 
   const handleReaction = (reactionType: "like" | "dislike") => {
-    if (!isAuthenticated) return
+    if (!isAuthenticated) return;
 
     createReaction({
       reactionSave: {
@@ -46,13 +61,19 @@ export function ReplyItem({ reply, commentId }: ReplyItemProps) {
         targetType: "comment",
         reactionType,
       },
-    })
-  }
+      onSuccess: () => {
+        setReacted({
+          ...reacted,
+          [reactionType]: reacted[reactionType] + 1,
+        });
+      },
+    });
+  };
 
   const handleUpdateReply = () => {
     if (!editText.trim() || editText === reply.message) {
-      setIsEditing(false)
-      return
+      setIsEditing(false);
+      return;
     }
 
     updateReply({
@@ -61,31 +82,39 @@ export function ReplyItem({ reply, commentId }: ReplyItemProps) {
         message: editText,
       },
       onSuccess: () => {
-        setIsEditing(false)
+        setIsEditing(false);
       },
-    })
-  }
+    });
+  };
 
   const handleDeleteReply = () => {
     deleteReply({
       replyId: reply.id,
       onSuccess: () => {
-        setIsDeleteDialogOpen(false)
+        setIsDeleteDialogOpen(false);
+        setReacted({
+          like: 0,
+          dislike: 0,
+        });
       },
-    })
-  }
+    });
+  };
 
   return (
     <div className="py-2">
       <div className="flex gap-2">
-        <Avatar className="h-8 w-8">{/* User avatar would go here */}</Avatar>
+        <Avatar className="size-6 flex items-center justify-center border-[1px] rounded-full">
+          <User2 className="size-3" />
+        </Avatar>
 
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="font-semibold text-sm">User</span>
               <span className="text-xs text-muted-foreground">
-                {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true })}
+                {formatDistanceToNow(new Date(reply.createdAt), {
+                  addSuffix: true,
+                })}
               </span>
             </div>
 
@@ -126,8 +155,8 @@ export function ReplyItem({ reply, commentId }: ReplyItemProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setIsEditing(false)
-                    setEditText(reply.message)
+                    setIsEditing(false);
+                    setEditText(reply.message);
                   }}
                   disabled={isUpdatingReply}
                   className="h-7 text-xs"
@@ -138,7 +167,11 @@ export function ReplyItem({ reply, commentId }: ReplyItemProps) {
                 <Button
                   size="sm"
                   onClick={handleUpdateReply}
-                  disabled={!editText.trim() || editText === reply.message || isUpdatingReply}
+                  disabled={
+                    !editText.trim() ||
+                    editText === reply.message ||
+                    isUpdatingReply
+                  }
                   className="h-7 text-xs"
                 >
                   <Check size={12} className="mr-1" />
@@ -156,31 +189,47 @@ export function ReplyItem({ reply, commentId }: ReplyItemProps) {
               size="sm"
               className="flex items-center gap-1 h-6 px-2 text-xs"
               onClick={() => handleReaction("like")}
-              disabled={isReactionLoading || !isAuthenticated}
+              disabled={isReactionLoading || !isAuthenticated || isLoading}
             >
-              <ThumbsUp size={12} />
-              {reply.likes}
+              <ThumbsUp
+                className={cn(
+                  reaction && reaction.reactionType === "like" && "fill-current"
+                )}
+                size={12}
+              />
+              {reply.likes + reacted.like}
             </Button>
             <Button
               variant="ghost"
               size="sm"
               className="flex items-center gap-1 h-6 px-2 text-xs"
               onClick={() => handleReaction("dislike")}
-              disabled={isReactionLoading || !isAuthenticated}
+              disabled={isReactionLoading || !isAuthenticated || isLoading}
             >
-              <ThumbsDown size={12} />
-              {reply.dislikes}
+              <ThumbsDown
+                className={cn(
+                  reaction &&
+                    reaction.reactionType === "dislike" &&
+                    "fill-current"
+                )}
+                size={12}
+              />
+              {reply.dislikes + reacted.dislike}
             </Button>
           </div>
         </div>
       </div>
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your reply.
+              This action cannot be undone. This will permanently delete your
+              reply.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -195,6 +244,5 @@ export function ReplyItem({ reply, commentId }: ReplyItemProps) {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }
-

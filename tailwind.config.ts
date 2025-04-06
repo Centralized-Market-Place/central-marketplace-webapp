@@ -6,6 +6,9 @@ export default {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./products/**/*.{js,ts,jsx,tsx,mdx}",
+    "./comments/**/*.{js,ts,jsx,tsx,mdx}",
+    "!./**/.*/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -69,5 +72,5 @@ export default {
     },
   },
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/line-clamp")],
 } satisfies Config;

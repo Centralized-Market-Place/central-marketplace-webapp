@@ -1,17 +1,26 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import type { Comment } from "@/comments/schema"
-import { Avatar } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { ReplySection } from "./reply-section"
-import { useReaction } from "@/comments/hooks/useReaction"
-import { useCommentAction } from "@/comments/hooks/useCommentAction"
-import { useAuthContext } from "@/providers/auth-context"
-import { formatDistanceToNow } from "date-fns"
-import { MessageSquare, ThumbsDown, ThumbsUp, Trash2, Edit, X, Check } from "lucide-react"
+import { useState } from "react";
+import type { Comment } from "@/comments/schema";
+import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { ReplySection } from "./reply-section";
+import { useReaction } from "@/comments/hooks/useReaction";
+import { useCommentAction } from "@/comments/hooks/useCommentAction";
+import { useAuthContext } from "@/providers/auth-context";
+import { formatDistanceToNow } from "date-fns";
+import {
+  MessageSquare,
+  ThumbsDown,
+  ThumbsUp,
+  Trash2,
+  Edit,
+  X,
+  Check,
+  User2,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,27 +30,34 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 interface CommentItemProps {
-  comment: Comment
+  comment: Comment;
 }
 
 export function CommentItem({ comment }: CommentItemProps) {
-  const [isReplying, setIsReplying] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-  const [showReplies, setShowReplies] = useState(false)
-  const [editText, setEditText] = useState(comment.message)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isReplying, setIsReplying] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showReplies, setShowReplies] = useState(false);
+  const [editText, setEditText] = useState(comment.message);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [reacted, setReacted] = useState({
+    like: 0,
+    dislike: 0,
+  });
 
-  const { createReaction, isLoading: isReactionLoading } = useReaction()
-  const { updateComment, deleteComment, isUpdatingComment, isDeletingComment } = useCommentAction(comment.postId)
-  const { isAuthenticated, user } = useAuthContext()
+  const { createReaction, isLoading, reaction, isReactionLoading } =
+    useReaction(comment.id);
+  const { updateComment, deleteComment, isUpdatingComment, isDeletingComment } =
+    useCommentAction(comment.productId);
+  const { isAuthenticated, user } = useAuthContext();
 
-  const isCommentOwner = user?.id === comment.userId
+  const isCommentOwner = user?.id === comment.userId;
 
   const handleReaction = (reactionType: "like" | "dislike") => {
-    if (!isAuthenticated) return
+    if (!isAuthenticated) return;
 
     createReaction({
       reactionSave: {
@@ -49,13 +65,19 @@ export function CommentItem({ comment }: CommentItemProps) {
         targetType: "comment",
         reactionType,
       },
-    })
-  }
+      onSuccess: () => {
+        setReacted({
+          ...reacted,
+          [reactionType]: reacted[reactionType] + 1,
+        });
+      },
+    });
+  };
 
   const handleUpdateComment = () => {
     if (!editText.trim() || editText === comment.message) {
-      setIsEditing(false)
-      return
+      setIsEditing(false);
+      return;
     }
 
     updateComment({
@@ -64,32 +86,41 @@ export function CommentItem({ comment }: CommentItemProps) {
         message: editText,
       },
       onSuccess: () => {
-        setIsEditing(false)
+        setIsEditing(false);
       },
-    })
-  }
+    });
+  };
 
   const handleDeleteComment = () => {
     deleteComment({
       commentId: comment.id,
       onSuccess: () => {
-        setIsDeleteDialogOpen(false)
+        setIsDeleteDialogOpen(false);
+        setReacted({
+          like: 0,
+          dislike: 0,
+        });
       },
-    })
-  }
+    });
+  };
 
   return (
     <Card>
       <CardContent className="p-4">
         <div className="flex gap-3">
-          <Avatar className="h-10 w-10">{/* User avatar would go here */}</Avatar>
+          <Avatar className="size-8 flex items-center justify-center border-[1px] rounded-full">
+            {/* user icon */}
+            <User2 className="size-4" />
+          </Avatar>
 
           <div className="flex-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="font-semibold">User</span>
                 <span className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                  {formatDistanceToNow(new Date(comment.createdAt), {
+                    addSuffix: true,
+                  })}
                 </span>
               </div>
 
@@ -130,8 +161,8 @@ export function CommentItem({ comment }: CommentItemProps) {
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      setIsEditing(false)
-                      setEditText(comment.message)
+                      setIsEditing(false);
+                      setEditText(comment.message);
                     }}
                     disabled={isUpdatingComment}
                   >
@@ -141,7 +172,11 @@ export function CommentItem({ comment }: CommentItemProps) {
                   <Button
                     size="sm"
                     onClick={handleUpdateComment}
-                    disabled={!editText.trim() || editText === comment.message || isUpdatingComment}
+                    disabled={
+                      !editText.trim() ||
+                      editText === comment.message ||
+                      isUpdatingComment
+                    }
                   >
                     <Check size={16} className="mr-1" />
                     Save
@@ -162,20 +197,32 @@ export function CommentItem({ comment }: CommentItemProps) {
             size="sm"
             className="flex items-center gap-1 h-8"
             onClick={() => handleReaction("like")}
-            disabled={isReactionLoading || !isAuthenticated}
+            disabled={isLoading || !isAuthenticated || isReactionLoading}
           >
-            <ThumbsUp size={14} />
-            {comment.likes}
+            <ThumbsUp
+              className={cn(
+                reaction && reaction.reactionType === "like" && "fill-current"
+              )}
+              size={14}
+            />
+            {comment.likes + reacted.like}
           </Button>
           <Button
             variant="ghost"
             size="sm"
             className="flex items-center gap-1 h-8"
             onClick={() => handleReaction("dislike")}
-            disabled={isReactionLoading || !isAuthenticated}
+            disabled={isLoading || !isAuthenticated || isReactionLoading}
           >
-            <ThumbsDown size={14} />
-            {comment.dislikes}
+            <ThumbsDown
+              className={cn(
+                reaction &&
+                  reaction.reactionType === "dislike" &&
+                  "fill-current"
+              )}
+              size={14}
+            />
+            {comment.dislikes + reacted.dislike}
           </Button>
           <Button
             variant="ghost"
@@ -189,7 +236,11 @@ export function CommentItem({ comment }: CommentItemProps) {
         </div>
 
         {isAuthenticated && (
-          <Button variant="ghost" size="sm" onClick={() => setIsReplying(!isReplying)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsReplying(!isReplying)}
+          >
             {isReplying ? "Cancel" : "Reply"}
           </Button>
         )}
@@ -197,16 +248,24 @@ export function CommentItem({ comment }: CommentItemProps) {
 
       {(isReplying || showReplies) && (
         <div className="px-4 pb-4">
-          <ReplySection commentId={comment.id} isReplying={isReplying} onReplyCancel={() => setIsReplying(false)} />
+          <ReplySection
+            commentId={comment.id}
+            isReplying={isReplying}
+            onReplyCancel={() => setIsReplying(false)}
+          />
         </div>
       )}
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your comment.
+              This action cannot be undone. This will permanently delete your
+              comment.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -221,6 +280,5 @@ export function CommentItem({ comment }: CommentItemProps) {
         </AlertDialogContent>
       </AlertDialog>
     </Card>
-  )
+  );
 }
-

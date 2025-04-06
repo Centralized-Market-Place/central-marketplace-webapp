@@ -3,12 +3,15 @@ import { Comments, CommentsSchema } from "../schema";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { replyKeys } from "../utils";
 import { API_URL } from "@/lib/utils";
+import { useAuthContext } from "@/providers/auth-context";
 
 const buildQuery = (page: number, size: number) => {
   return `?page=${page}&pageSize=${size}`;
 };
 export function useReplies(size: number, commentId: string) {
   const baseUrl = `${API_URL}/api/v1/comments/${commentId}/replies`;
+
+  const { token } = useAuthContext();
 
   const getReplies = ({ pageParam = 1 }: { pageParam?: number }) => {
     const queryString = buildQuery(pageParam, size);
@@ -23,6 +26,7 @@ export function useReplies(size: number, commentId: string) {
       if (lastPage.data.items.length < size) return undefined;
       return allPages.length + 1;
     },
+    enabled: !!token,
   });
 
   return {

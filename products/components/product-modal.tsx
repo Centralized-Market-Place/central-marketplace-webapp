@@ -1,33 +1,39 @@
-"use client"
+"use client";
 
-import type { Product } from "@/products/schema"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useState } from "react"
-import { CommentSection } from "@/comments/components/comment-section"
-import { Share2, ThumbsDown, ThumbsUp, Eye } from "lucide-react"
-import Image from "next/image"
-import { formatNumber } from "@/lib/utils"
-import { useReaction } from "@/comments/hooks/useReaction"
-import { useAuthContext } from "@/providers/auth-context"
-import { Badge } from "@/components/ui/badge"
-import { format } from "date-fns"
+import type { Product } from "@/products/schema";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from "react";
+import { CommentSection } from "@/comments/components/comment-section";
+import { Share2, ThumbsDown, ThumbsUp, Eye } from "lucide-react";
+import Image from "next/image";
+import { cn, formatNumber } from "@/lib/utils";
+import { useReaction } from "@/comments/hooks/useReaction";
+import { useAuthContext } from "@/providers/auth-context";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
 
 interface ProductModalProps {
-  product: Product
-  isOpen: boolean
-  onClose: () => void
+  product: Product;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
-  const [activeTab, setActiveTab] = useState("details")
-  const { createReaction, isLoading } = useReaction(product.id)
-  const { isAuthenticated } = useAuthContext()
+  const [activeTab, setActiveTab] = useState("details");
+  const { createReaction, isLoading, reaction, isReactionLoading } =
+    useReaction(product.id);
+  const { isAuthenticated } = useAuthContext();
 
   const handleReaction = (reactionType: "upvote" | "downvote") => {
-    if (!isAuthenticated) return
+    if (!isAuthenticated) return;
 
     createReaction({
       reactionSave: {
@@ -35,8 +41,8 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
         targetType: "product",
         reactionType,
       },
-    })
-  }
+    });
+  };
 
   const handleShare = () => {
     if (navigator.share) {
@@ -46,19 +52,21 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
           text: product.description || "Check out this product",
           url: window.location.href,
         })
-        .catch((error) => console.log("Error sharing", error))
+        .catch((error) => console.log("Error sharing", error));
     } else {
       // Fallback for browsers that don't support the Web Share API
-      navigator.clipboard.writeText(window.location.href)
+      navigator.clipboard.writeText(window.location.href);
       // You could show a toast notification here
     }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="w-full md:w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">{product.name || "Unnamed Product"}</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            {product.name || "Unnamed Product"}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -79,7 +87,9 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
 
           <div className="flex flex-col">
             {product.price !== null && product.price !== undefined && (
-              <p className="text-2xl font-bold mb-2">${product.price.toFixed(2)}</p>
+              <p className="text-2xl font-bold mb-2">
+                ${product.price.toFixed(2)}
+              </p>
             )}
 
             <div className="flex flex-wrap gap-2 mb-3">
@@ -101,10 +111,14 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
               </span>
             </div>
 
-            <p className="text-muted-foreground mb-4">{product.description || "No description available"}</p>
+            <p className="text-muted-foreground mb-4">
+              {product.description || "No description available"}
+            </p>
 
             {product.postedAt && (
-              <p className="text-sm text-muted-foreground mb-4">Posted on: {format(product.postedAt, "PPP")}</p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Posted on: {format(product.postedAt, "PPP")}
+              </p>
             )}
 
             <div className="flex items-center gap-2 mt-auto">
@@ -112,21 +126,39 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                 variant="outline"
                 className="flex items-center gap-1"
                 onClick={() => handleReaction("upvote")}
-                disabled={isLoading || !isAuthenticated}
+                disabled={isLoading || !isAuthenticated || isReactionLoading}
               >
-                <ThumbsUp size={16} />
+                <ThumbsUp
+                  className={cn(
+                    reaction &&
+                      reaction.reactionType === "upvote" &&
+                      "fill-current"
+                  )}
+                  size={16}
+                />
                 {formatNumber(product.upvotes)}
               </Button>
               <Button
                 variant="outline"
                 className="flex items-center gap-1"
                 onClick={() => handleReaction("downvote")}
-                disabled={isLoading || !isAuthenticated}
+                disabled={isLoading || !isAuthenticated || isReactionLoading}
               >
-                <ThumbsDown size={16} />
+                <ThumbsDown
+                  className={cn(
+                    reaction &&
+                      reaction.reactionType === "downvote" &&
+                      "fill-current"
+                  )}
+                  size={16}
+                />
                 {formatNumber(product.downvotes)}
               </Button>
-              <Button variant="outline" className="flex items-center gap-1 ml-auto" onClick={handleShare}>
+              <Button
+                variant="outline"
+                className="flex items-center gap-1 ml-auto"
+                onClick={handleShare}
+              >
                 <Share2 size={16} />
                 Share
               </Button>
@@ -139,7 +171,14 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="comments">Comments</TabsTrigger>
+            <TabsTrigger value="comments">
+              <div className="flex items-center gap-2">
+                <div>Comments</div>{" "}
+                <div>
+                  {product.comments < 100 ? `(${product.comments})` : `(99+)`}
+                </div>{" "}
+              </div>
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="details" className="mt-4">
             <div className="space-y-4">
@@ -155,6 +194,5 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
         </Tabs>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

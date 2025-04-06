@@ -5,9 +5,10 @@ import { useAuthContext } from "@/providers/auth-context";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { commentKeys } from "../utils";
 import { API_URL } from "@/lib/utils";
+import { productKeys } from "@/products/utils";
 
 export function useCommentAction(productId: string) {
-  const baseUrl = `${API_URL}/api/v1/posts/${productId}/comments`;
+  const baseUrl = `${API_URL}/api/v1/products/${productId}/comments`;
   const alert = useAlert();
   const queryClient = useQueryClient();
   const { token } = useAuthContext();
@@ -63,6 +64,9 @@ export function useCommentAction(productId: string) {
       queryClient.invalidateQueries({
         queryKey: commentKeys.list(productId),
       });
+      queryClient.invalidateQueries({
+        queryKey: productKeys.detail(productId),
+      });
     },
     onError: (data, variables) => {
       const { onError } = variables;
@@ -96,6 +100,9 @@ export function useCommentAction(productId: string) {
       onSuccess?.();
       queryClient.invalidateQueries({
         queryKey: commentKeys.list(productId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: productKeys.detail(productId),
       });
     },
     onError: (data, variables) => {
