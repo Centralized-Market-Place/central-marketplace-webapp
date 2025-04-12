@@ -1,15 +1,12 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { User, UserSchema } from "../auth/shema";
+import { User } from "../auth/shema";
 import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import LoadingIcon from "@/components/state/loading";
-import { apiGet } from "@/services/api";
-import { API_URL } from "@/lib/utils";
-import { AxiosError } from "axios";
 
-const PUBLIC_PATH = ["/login", "/signup", "/", "/404"];
+const PUBLIC_PATH = ["/login", "/signup", "/"];
 
 interface AuthContextType {
   user: User | null;
@@ -38,30 +35,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
-    async function fetchUser() {
-      try {
-        setLoading(true);
-        if (token) {
-          const response = await apiGet<User>(
-            `${API_URL}/api/v1/users/me`,
-            UserSchema,
-            token
-          );
-
-          setCredential(response.data, token);
-        }
-      } catch (error) {
-        if (error instanceof AxiosError && error.response?.status === 401) {
-          logout();
-        }
-      } finally {
-        setLoading(false);
-      }
+    const user = localStorage.getItem("user");
+    if (token && user) {
+      setUser(JSON.parse(user));
+      setToken(token);
+    } else {
+      setUser(null);
+      setToken(null);
     }
-
-    fetchUser();
+    setLoading(false);
   }, []);
+
+  console.log("pathname", pathName);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -75,6 +60,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     }
     if (!loading && user) {
+      console.log("user", user);
       if (["/login", "/signup"].includes(pathName)) {
         router.push("/");
       }
@@ -86,6 +72,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setToken(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    document.cookie = "tg_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
   };
 
   const setCredential = (user: User, token: string) => {

@@ -5,7 +5,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: process.env.NODE_ENV === "development",
-      staleTime: 1000 * 60 * 15,
+      staleTime: 1000 * 60 * 5,
     },
   },
 });
