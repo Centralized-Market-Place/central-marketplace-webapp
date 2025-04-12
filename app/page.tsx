@@ -2,28 +2,28 @@
 
 import { useState } from "react";
 import { Input } from "../components/ui/input";
-import { ProductCard } from "@/products/components/product-card";
+import { ProductCard } from "../components/product-card";
 import { useDebounce } from "../hooks/use-debounce";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { DEFAULT_FILTERS, useProducts } from "@/products/hooks/useProducts";
+import LoadingIcon from "@/components/state/loading";
 
-// function LoadingSpinner() {
-//   return (
-//     <div className="flex justify-center items-center py-6">
-//       <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-//     </div>
-//   );
-// }
+function LoadingSpinner() {
+  return (
+    <div className="flex justify-center items-center py-6">
+      <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
+}
 
 export default function Home() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const { products, isLoading, isError, hasNextPage, fetchNextPage } =
-    useProducts({
-      ...DEFAULT_FILTERS,
-      query: debouncedSearch,
-    });
+  const { products, isLoading, isError , hasNextPage, fetchNextPage} = useProducts({
+    ...DEFAULT_FILTERS,
+    query: debouncedSearch,
+  });
 
   return (
     <main className="container mt-20 px-4 mx-auto">
@@ -44,30 +44,23 @@ export default function Home() {
         </p>
       )}
 
-      {
+      {isLoading && products.length === 0 ? (
+        <LoadingIcon className="size-8" />
+      ) : (
         <InfiniteScroll
           dataLength={products.length}
           next={fetchNextPage}
           hasMore={!!hasNextPage}
-          loader={
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {Array.from({ length: 8 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="h-[400px] bg-muted animate-pulse rounded-lg"
-                ></div>
-              ))}
-            </div>
-          }
+          loader={<LoadingSpinner />}
           endMessage={<p className="text-center"></p>}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {products.map((product) => (
-              <ProductCard key={product.id} productId={product.id} />
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         </InfiniteScroll>
-      }
+      )}
 
       {!isLoading && !isError && products.length === 0 && (
         <p className="text-center">No products found.</p>

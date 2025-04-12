@@ -11,10 +11,9 @@ import {
 } from "../shema";
 import { useAuthContext } from "../../providers/auth-context";
 import { useAlert } from "@/providers/alert-provider";
-import { API_URL } from "@/lib/utils";
 
 export function useAuth() {
-  const baseUrl = `${API_URL}/api/v1/users`;
+  const baseUrl = `/api/v1/users`;
   const { setCredential } = useAuthContext();
   const alert = useAlert();
   const login = async ({
@@ -68,6 +67,7 @@ export function useAuth() {
       alert?.success("logged in successfully!");
     },
     onError: (_error, variables) => {
+      console.log("error", _error);
       const { onError } = variables;
       onError?.();
       alert?.error("Error occurred when trying to sign up");
@@ -83,6 +83,7 @@ export function useAuth() {
       alert?.success("logged in Successfully!");
     },
     onError: (_error, variables) => {
+      console.log("error", _error);
       const { onError } = variables;
       onError?.();
       alert?.error("Error occurred when trying to login");
@@ -98,6 +99,7 @@ export function useAuth() {
       alert?.success("logged in Successfully!");
     },
     onError: (_error, variables) => {
+      console.log("error", _error);
       const { onError } = variables;
       onError?.();
       alert?.error("Error occurred when trying to login");

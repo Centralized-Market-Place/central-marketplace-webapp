@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { ProductCard } from "@/products/components/product-card";
+import { ProductCard } from "@/components/product-card";
 import { useDebounce } from "@/hooks/use-debounce";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { DEFAULT_FILTERS, useProducts } from "@/products/hooks/useProducts";
@@ -101,7 +101,7 @@ export default function ChannelPage() {
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {products.map((product) => (
-              <ProductCard key={product.id} productId={product.id} />
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         </InfiniteScroll>

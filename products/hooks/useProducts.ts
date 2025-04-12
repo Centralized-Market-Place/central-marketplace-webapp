@@ -2,8 +2,6 @@ import { apiGet } from "@/services/api";
 import { ProductFilter, Products, ProductsSchema } from "../schema";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { productKeys } from "../utils";
-import { useAuthContext } from "@/providers/auth-context";
-import { API_URL } from "@/lib/utils";
 
 export const DEFAULT_FILTERS: ProductFilter = {
   pageSize: 10,
@@ -32,13 +30,12 @@ const buildQuery = (filters: ProductFilter) => {
 };
 
 export function useProducts(filters: ProductFilter = DEFAULT_FILTERS) {
-  const baseUrl = `${API_URL}/api/v1/products`;
+  const baseUrl = `/api/v1/products`;
   const query = buildQuery(filters);
-  const { token } = useAuthContext();
 
   const getProducts = ({ pageParam = 1 }: { pageParam?: number }) => {
     const queryString = buildQuery({ ...filters, page: pageParam });
-    return apiGet<Products>(`${baseUrl}${queryString}`, ProductsSchema, token ?? undefined);
+    return apiGet<Products>(`${baseUrl}${queryString}`, ProductsSchema);
   };
 
   const productsQuery = useInfiniteQuery({
