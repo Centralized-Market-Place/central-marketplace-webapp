@@ -21,6 +21,9 @@ export const ProductSchema = z.object({
   images: z.array(z.string()),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  upvotes: z.number(),
+  downvotes: z.number(),
+  comments: z.number(),
   postedAt: z.coerce.date().optional(),
   reactions: z.array(z.tuple([z.string(), z.number()])),
 });
