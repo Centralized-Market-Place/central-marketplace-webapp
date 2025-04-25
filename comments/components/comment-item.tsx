@@ -1,0 +1,284 @@
+"use client";
+
+import { useState } from "react";
+import type { Comment } from "@/comments/schema";
+import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { ReplySection } from "./reply-section";
+import { useReaction } from "@/comments/hooks/useReaction";
+import { useCommentAction } from "@/comments/hooks/useCommentAction";
+import { useAuthContext } from "@/providers/auth-context";
+import { formatDistanceToNow } from "date-fns";
+import {
+  MessageSquare,
+  ThumbsDown,
+  ThumbsUp,
+  Trash2,
+  Edit,
+  X,
+  Check,
+  User2,
+} from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
+
+interface CommentItemProps {
+  comment: Comment;
+}
+
+export function CommentItem({ comment }: CommentItemProps) {
+  const [isReplying, setIsReplying] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showReplies, setShowReplies] = useState(false);
+  const [editText, setEditText] = useState(comment.message);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [reacted, setReacted] = useState({
+    like: 0,
+    dislike: 0,
+  });
+
+  const { createReaction, isLoading, reaction, isReactionLoading } =
+    useReaction(comment.id);
+  const { updateComment, deleteComment, isUpdatingComment, isDeletingComment } =
+    useCommentAction(comment.productId);
+  const { isAuthenticated, user } = useAuthContext();
+
+  const isCommentOwner = user?.id === comment.userId;
+
+  const handleReaction = (reactionType: "like" | "dislike") => {
+    if (!isAuthenticated) return;
+
+    createReaction({
+      reactionSave: {
+        targetId: comment.id,
+        targetType: "comment",
+        reactionType,
+      },
+      onSuccess: () => {
+        setReacted({
+          ...reacted,
+          [reactionType]: reacted[reactionType] + 1,
+        });
+      },
+    });
+  };
+
+  const handleUpdateComment = () => {
+    if (!editText.trim() || editText === comment.message) {
+      setIsEditing(false);
+      return;
+    }
+
+    updateComment({
+      commentId: comment.id,
+      commentSave: {
+        message: editText,
+      },
+      onSuccess: () => {
+        setIsEditing(false);
+      },
+    });
+  };
+
+  const handleDeleteComment = () => {
+    deleteComment({
+      commentId: comment.id,
+      onSuccess: () => {
+        setIsDeleteDialogOpen(false);
+        setReacted({
+          like: 0,
+          dislike: 0,
+        });
+      },
+    });
+  };
+
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <div className="flex gap-3">
+          <Avatar className="size-8 flex items-center justify-center border-[1px] rounded-full">
+            {/* user icon */}
+            <User2 className="size-4" />
+          </Avatar>
+
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">User</span>
+                <span className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(comment.createdAt), {
+                    addSuffix: true,
+                  })}
+                </span>
+              </div>
+
+              {isCommentOwner && (
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setIsEditing(true)}
+                    disabled={isEditing || isDeletingComment}
+                  >
+                    <Edit size={16} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-destructive"
+                    onClick={() => setIsDeleteDialogOpen(true)}
+                    disabled={isEditing || isDeletingComment}
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {isEditing ? (
+              <div className="mt-2 space-y-2">
+                <Textarea
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  className="min-h-[80px]"
+                  disabled={isUpdatingComment}
+                />
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setEditText(comment.message);
+                    }}
+                    disabled={isUpdatingComment}
+                  >
+                    <X size={16} className="mr-1" />
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleUpdateComment}
+                    disabled={
+                      !editText.trim() ||
+                      editText === comment.message ||
+                      isUpdatingComment
+                    }
+                  >
+                    <Check size={16} className="mr-1" />
+                    Save
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-1">{comment.message}</p>
+            )}
+          </div>
+        </div>
+      </CardContent>
+
+      <CardFooter className="px-4 py-2 flex flex-wrap items-center gap-2 justify-between">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex items-center gap-1 h-8"
+            onClick={() => handleReaction("like")}
+            disabled={isLoading || !isAuthenticated || isReactionLoading}
+          >
+            <ThumbsUp
+              className={cn(
+                reaction && reaction.reactionType === "like" && "fill-current"
+              )}
+              size={14}
+            />
+            {comment.likes + reacted.like}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex items-center gap-1 h-8"
+            onClick={() => handleReaction("dislike")}
+            disabled={isLoading || !isAuthenticated || isReactionLoading}
+          >
+            <ThumbsDown
+              className={cn(
+                reaction &&
+                  reaction.reactionType === "dislike" &&
+                  "fill-current"
+              )}
+              size={14}
+            />
+            {comment.dislikes + reacted.dislike}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex items-center gap-1 h-8"
+            onClick={() => setShowReplies(!showReplies)}
+          >
+            <MessageSquare size={14} />
+            Replies
+          </Button>
+        </div>
+
+        {isAuthenticated && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsReplying(!isReplying)}
+          >
+            {isReplying ? "Cancel" : "Reply"}
+          </Button>
+        )}
+      </CardFooter>
+
+      {(isReplying || showReplies) && (
+        <div className="px-4 pb-4">
+          <ReplySection
+            commentId={comment.id}
+            isReplying={isReplying}
+            onReplyCancel={() => setIsReplying(false)}
+          />
+        </div>
+      )}
+
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              comment.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteComment}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeletingComment ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Card>
+  );
+}
