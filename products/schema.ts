@@ -25,7 +25,6 @@ export const ProductSchema = z.object({
   downvotes: z.number(),
   comments: z.number(),
   postedAt: z.coerce.date().optional(),
-  reactions: z.array(z.tuple([z.string(), z.number()])),
 });
 
 export const ProductsSchema = z.object({
