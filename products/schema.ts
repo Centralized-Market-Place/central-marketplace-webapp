@@ -25,6 +25,7 @@ export const ProductSchema = z.object({
   downvotes: z.number(),
   comments: z.number(),
   postedAt: z.coerce.date().optional(),
+  isBookmarked: z.boolean(),
   userReaction: ReactionType.nullable()
 });
 
@@ -44,6 +45,14 @@ export const ProductFilterSchema = z.object({
   channelId: z.string().optional(),
 });
 
+export const BookmarkSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  productId: z.string(),
+  createdAt: z.coerce.date(),
+})
+
+export type Bookmark = z.infer<typeof BookmarkSchema>;
 export type Category = z.infer<typeof CategorySchema>;
 export type Product = z.infer<typeof ProductSchema>;
 export type Products = z.infer<typeof ProductsSchema>;

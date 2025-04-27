@@ -9,13 +9,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ProductModal } from "./product-modal";
-import { MessageSquare, Share2, ThumbsDown, ThumbsUp, Eye } from "lucide-react";
+import {
+  MessageSquare,
+  Share2,
+  ThumbsDown,
+  ThumbsUp,
+  Eye,
+  Bookmark,
+} from "lucide-react";
 import Image from "next/image";
 import { cn, formatNumber } from "@/lib/utils";
 import { useReaction } from "@/comments/hooks/useReaction";
 import { useAuthContext } from "@/providers/auth-context";
 import { SwiperSlide, Swiper } from "swiper/react";
 import { Product } from "../schema";
+import { useBookmarkAction } from "../hooks/useBookmarkAction";
 
 interface ProductCardProps {
   prod: Product;
@@ -25,7 +33,33 @@ export function ProductCard({ prod }: ProductCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user, isAuthenticated } = useAuthContext();
   const { createReaction, isLoading } = useReaction(prod.id);
-  const [product, setProduct] = useState<Product>({...prod})
+  const [product, setProduct] = useState<Product>({ ...prod });
+  const { addBookmark, removeBookmark, isAddingBookmark, isRemovingBookmark } =
+    useBookmarkAction(product.id);
+
+  const handleBookmark = () => {
+    if (!isAuthenticated) return;
+
+    if (product.isBookmarked) {
+      removeBookmark({
+        onSuccess: () => {
+          setProduct((prev) => ({
+            ...prev,
+            isBookmarked: false,
+          }));
+        },
+      });
+    } else {
+      addBookmark({
+        onSuccess: () => {
+          setProduct((prev) => ({
+            ...prev,
+            isBookmarked: true,
+          }));
+        },
+      });
+    }
+  };
 
   const handleReaction = (reactionType: "upvote" | "downvote") => {
     if (!isAuthenticated) return;
@@ -43,21 +77,29 @@ export function ProductCard({ prod }: ProductCardProps) {
           if (reactionType === "upvote") {
             return {
               ...prev,
-              upvotes: prev.userReaction === "upvote" ? prev.upvotes - 1 : prev.upvotes + 1,
-              downvotes: prev.downvotes - (prev.userReaction === "downvote" ? 1 : 0),
+              upvotes:
+                prev.userReaction === "upvote"
+                  ? prev.upvotes - 1
+                  : prev.upvotes + 1,
+              downvotes:
+                prev.downvotes - (prev.userReaction === "downvote" ? 1 : 0),
               userReaction: prev.userReaction === "upvote" ? null : "upvote",
             };
           } else if (reactionType === "downvote") {
             return {
               ...prev,
-              downvotes: prev.userReaction === "downvote" ? prev.downvotes - 1 : prev.downvotes + 1,
+              downvotes:
+                prev.userReaction === "downvote"
+                  ? prev.downvotes - 1
+                  : prev.downvotes + 1,
               upvotes: prev.upvotes - (prev.userReaction === "upvote" ? 1 : 0),
-              userReaction: prev.userReaction === "downvote" ? null : "downvote",
+              userReaction:
+                prev.userReaction === "downvote" ? null : "downvote",
             };
           }
-          return prev; 
+          return prev;
         });
-      }
+      },
     });
   };
 
@@ -131,38 +173,51 @@ export function ProductCard({ prod }: ProductCardProps) {
             </Button>
           </div>
           {user && (
-            <div className="flex items-center gap-2">
+            <div className="w-full flex justify-between">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1"
+                  onClick={() => handleReaction("upvote")}
+                  disabled={isLoading}
+                >
+                  <ThumbsUp
+                    size={14}
+                    className={cn(
+                      product.userReaction === "upvote" && "fill-current"
+                    )}
+                  />
+                  {formatNumber(product?.upvotes || 0)}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1"
+                  onClick={() => handleReaction("downvote")}
+                  disabled={isLoading}
+                >
+                  <ThumbsDown
+                    size={14}
+                    className={cn(
+                      product.userReaction === "downvote" && "fill-current"
+                    )}
+                  />
+                  {formatNumber(product.downvotes)}
+                </Button>
+              </div>
+
               <Button
                 variant="outline"
                 size="sm"
-                className="flex items-center gap-1"
-                onClick={() => handleReaction("upvote")}
-                disabled={isLoading || !isAuthenticated}
+                className="flex items-center justify-center"
+                onClick={() => handleBookmark()}
+                disabled={isLoading || isAddingBookmark || isRemovingBookmark}
               >
-                <ThumbsUp
+                <Bookmark
                   size={14}
-                  className={cn(
-                    product.userReaction === "upvote" &&
-                      "fill-current"
-                  )}
+                  className={cn(product.isBookmarked && "fill-current")}
                 />
-                {formatNumber(product?.upvotes || 0)}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-1"
-                onClick={() => handleReaction("downvote")}
-                disabled={isLoading || !isAuthenticated}
-              >
-                <ThumbsDown
-                  size={14}
-                  className={cn(
-                    product.userReaction === "downvote" &&
-                      "fill-current"
-                  )}
-                />
-                {formatNumber(product.downvotes)}
               </Button>
             </div>
           )}
@@ -174,6 +229,8 @@ export function ProductCard({ prod }: ProductCardProps) {
         isOpen={isModalOpen}
         isLoading={isLoading}
         handleReaction={handleReaction}
+        handleBookmark={handleBookmark}
+        isBookmarkLoading={isAddingBookmark || isRemovingBookmark}
         onClose={() => setIsModalOpen(false)}
       />
     </>
