@@ -15,34 +15,53 @@ import { cn, formatNumber } from "@/lib/utils";
 import { useReaction } from "@/comments/hooks/useReaction";
 import { useAuthContext } from "@/providers/auth-context";
 import { SwiperSlide, Swiper } from "swiper/react";
-import { useProduct } from "../hooks/useProduct";
+import { Product } from "../schema";
 
 interface ProductCardProps {
-  productId: string;
+  prod: Product;
 }
 
-export function ProductCard({ productId }: ProductCardProps) {
+export function ProductCard({ prod }: ProductCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user } = useAuthContext();
-  const { createReaction, isLoading, reaction, isReactionLoading } =
-    useReaction(productId);
-
-  const { product, isLoading: isProductLoading } = useProduct(productId);
-  const { isAuthenticated } = useAuthContext();
+  const { user, isAuthenticated } = useAuthContext();
+  const { createReaction, isLoading } = useReaction(prod.id);
+  const [product, setProduct] = useState<Product>({...prod})
 
   const handleReaction = (reactionType: "upvote" | "downvote") => {
     if (!isAuthenticated) return;
 
     createReaction({
       reactionSave: {
-        targetId: productId,
+        targetId: product.id,
         targetType: "product",
         reactionType,
       },
+
+      onSuccess: () => {
+        setProduct((prev) => {
+          if (!prev) return prev;
+          if (reactionType === "upvote") {
+            return {
+              ...prev,
+              upvotes: prev.userReaction === "upvote" ? prev.upvotes - 1 : prev.upvotes + 1,
+              downvotes: prev.downvotes - (prev.userReaction === "downvote" ? 1 : 0),
+              userReaction: prev.userReaction === "upvote" ? null : "upvote",
+            };
+          } else if (reactionType === "downvote") {
+            return {
+              ...prev,
+              downvotes: prev.userReaction === "downvote" ? prev.downvotes - 1 : prev.downvotes + 1,
+              upvotes: prev.upvotes - (prev.userReaction === "upvote" ? 1 : 0),
+              userReaction: prev.userReaction === "downvote" ? null : "downvote",
+            };
+          }
+          return prev; 
+        });
+      }
     });
   };
 
-  if (isProductLoading || !product) {
+  if (!product) {
     return (
       <div className="h-[28rem] bg-muted animate-pulse rounded-lg my-6"></div>
     );
@@ -118,13 +137,12 @@ export function ProductCard({ productId }: ProductCardProps) {
                 size="sm"
                 className="flex items-center gap-1"
                 onClick={() => handleReaction("upvote")}
-                disabled={isLoading || !isAuthenticated || isReactionLoading}
+                disabled={isLoading || !isAuthenticated}
               >
                 <ThumbsUp
                   size={14}
                   className={cn(
-                    reaction &&
-                      reaction.reactionType === "upvote" &&
+                    product.userReaction === "upvote" &&
                       "fill-current"
                   )}
                 />
@@ -135,17 +153,16 @@ export function ProductCard({ productId }: ProductCardProps) {
                 size="sm"
                 className="flex items-center gap-1"
                 onClick={() => handleReaction("downvote")}
-                disabled={isLoading || !isAuthenticated || isReactionLoading}
+                disabled={isLoading || !isAuthenticated}
               >
                 <ThumbsDown
                   size={14}
                   className={cn(
-                    reaction &&
-                      reaction.reactionType === "downvote" &&
+                    product.userReaction === "downvote" &&
                       "fill-current"
                   )}
                 />
-                {formatNumber(product?.downvotes || 0)}
+                {formatNumber(product.downvotes)}
               </Button>
             </div>
           )}
@@ -155,6 +172,8 @@ export function ProductCard({ productId }: ProductCardProps) {
       <ProductModal
         product={product}
         isOpen={isModalOpen}
+        isLoading={isLoading}
+        handleReaction={handleReaction}
         onClose={() => setIsModalOpen(false)}
       />
     </>

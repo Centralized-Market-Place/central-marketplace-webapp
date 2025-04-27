@@ -1,8 +1,8 @@
 import { useAlert } from "@/providers/alert-provider";
 import { Reaction, ReactionSave, ReactionSchema } from "../schema";
-import { apiGet, apiPost } from "@/services/api";
+import { apiPost } from "@/services/api";
 import { useAuthContext } from "@/providers/auth-context";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import humps from "humps";
 import { API_URL } from "@/lib/utils";
 import { commentKeys, reactionKeys } from "../utils";
@@ -25,14 +25,6 @@ export function useReaction(targetId: string) {
       ReactionSchema,
       humps.decamelizeKeys(reactionSave),
       token ? token : undefined
-    );
-  };
-
-  const getReaction = () => {
-    return apiGet<Reaction | null>(
-      `${baseUrl}${targetId}`,
-      ReactionSchema,
-      token ?? undefined
     );
   };
 
@@ -63,20 +55,11 @@ export function useReaction(targetId: string) {
     },
   });
 
-  const reactionQuery = useQuery({
-    queryKey: reactionKeys.detail(targetId),
-    queryFn: getReaction,
-    enabled: !!token,
-  });
 
   return {
     createReaction: createReactionMutation.mutate,
     isLoading: createReactionMutation.isPending,
     isError: createReactionMutation.isError,
     error: createReactionMutation.error,
-    reaction: reactionQuery.data?.data,
-    isReactionLoading: reactionQuery.isLoading,
-    isReactionError: reactionQuery.isError,
-    reactionError: reactionQuery.error,
   };
 }

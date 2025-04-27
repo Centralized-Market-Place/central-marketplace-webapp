@@ -1,6 +1,6 @@
 import { apiGet } from "@/services/api";
-import { Comments, CommentsSchema } from "../schema";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { Comments, Comment, CommentSchema, CommentsSchema } from "../schema";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { replyKeys } from "../utils";
 import { API_URL } from "@/lib/utils";
 import { useAuthContext } from "@/providers/auth-context";
@@ -36,5 +36,27 @@ export function useReplies(size: number, commentId: string) {
     error: repliesQuery.error,
     fetchNextPage: repliesQuery.fetchNextPage,
     hasNextPage: repliesQuery.hasNextPage,
+  };
+}
+
+export function useReply(replyId: string) {
+  const baseUrl = `${API_URL}/api/v1/comments/${replyId}`;
+  const { token } = useAuthContext();
+
+  const getReply = () => {
+    return apiGet<Comment>(baseUrl, CommentSchema, token ?? undefined);
+  };
+
+  const replyQuery = useQuery({
+    queryKey: replyKeys.detail(replyId),
+    queryFn: getReply,
+    enabled: !!token,
+  });
+
+  return {
+    reply: replyQuery.data?.data,
+    isLoading: replyQuery.isLoading,
+    isError: replyQuery.isError,
+    error: replyQuery.error,
   };
 }

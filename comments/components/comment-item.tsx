@@ -31,30 +31,27 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { cn } from "@/lib/utils";
+import { cn, formatNumber } from "@/lib/utils";
 
 interface CommentItemProps {
-  comment: Comment;
+  comm: Comment;
 }
 
-export function CommentItem({ comment }: CommentItemProps) {
+export function CommentItem({ comm }: CommentItemProps) {
   const [isReplying, setIsReplying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
-  const [editText, setEditText] = useState(comment.message);
+  const [editText, setEditText] = useState(comm.message);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [reacted, setReacted] = useState({
-    like: 0,
-    dislike: 0,
-  });
 
-  const { createReaction, isLoading, reaction, isReactionLoading } =
-    useReaction(comment.id);
+  const { createReaction, isLoading } = useReaction(comm.id);
   const { updateComment, deleteComment, isUpdatingComment, isDeletingComment } =
-    useCommentAction(comment.productId);
+    useCommentAction(comm.productId);
   const { isAuthenticated, user } = useAuthContext();
 
-  const isCommentOwner = user?.id === comment.userId;
+  const isCommentOwner = user?.id === comm.userId;
+
+  const [comment, setComment] = useState({...comm});
 
   const handleReaction = (reactionType: "like" | "dislike") => {
     if (!isAuthenticated) return;
@@ -66,12 +63,32 @@ export function CommentItem({ comment }: CommentItemProps) {
         reactionType,
       },
       onSuccess: () => {
-        setReacted({
-          ...reacted,
-          [reactionType]: reacted[reactionType] + 1,
+        setComment((prev) => {
+          if (!prev) return prev;
+          if (reactionType === "like") {
+            return {
+              ...prev,
+              likes: prev.userReaction === "like" ? prev.likes - 1 : prev.likes + 1,
+              dislikes: prev.dislikes - (prev.userReaction === "dislike" ? 1 : 0),
+              userReaction: prev.userReaction === "like" ? null : "like",
+            };
+          } else if (reactionType === "dislike") {
+            return {
+              ...prev,
+              dislikes:
+                prev.userReaction === "dislike"
+                  ? prev.dislikes - 1
+                  : prev.dislikes + 1,
+              likes: prev.likes - (prev.userReaction === "like" ? 1 : 0),
+              userReaction: prev.userReaction === "dislike" ? null : "dislike",
+            };
+          }
+          return prev;
         });
       },
     });
+
+
   };
 
   const handleUpdateComment = () => {
@@ -96,10 +113,6 @@ export function CommentItem({ comment }: CommentItemProps) {
       commentId: comment.id,
       onSuccess: () => {
         setIsDeleteDialogOpen(false);
-        setReacted({
-          like: 0,
-          dislike: 0,
-        });
       },
     });
   };
@@ -197,32 +210,31 @@ export function CommentItem({ comment }: CommentItemProps) {
             size="sm"
             className="flex items-center gap-1 h-8"
             onClick={() => handleReaction("like")}
-            disabled={isLoading || !isAuthenticated || isReactionLoading}
+            disabled={isLoading || !isAuthenticated}
           >
             <ThumbsUp
               className={cn(
-                reaction && reaction.reactionType === "like" && "fill-current"
+                comment.userReaction === "like" && "fill-current"
               )}
               size={14}
             />
-            {comment.likes + reacted.like}
+            {formatNumber(comment.likes)}
           </Button>
           <Button
             variant="ghost"
             size="sm"
             className="flex items-center gap-1 h-8"
             onClick={() => handleReaction("dislike")}
-            disabled={isLoading || !isAuthenticated || isReactionLoading}
+            disabled={isLoading || !isAuthenticated}
           >
             <ThumbsDown
               className={cn(
-                reaction &&
-                  reaction.reactionType === "dislike" &&
+                comment.userReaction === "dislike" &&
                   "fill-current"
               )}
               size={14}
             />
-            {comment.dislikes + reacted.dislike}
+            {formatNumber(comment.dislikes)}
           </Button>
           <Button
             variant="ghost"
