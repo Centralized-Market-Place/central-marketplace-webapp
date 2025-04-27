@@ -7,13 +7,18 @@ import { useDebounce } from "../hooks/use-debounce";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { DEFAULT_FILTERS, useProducts } from "@/products/hooks/useProducts";
 
-// function LoadingSpinner() {
-//   return (
-//     <div className="flex justify-center items-center py-6">
-//       <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-//     </div>
-//   );
-// }
+function ProductLoading() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {Array.from({ length: 8 }).map((_, index) => (
+        <div
+          key={index}
+          className="h-[28rem] bg-muted animate-pulse rounded-lg"
+        ></div>
+      ))}
+    </div>
+  );
+}
 
 export default function Home() {
   const [search, setSearch] = useState("");
@@ -44,24 +49,17 @@ export default function Home() {
         </p>
       )}
 
+      {isLoading && <ProductLoading />}
+
       {
         <InfiniteScroll
           dataLength={products.length}
           next={fetchNextPage}
           hasMore={!!hasNextPage}
-          loader={
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {Array.from({ length: 8 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="h-[400px] bg-muted animate-pulse rounded-lg"
-                ></div>
-              ))}
-            </div>
-          }
+          loader={<ProductLoading />}
           endMessage={<p className="text-center"></p>}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {products.map((product) => (
               <ProductCard key={product.id} prod={product} />
             ))}
@@ -70,7 +68,7 @@ export default function Home() {
       }
 
       {!isLoading && !isError && products.length === 0 && (
-        <p className="text-center">No products found.</p>
+        <p className="mt-6 text-center text-xl">No products found.</p>
       )}
     </main>
   );

@@ -9,7 +9,7 @@ export const CategorySchema = z.object({
 
 export const ProductSchema = z.object({
   channelId: z.number(),
-  messageId: z.number(),
+  messageId: z.number().nullable(),
   forwards: z.number(),
   views: z.number(),
   id: z.string(),

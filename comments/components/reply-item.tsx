@@ -99,6 +99,13 @@ export function ReplyItem({ rep, commentId }: ReplyItemProps) {
       },
       onSuccess: () => {
         setIsEditing(false);
+        setReply((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            message: editText,
+          };
+        });
       },
     });
   };

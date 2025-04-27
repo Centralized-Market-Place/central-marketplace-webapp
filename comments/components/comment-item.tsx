@@ -104,6 +104,13 @@ export function CommentItem({ comm }: CommentItemProps) {
       },
       onSuccess: () => {
         setIsEditing(false);
+        setComment((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            message: editText,
+          };
+        } );
       },
     });
   };
