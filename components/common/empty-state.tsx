@@ -1,5 +1,6 @@
 import React from "react";
 import { AlertTriangle } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface EmptyStateProps {
   message: string;
@@ -23,15 +24,12 @@ interface ErrorStateProps {
 
 export const ErrorState: React.FC<ErrorStateProps> = ({ message, onRetry }) => (
   <div className="flex flex-col items-center justify-center py-20">
-    <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
-    <p className="text-lg text-destructive mb-4">{message}</p>
+    <AlertTriangle className="size-4 text-destructive mb-4" />
+    <p className="text-sm text-destructive mb-4">{message}</p>
     {onRetry && (
-      <button
-        onClick={onRetry}
-        className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
-      >
+      <Button onClick={onRetry} size={"sm"}>
         Retry
-      </button>
+      </Button>
     )}
   </div>
 );

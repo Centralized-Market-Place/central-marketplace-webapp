@@ -2,13 +2,15 @@ import { API_URL } from "@/lib/utils";
 import { useAlert } from "@/providers/alert-provider";
 import { useAuthContext } from "@/providers/auth-context";
 import { apiDelete, apiPost } from "@/services/api";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bookmark, BookmarkSchema } from "../schema";
+import { productKeys } from "../utils";
 
 export function useBookmarkAction(productId: string) {
   const baseUrl = `${API_URL}/api/v1/bookmarks/${productId}`;
   const { token } = useAuthContext();
   const alert = useAlert();
+  const queryClient = useQueryClient();
 
   const addBookmark = async ({}: {
     onSuccess?: () => void;
@@ -30,6 +32,9 @@ export function useBookmarkAction(productId: string) {
       const { onSuccess } = variables;
       onSuccess?.();
       alert?.success("Bookmark added successfully");
+      queryClient.invalidateQueries({
+        queryKey: productKeys.detail(productId),
+      });
     },
     onError: (error, variables) => {
       console.error(error);
@@ -44,6 +49,9 @@ export function useBookmarkAction(productId: string) {
     onSuccess: (data, variables) => {
       const { onSuccess } = variables;
       onSuccess?.();
+      queryClient.invalidateQueries({
+        queryKey: productKeys.detail(productId),
+      });
       alert?.success("Bookmark removed successfully");
     },
     onError: (error, variables) => {
@@ -58,5 +66,5 @@ export function useBookmarkAction(productId: string) {
     removeBookmark: removeBookmarkMutation.mutate,
     isAddingBookmark: addBookmarkMutation.isPending,
     isRemovingBookmark: removeBookmarkMutation.isPending,
-  }
+  };
 }

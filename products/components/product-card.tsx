@@ -24,6 +24,7 @@ import { useAuthContext } from "@/providers/auth-context";
 import { SwiperSlide, Swiper } from "swiper/react";
 import { Product } from "../schema";
 import { useBookmarkAction } from "../hooks/useBookmarkAction";
+import { useProduct } from "../hooks/useProduct";
 
 interface ProductCardProps {
   prod: Product;
@@ -32,37 +33,23 @@ interface ProductCardProps {
 export function ProductCard({ prod }: ProductCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user, isAuthenticated } = useAuthContext();
-  const { createReaction, isLoading } = useReaction(prod.id);
-  const [product, setProduct] = useState<Product>({ ...prod });
+  const { createReaction, isLoading: isReactionLoading } = useReaction(prod.id);
+  const { product, isLoading } = useProduct(prod.id);
   const { addBookmark, removeBookmark, isAddingBookmark, isRemovingBookmark } =
-    useBookmarkAction(product.id);
+    useBookmarkAction(prod.id);
 
   const handleBookmark = () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !product) return;
 
     if (product.isBookmarked) {
-      removeBookmark({
-        onSuccess: () => {
-          setProduct((prev) => ({
-            ...prev,
-            isBookmarked: false,
-          }));
-        },
-      });
+      removeBookmark({});
     } else {
-      addBookmark({
-        onSuccess: () => {
-          setProduct((prev) => ({
-            ...prev,
-            isBookmarked: true,
-          }));
-        },
-      });
+      addBookmark({});
     }
   };
 
   const handleReaction = (reactionType: "upvote" | "downvote") => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !product) return;
 
     createReaction({
       reactionSave: {
@@ -70,42 +57,12 @@ export function ProductCard({ prod }: ProductCardProps) {
         targetType: "product",
         reactionType,
       },
-
-      onSuccess: () => {
-        setProduct((prev) => {
-          if (!prev) return prev;
-          if (reactionType === "upvote") {
-            return {
-              ...prev,
-              upvotes:
-                prev.userReaction === "upvote"
-                  ? prev.upvotes - 1
-                  : prev.upvotes + 1,
-              downvotes:
-                prev.downvotes - (prev.userReaction === "downvote" ? 1 : 0),
-              userReaction: prev.userReaction === "upvote" ? null : "upvote",
-            };
-          } else if (reactionType === "downvote") {
-            return {
-              ...prev,
-              downvotes:
-                prev.userReaction === "downvote"
-                  ? prev.downvotes - 1
-                  : prev.downvotes + 1,
-              upvotes: prev.upvotes - (prev.userReaction === "upvote" ? 1 : 0),
-              userReaction:
-                prev.userReaction === "downvote" ? null : "downvote",
-            };
-          }
-          return prev;
-        });
-      },
     });
   };
 
-  if (!product) {
+  if (!product || isLoading) {
     return (
-      <div className="h-[28rem] bg-muted animate-pulse rounded-lg my-6"></div>
+      <div className="h-[28rem] bg-muted animate-pulse rounded-lg"></div>
     );
   }
 
@@ -180,7 +137,7 @@ export function ProductCard({ prod }: ProductCardProps) {
                   size="sm"
                   className="flex items-center gap-1"
                   onClick={() => handleReaction("upvote")}
-                  disabled={isLoading}
+                  disabled={isReactionLoading}
                 >
                   <ThumbsUp
                     size={14}
@@ -195,7 +152,7 @@ export function ProductCard({ prod }: ProductCardProps) {
                   size="sm"
                   className="flex items-center gap-1"
                   onClick={() => handleReaction("downvote")}
-                  disabled={isLoading}
+                  disabled={isReactionLoading}
                 >
                   <ThumbsDown
                     size={14}
@@ -212,7 +169,7 @@ export function ProductCard({ prod }: ProductCardProps) {
                 size="sm"
                 className="flex items-center justify-center"
                 onClick={() => handleBookmark()}
-                disabled={isLoading || isAddingBookmark || isRemovingBookmark}
+                disabled={isReactionLoading || isAddingBookmark || isRemovingBookmark}
               >
                 <Bookmark
                   size={14}

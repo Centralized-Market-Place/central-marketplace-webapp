@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { ProductCard } from "@/products/components/product-card";
 
 export default function BookmarksPage() {
+
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const { bookmarks, isLoading, isError, fetchNextPage, hasNextPage } =
