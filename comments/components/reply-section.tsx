@@ -24,7 +24,7 @@ export function ReplySection({ commentId, isReplying, onReplyCancel }: ReplySect
   const { isAuthenticated } = useAuthContext()
 
   const handleSubmitReply = () => {
-    if (!replyText.trim()) return
+    if (!replyText.trim() || !isAuthenticated) return
 
     createReply({
       replySave: {
