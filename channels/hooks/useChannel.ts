@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiGet } from "@/services/api";
 import { Channel, ChannelSchema } from "../schema";
+import { API_URL } from "@/lib/utils";
 
 export const useChannel = (channelId: string) => {
+  const baseUrl = `${API_URL}/api/v1/channels/`;
   const fetchChannel = async () => {
-    return apiGet<Channel>(`/api/v1/channels/${channelId}`, ChannelSchema);
+    return apiGet<Channel>(`${baseUrl}${channelId}`, ChannelSchema);
   };
 
   const channelQuery = useQuery({

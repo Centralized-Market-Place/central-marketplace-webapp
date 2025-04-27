@@ -32,7 +32,7 @@ const buildQuery = (filters: ProductFilter) => {
 };
 
 export function useProducts(filters: ProductFilter = DEFAULT_FILTERS) {
-  const baseUrl = `${API_URL}/api/v1/products`;
+  const baseUrl = `${API_URL}/api/v1/products/`;
   const query = buildQuery(filters);
   const { token } = useAuthContext();
 
