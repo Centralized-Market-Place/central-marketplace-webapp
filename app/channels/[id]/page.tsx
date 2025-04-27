@@ -44,12 +44,12 @@ export default function ChannelPage() {
         <LoadingIcon className="size-8 mx-auto" />
       ) : channel ? (
         <div>
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 p-4  border-b ">
+          <div className="flex  md:flex-row items-center gap-4 md:gap-6 p-4  border-b ">
             <Image
-              src={ "/tgthumbnail.jpeg"}
+              src={channel.data.thumbnailUrl || "/tgthumbnail.jpeg"}
               alt={channel.data.title || "Channel Thumbnail"}
-              width={96}
-              height={96}
+              width={64}
+              height={64}
               className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border"
             />
             <div className="text-center md:text-left">
