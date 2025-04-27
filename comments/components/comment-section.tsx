@@ -87,7 +87,7 @@ export function CommentSection({ productId }: CommentSectionProps) {
         ) : (
           <div className="space-y-6">
             {comments.map((comment) => (
-              <CommentItem key={comment.id} comment={comment} />
+              <CommentItem key={comment.id} comm={comment} />
             ))}
 
             {hasNextPage && (

@@ -15,34 +15,20 @@ import { CommentSection } from "@/comments/components/comment-section";
 import { Share2, ThumbsDown, ThumbsUp, Eye } from "lucide-react";
 import Image from "next/image";
 import { cn, formatNumber } from "@/lib/utils";
-import { useReaction } from "@/comments/hooks/useReaction";
 import { useAuthContext } from "@/providers/auth-context";
-import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
 interface ProductModalProps {
   product: Product;
+  handleReaction: (reactionType: "upvote" | "downvote") => void;
   isOpen: boolean;
+  isLoading: boolean;
   onClose: () => void;
 }
 
-export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
+export function ProductModal({ product, handleReaction, isLoading, isOpen, onClose }: ProductModalProps) {
   const [activeTab, setActiveTab] = useState("details");
-  const { createReaction, isLoading, reaction, isReactionLoading } =
-    useReaction(product.id);
   const { isAuthenticated } = useAuthContext();
-
-  const handleReaction = (reactionType: "upvote" | "downvote") => {
-    if (!isAuthenticated) return;
-
-    createReaction({
-      reactionSave: {
-        targetId: product.id,
-        targetType: "product",
-        reactionType,
-      },
-    });
-  };
 
   const handleShare = () => {
     if (navigator.share) {
@@ -93,11 +79,11 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
             )}
 
             <div className="flex flex-wrap gap-2 mb-3">
-              {product.categories.map((category) => (
+              {/* {product.categories.map((category) => (
                 <Badge key={category.id} variant="secondary">
                   {category.name}
                 </Badge>
-              ))}
+              ))} */}
             </div>
 
             <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
@@ -126,12 +112,11 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                 variant="outline"
                 className="flex items-center gap-1"
                 onClick={() => handleReaction("upvote")}
-                disabled={isLoading || !isAuthenticated || isReactionLoading}
+                disabled={isLoading || !isAuthenticated}
               >
                 <ThumbsUp
                   className={cn(
-                    reaction &&
-                      reaction.reactionType === "upvote" &&
+                    product.userReaction === "upvote" &&
                       "fill-current"
                   )}
                   size={16}
@@ -142,12 +127,11 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                 variant="outline"
                 className="flex items-center gap-1"
                 onClick={() => handleReaction("downvote")}
-                disabled={isLoading || !isAuthenticated || isReactionLoading}
+                disabled={isLoading || !isAuthenticated}
               >
                 <ThumbsDown
                   className={cn(
-                    reaction &&
-                      reaction.reactionType === "downvote" &&
+                    product.userReaction === "downvote" &&
                       "fill-current"
                   )}
                   size={16}

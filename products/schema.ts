@@ -1,3 +1,4 @@
+import { ReactionType } from "@/comments/schema";
 import { z } from "zod";
 
 export const CategorySchema = z.object({
@@ -7,7 +8,7 @@ export const CategorySchema = z.object({
 });
 
 export const ProductSchema = z.object({
-  channelId: z.string(),
+  channelId: z.number(),
   messageId: z.number(),
   forwards: z.number(),
   views: z.number(),
@@ -16,7 +17,6 @@ export const ProductSchema = z.object({
   description: z.string().optional().nullable(),
   summary: z.string().optional().nullable(),
   price: z.number().optional().nullable(),
-  categories: z.array(CategorySchema),
   isAvailable: z.boolean().optional(),
   images: z.array(z.string()),
   createdAt: z.coerce.date(),
@@ -25,6 +25,7 @@ export const ProductSchema = z.object({
   downvotes: z.number(),
   comments: z.number(),
   postedAt: z.coerce.date().optional(),
+  userReaction: ReactionType.nullable()
 });
 
 export const ProductsSchema = z.object({
