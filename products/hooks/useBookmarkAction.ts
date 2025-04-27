@@ -4,7 +4,7 @@ import { useAuthContext } from "@/providers/auth-context";
 import { apiDelete, apiPost } from "@/services/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bookmark, BookmarkSchema } from "../schema";
-import { productKeys } from "../utils";
+import { bookmarkKeys, productKeys } from "../utils";
 
 export function useBookmarkAction(productId: string) {
   const baseUrl = `${API_URL}/api/v1/bookmarks/${productId}`;
@@ -35,6 +35,9 @@ export function useBookmarkAction(productId: string) {
       queryClient.invalidateQueries({
         queryKey: productKeys.detail(productId),
       });
+      queryClient.invalidateQueries({
+        queryKey: bookmarkKeys.all,
+      });
     },
     onError: (error, variables) => {
       console.error(error);
@@ -51,6 +54,9 @@ export function useBookmarkAction(productId: string) {
       onSuccess?.();
       queryClient.invalidateQueries({
         queryKey: productKeys.detail(productId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: bookmarkKeys.all,
       });
       alert?.success("Bookmark removed successfully");
     },

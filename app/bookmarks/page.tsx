@@ -40,8 +40,6 @@ export default function BookmarksPage() {
         />
       )}
 
-      {isLoading && <ProductLoading />}
-
       {!isLoading && !isError && bookmarks.length === 0 && (
         <EmptyState message="No products found." icon={Bookmark} />
       )}

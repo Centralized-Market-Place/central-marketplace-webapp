@@ -64,7 +64,7 @@ export default function Home() {
           next={fetchNextPage}
           hasMore={!!hasNextPage}
           loader={
-            <div className="mt-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {Array.from({ length: 8 }).map((_, index) => (
                 <div
                   key={index}
@@ -73,7 +73,6 @@ export default function Home() {
               ))}
             </div>
           }
-          endMessage={<p className="text-center"></p>}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {products.map((product) => (
