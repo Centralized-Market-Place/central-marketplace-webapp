@@ -48,7 +48,7 @@ export function ProductModal({ product, handleReaction, isLoading, isOpen, onClo
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-full md:w-xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full md:max-w-2xl max-h-[90vh] overflow-y-auto hide-scrollbar">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             {product.name || "Unnamed Product"}
