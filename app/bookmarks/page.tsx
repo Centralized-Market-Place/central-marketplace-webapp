@@ -8,7 +8,7 @@ import {
   useBookmarks,
 } from "@/products/hooks/useBookmarks";
 import { useState } from "react";
-import { ProductLoading } from "../page";
+import { ProductLoading } from "@/components/common/product-loading";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Input } from "@/components/ui/input";
 import { ProductCard } from "@/products/components/product-card";
