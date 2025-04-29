@@ -8,7 +8,7 @@ export const CategorySchema = z.object({
 });
 
 export const ProductSchema = z.object({
-  channelId: z.number(),
+  channelId: z.string(),
   messageId: z.number().nullable(),
   forwards: z.number(),
   views: z.number(),
