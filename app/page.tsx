@@ -6,8 +6,10 @@ import { ProductCard } from "@/products/components/product-card";
 import { useDebounce } from "../hooks/use-debounce";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { DEFAULT_FILTERS, useProducts } from "@/products/hooks/useProducts";
+import { EmptyState, ErrorState } from "@/components/common/empty-state";
+import { Search } from "lucide-react";
 
-function ProductLoading() {
+export function ProductLoading() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {Array.from({ length: 8 }).map((_, index) => (
@@ -32,7 +34,7 @@ export default function Home() {
 
   return (
     <main className="container mt-20 px-4 mx-auto">
-      <div className="max-w-2xl mx-auto text-center mb-4 space-y-4">
+      <div className="mt-4 max-w-2xl mx-auto text-center mb-4 space-y-4">
         <h1 className="text-3xl font-bold">Search and find anything</h1>
         <Input
           type="search"
@@ -44,9 +46,14 @@ export default function Home() {
       </div>
 
       {isError && (
-        <p className="text-center text-red-500">
-          Error: occurred. Please try again later.
-        </p>
+        <ErrorState
+          message="Something went wrong. Please try again."
+          onRetry={() => window.location.reload()}
+        />
+      )}
+
+      {!isLoading && !isError && products.length === 0 && (
+        <EmptyState message="No products found." icon={Search} />
       )}
 
       {isLoading && <ProductLoading />}
@@ -56,20 +63,24 @@ export default function Home() {
           dataLength={products.length}
           next={fetchNextPage}
           hasMore={!!hasNextPage}
-          loader={<ProductLoading />}
-          endMessage={<p className="text-center"></p>}
+          loader={
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-[28rem] bg-muted animate-pulse rounded-lg"
+                ></div>
+              ))}
+            </div>
+          }
         >
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {products.map((product) => (
               <ProductCard key={product.id} prod={product} />
             ))}
           </div>
         </InfiniteScroll>
       }
-
-      {!isLoading && !isError && products.length === 0 && (
-        <p className="mt-6 text-center text-xl">No products found.</p>
-      )}
     </main>
   );
 }

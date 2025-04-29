@@ -178,7 +178,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
+        {user.role === "SELLER" &&  <SidebarGroup>
           <SidebarGroupLabel
             className={cn("px-2 py-1", state === "collapsed" && "sr-only")}
           >
@@ -286,9 +286,9 @@ export function AppSidebar() {
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
-        </SidebarGroup>
+        </SidebarGroup>}
 
-        <SidebarGroup>
+       {user.role === "ADMIN" && <SidebarGroup>
           <SidebarGroupLabel
             className={cn("px-2 py-1", state === "collapsed" && "sr-only")}
           >
@@ -408,9 +408,8 @@ export function AppSidebar() {
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
-        </SidebarGroup>
+        </SidebarGroup>}
 
-        {/* Settings at the bottom */}
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>

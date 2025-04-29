@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import { CommentSection } from "@/comments/components/comment-section";
-import { Share2, ThumbsDown, ThumbsUp, Eye } from "lucide-react";
+import { Share2, ThumbsDown, ThumbsUp, Eye, Bookmark } from "lucide-react";
 import Image from "next/image";
 import { cn, formatNumber } from "@/lib/utils";
 import { useAuthContext } from "@/providers/auth-context";
@@ -21,12 +21,14 @@ import { format } from "date-fns";
 interface ProductModalProps {
   product: Product;
   handleReaction: (reactionType: "upvote" | "downvote") => void;
+  handleBookmark: () => void;
+  isBookmarkLoading: boolean;
   isOpen: boolean;
   isLoading: boolean;
   onClose: () => void;
 }
 
-export function ProductModal({ product, handleReaction, isLoading, isOpen, onClose }: ProductModalProps) {
+export function ProductModal({ product, handleReaction, isLoading, handleBookmark, isBookmarkLoading, isOpen, onClose }: ProductModalProps) {
   const [activeTab, setActiveTab] = useState("details");
   const { isAuthenticated } = useAuthContext();
 
@@ -138,6 +140,19 @@ export function ProductModal({ product, handleReaction, isLoading, isOpen, onClo
                 />
                 {formatNumber(product.downvotes)}
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center justify-center"
+                onClick={() => handleBookmark()}
+                disabled={isLoading || isBookmarkLoading}
+              >
+                <Bookmark
+                  size={14}
+                  className={cn(product.isBookmarked && "fill-current")}
+                />
+              </Button>
+              
               <Button
                 variant="outline"
                 className="flex items-center gap-1 ml-auto"
