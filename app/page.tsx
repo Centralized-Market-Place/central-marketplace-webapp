@@ -8,19 +8,8 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { DEFAULT_FILTERS, useProducts } from "@/products/hooks/useProducts";
 import { EmptyState, ErrorState } from "@/components/common/empty-state";
 import { Search } from "lucide-react";
+import { ProductLoading } from "@/components/common/product-loading";
 
-export function ProductLoading() {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {Array.from({ length: 8 }).map((_, index) => (
-        <div
-          key={index}
-          className="h-[28rem] bg-muted animate-pulse rounded-lg"
-        ></div>
-      ))}
-    </div>
-  );
-}
 
 export default function Home() {
   const [search, setSearch] = useState("");
