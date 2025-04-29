@@ -6,11 +6,8 @@ import type React from "react";
 import QueryProvider from "../providers/query-provider";
 import { AuthProvider } from "../providers/auth-context";
 import { AlertProvider } from "@/providers/alert-provider";
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/common/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/common/app-sidebar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,8 +28,8 @@ export default function RootLayout({
                 enableSystem
                 disableTransitionOnChange
               >
-                <Header />
                 <SidebarProvider>
+                  <Header />
                   <AppSidebar />
                   <SidebarInset>{children}</SidebarInset>
                 </SidebarProvider>

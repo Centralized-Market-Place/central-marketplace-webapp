@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "../ui/button";
-import { Moon, Sun, User } from "lucide-react";
+import { Menu, Moon, Sun, User } from "lucide-react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -11,25 +11,40 @@ import {
 } from "../ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import { useAuthContext } from "@/providers/auth-context";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export function Header() {
   const { user, logout } = useAuthContext();
   const { setTheme, theme } = useTheme();
+  const { toggleSidebar, isMobile } = useSidebar();
 
   return (
     <header className="border-b fixed top-0 left-0 w-full bg-white dark:bg-background z-50">
-      <div className="container flex items-center justify-between h-16 ml-20">
-        <Link href="/" className="font-bold text-xl">
-          Marketplace
-        </Link>
+      <div className="container flex items-center justify-between h-16 px-4 md:ml-20">
+        <div className="flex items-center gap-2">
+          {isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="md:hidden"
+            >
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          )}
+          <Link href="/" className="font-bold text-xl">
+            Marketplace
+          </Link>
+        </div>
 
-        <div className="flex items-center justify-end gap-16">
+        <div className="flex items-center justify-end gap-4 md:gap-16">
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2">
                   <User className="h-5 w-5" />
-                  {user.name}
+                  <span className="hidden sm:inline">{user.name}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
