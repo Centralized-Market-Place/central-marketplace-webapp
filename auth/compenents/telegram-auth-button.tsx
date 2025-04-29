@@ -1,50 +1,48 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { useAuth } from "../hooks/useAuth";
-import { TelegramLogin } from "../shema";
-
 import { useRouter } from "next/navigation";
+import { LoginButton } from "@telegram-auth/react";
 
-declare global {
-  interface Window {
-    onTelegramAuth?: (user: TelegramLogin) => void;
-  }
+interface TelegramAuthData {
+  id: number;
+  first_name: string;
+  last_name?: string | null;
+  username?: string | null;
+  photo_url?: string | null;
+  auth_date: number;
+  hash: string;
 }
 
 const TelegramLoginButton = () => {
   const router = useRouter();
   const { telegramLogin } = useAuth();
 
-  useEffect(() => {
-    window.onTelegramAuth = async (user: TelegramLogin) => {
-      console.log("Telegram auth callback received user:", user);
-      telegramLogin({
-        telegramLogin: user,
-        onSuccess: () => router.push("/"),
-      });
-    };
-
-    const script = document.createElement("script");
-    script.src = "https://telegram.org/js/telegram-widget.js?22";
-    script.async = true;
-    script.setAttribute("data-telegram-login", "central_marketplace_bot");
-    script.setAttribute("data-size", "large");
-    script.setAttribute("data-onauth", "onTelegramAuth(user)");
-    script.setAttribute("data-request-access", "write");
-
-    const container = document.getElementById("telegram-login-container");
-    if (container) {
-      container.innerHTML = "";
-      container.appendChild(script);
-    }
-    return () => {
-      delete window.onTelegramAuth;
-    };
-  }, [telegramLogin, router]);
+  const handleTelegramResponse = (response: TelegramAuthData) => {
+    console.log("Telegram auth callback received user:", response);
+    telegramLogin({
+      telegramLogin: {
+        id: response.id,
+        first_name: response.first_name,
+        last_name: response.last_name || null,
+        username: response.username || null,
+        photo_url: response.photo_url || null,
+        auth_date: response.auth_date,
+        hash: response.hash,
+      },
+      onSuccess: () => router.push("/"),
+    });
+  };
 
   return (
     <div className="my-1 mb-2">
-      <div id="telegram-login-container" />
+      <LoginButton
+        botUsername="central_marketplace_bot"
+        buttonSize="large"
+        onAuthCallback={handleTelegramResponse}
+        requestAccess="write"
+        showAvatar={false}
+      />
     </div>
   );
 };
