@@ -24,7 +24,7 @@ export function ReplySection({ commentId, isReplying, onReplyCancel }: ReplySect
   const { isAuthenticated } = useAuthContext()
 
   const handleSubmitReply = () => {
-    if (!replyText.trim()) return
+    if (!replyText.trim() || !isAuthenticated) return
 
     createReply({
       replySave: {
@@ -87,7 +87,7 @@ export function ReplySection({ commentId, isReplying, onReplyCancel }: ReplySect
         ) : (
           <div className="space-y-3">
             {replies.map((reply) => (
-              <ReplyItem key={reply.id} reply={reply} commentId={commentId} />
+              <ReplyItem key={reply.id} rep={reply} commentId={commentId} />
             ))}
 
             {hasNextPage && (

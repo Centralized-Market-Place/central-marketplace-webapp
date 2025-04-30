@@ -32,13 +32,17 @@ const buildQuery = (filters: ProductFilter) => {
 };
 
 export function useProducts(filters: ProductFilter = DEFAULT_FILTERS) {
-  const baseUrl = `${API_URL}/api/v1/products`;
+  const baseUrl = `${API_URL}/api/v1/products/`;
   const query = buildQuery(filters);
   const { token } = useAuthContext();
 
   const getProducts = ({ pageParam = 1 }: { pageParam?: number }) => {
     const queryString = buildQuery({ ...filters, page: pageParam });
-    return apiGet<Products>(`${baseUrl}${queryString}`, ProductsSchema, token ?? undefined);
+    return apiGet<Products>(
+      `${baseUrl}${queryString}`,
+      ProductsSchema,
+      token ?? undefined
+    );
   };
 
   const productsQuery = useInfiniteQuery({
@@ -52,7 +56,8 @@ export function useProducts(filters: ProductFilter = DEFAULT_FILTERS) {
   });
 
   return {
-    products: productsQuery.data?.pages.flatMap((page) => page.data.items) || [],
+    products:
+      productsQuery.data?.pages.flatMap((page) => page.data.items) || [],
     isLoading: productsQuery.isLoading,
     isError: productsQuery.isError,
     error: productsQuery.error,

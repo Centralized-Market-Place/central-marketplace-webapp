@@ -6,14 +6,10 @@ import { ProductCard } from "@/products/components/product-card";
 import { useDebounce } from "../hooks/use-debounce";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { DEFAULT_FILTERS, useProducts } from "@/products/hooks/useProducts";
+import { EmptyState, ErrorState } from "@/components/common/empty-state";
+import { Search } from "lucide-react";
+import { ProductLoading } from "@/components/common/product-loading";
 
-// function LoadingSpinner() {
-//   return (
-//     <div className="flex justify-center items-center py-6">
-//       <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-//     </div>
-//   );
-// }
 
 export default function Home() {
   const [search, setSearch] = useState("");
@@ -27,7 +23,7 @@ export default function Home() {
 
   return (
     <main className="container mt-20 px-4 mx-auto">
-      <div className="max-w-2xl mx-auto text-center mb-4 space-y-4">
+      <div className="mt-4 max-w-2xl mx-auto text-center mb-4 space-y-4">
         <h1 className="text-3xl font-bold">Search and find anything</h1>
         <Input
           type="search"
@@ -39,10 +35,17 @@ export default function Home() {
       </div>
 
       {isError && (
-        <p className="text-center text-red-500">
-          Error: occurred. Please try again later.
-        </p>
+        <ErrorState
+          message="Something went wrong. Please try again."
+          onRetry={() => window.location.reload()}
+        />
       )}
+
+      {!isLoading && !isError && products.length === 0 && (
+        <EmptyState message="No products found." icon={Search} />
+      )}
+
+      {isLoading && <ProductLoading />}
 
       {
         <InfiniteScroll
@@ -50,28 +53,23 @@ export default function Home() {
           next={fetchNextPage}
           hasMore={!!hasNextPage}
           loader={
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {Array.from({ length: 8 }).map((_, index) => (
                 <div
                   key={index}
-                  className="h-[400px] bg-muted animate-pulse rounded-lg"
+                  className="h-[28rem] bg-muted animate-pulse rounded-lg"
                 ></div>
               ))}
             </div>
           }
-          endMessage={<p className="text-center"></p>}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {products.map((product) => (
-              <ProductCard key={product.id} productId={product.id} />
+              <ProductCard key={product.id} prod={product} />
             ))}
           </div>
         </InfiniteScroll>
       }
-
-      {!isLoading && !isError && products.length === 0 && (
-        <p className="text-center">No products found.</p>
-      )}
     </main>
   );
 }
