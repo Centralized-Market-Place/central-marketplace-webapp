@@ -42,6 +42,8 @@ const TelegramLoginButton = () => {
         onAuthCallback={handleTelegramResponse}
         requestAccess="write"
         showAvatar={false}
+        lang="en"
+        widgetVersion="22"
       />
     </div>
   );

@@ -46,7 +46,7 @@ export default function SignUpPage() {
             className="w-full"
             onClick={() => router.push("/login")}
           >
-            {"Need an account? Register"}
+            {"Have an account? Login"}
           </Button>
         </CardFooter>
       </Card>
