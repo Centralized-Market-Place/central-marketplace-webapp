@@ -24,8 +24,9 @@ export const ProductSchema = z.object({
   upvotes: z.number(),
   downvotes: z.number(),
   comments: z.number(),
+  shares: z.number(),
   postedAt: z.coerce.date().optional(),
-  isBookmarked: z.boolean(),
+  isBookmarked: z.boolean().optional().nullable(),
   userReaction: ReactionType.nullable()
 });
 
