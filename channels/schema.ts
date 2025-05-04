@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ChannelSchema = z.object({
-  id:   z.number(),
+  id:   z.string(),
   title:        z.string().optional().nullable(),
   username:     z.string().optional().nullable(),
   description:  z.string().optional().nullable(),
@@ -18,6 +18,7 @@ export const ChannelSchema = z.object({
   hasGeo:       z.boolean().optional(),
   hasLink:      z.boolean().optional(),
   broadcast:    z.boolean(),
+  telegramId:  z.number(),
 });
 
 
