@@ -22,7 +22,7 @@ export default function Home() {
     });
 
   return (
-    <main className="container mt-20 px-4 mx-auto">
+    <main className="container mt-4 px-4 mx-auto">
       <div className="mt-4 max-w-2xl mx-auto text-center mb-4 space-y-4">
         <h1 className="text-3xl font-bold">Search and find anything</h1>
         <Input

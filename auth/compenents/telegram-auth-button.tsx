@@ -14,7 +14,7 @@ interface TelegramAuthData {
   hash: string;
 }
 
-const TelegramLoginButton = () => {
+const TelegramLoginButton = ({ onSuccess }: { onSuccess?: () => void }) => {
   const router = useRouter();
   const { telegramLogin } = useAuth();
 
@@ -30,14 +30,17 @@ const TelegramLoginButton = () => {
         auth_date: response.auth_date,
         hash: response.hash,
       },
-      onSuccess: () => router.push("/"),
+      onSuccess: () => {
+        onSuccess?.();
+        router.push("/");
+      },
     });
   };
 
   return (
     <div className="my-1 mb-2">
       <LoginButton
-        botUsername="@central_marketplace_v1_bot"
+        botUsername="central_marketplace_v1_bot"
         buttonSize="large"
         onAuthCallback={handleTelegramResponse}
         requestAccess="write"

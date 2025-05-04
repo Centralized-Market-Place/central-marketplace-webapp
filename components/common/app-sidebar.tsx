@@ -174,6 +174,52 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+
+              {user.role !== "SELLER" && user.role !== "ADMIN" && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={
+                      state === "collapsed" ? "Become a Seller" : undefined
+                    }
+                  >
+                    <Link href="/seller/apply">
+                      <Store className="size-5" />
+                      <span
+                        className={cn(
+                          "ml-2 transition-opacity duration-200",
+                          state === "collapsed" && "opacity-0 w-0 -ml-0"
+                        )}
+                      >
+                        Become a Seller
+                      </span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+
+              {user.role !== "SELLER" && user.role !== "ADMIN" && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={
+                      state === "collapsed" ? "My Applications" : undefined
+                    }
+                  >
+                    <Link href="/seller/applications">
+                      <FileText className="size-5" />
+                      <span
+                        className={cn(
+                          "ml-2 transition-opacity duration-200",
+                          state === "collapsed" && "opacity-0 w-0 -ml-0"
+                        )}
+                      >
+                        My Applications
+                      </span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -315,6 +361,27 @@ export function AppSidebar() {
                         )}
                       >
                         Admin Dashboard
+                      </span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={
+                      state === "collapsed" ? "Seller Applications" : undefined
+                    }
+                  >
+                    <Link href="/admin/seller-applications">
+                      <Store className="size-5" />
+                      <span
+                        className={cn(
+                          "ml-2 transition-opacity duration-200",
+                          state === "collapsed" && "opacity-0 w-0 -ml-0"
+                        )}
+                      >
+                        Seller Applications
                       </span>
                     </Link>
                   </SidebarMenuButton>

@@ -12,7 +12,7 @@ import {
 import { API_URL } from "@/lib/utils";
 import { useAuthContext } from "@/providers/auth-context";
 import { useAlert } from "@/providers/alert-provider";
-
+import * as humps from "humps";
 export function useSellerApplicationMutation() {
   const baseUrl = `${API_URL}/api/v1/sellers/apply`;
   const { token } = useAuthContext();
@@ -29,7 +29,7 @@ export function useSellerApplicationMutation() {
     return apiPost<SellerApplication>(
       baseUrl,
       SellerApplicationSchema,
-      data,
+      humps.decamelizeKeys(data),
       token ?? undefined
     );
   };
@@ -48,6 +48,7 @@ export function useSellerApplicationMutation() {
       alert?.success("Application saved successfully");
     },
     onError: (_, variables) => {
+      console.log(_, variables);
       const { onError } = variables;
       onError?.();
       alert?.error("Failed to save application");

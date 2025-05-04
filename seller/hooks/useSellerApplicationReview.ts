@@ -12,6 +12,7 @@ import {
 import { API_URL } from "@/lib/utils";
 import { useAuthContext } from "@/providers/auth-context";
 import { useAlert } from "@/providers/alert-provider";
+import * as humps from "humps";
 
 export function useSellerApplicationReview() {
   const baseUrl = `${API_URL}/api/v1/sellers/applications`;
@@ -31,7 +32,7 @@ export function useSellerApplicationReview() {
     return apiPost<SellerApplication>(
       reviewUrl,
       SellerApplicationSchema,
-      data,
+      humps.decamelizeKeys(data),
       token ?? undefined
     );
   };

@@ -9,6 +9,7 @@ export default {
     "./products/**/*.{js,ts,jsx,tsx,mdx}",
     "./comments/**/*.{js,ts,jsx,tsx,mdx}",
     "!./**/.*/*.{js,ts,jsx,tsx,mdx}",
+    "./seller/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
