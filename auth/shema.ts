@@ -1,3 +1,4 @@
+import { SellerInfoSchema } from "@/seller/schema";
 import { z } from "zod";
 
 export const UserLoginSchema = z.object({
@@ -44,6 +45,7 @@ export const UserSchema = z.object({
   role: UserRole,
   lastLogin: z.coerce.date().nullable(),
   isVerified: z.boolean(),
+  sellerInfo: SellerInfoSchema.nullable(),
   telegram: TelegramDataSchema.optional().nullable(),
 });
 

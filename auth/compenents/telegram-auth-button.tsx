@@ -37,7 +37,7 @@ const TelegramLoginButton = () => {
   return (
     <div className="my-1 mb-2">
       <LoginButton
-        botUsername="central_marketplace_bot"
+        botUsername="@central_marketplace_v1_bot"
         buttonSize="large"
         onAuthCallback={handleTelegramResponse}
         requestAccess="write"
