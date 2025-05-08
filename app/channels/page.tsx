@@ -33,7 +33,7 @@ export default function ChannelsPage() {
   });
 
   return (
-    <main className="container mt-16 px-4 mx-auto space-y-6">
+    <main className="container px-4 mx-auto space-y-6">
       {/* sticky search bar */}
       <div className="sticky top-16 z-50 py-4">
         <div className="max-w-xl mx-auto">

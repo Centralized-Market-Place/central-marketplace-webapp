@@ -38,7 +38,6 @@ export function useAuth() {
       telegramLogin: TelegramLogin;
       onSuccess?: () => void;
       onError?: () => void;
-
     }
   ) => {
 

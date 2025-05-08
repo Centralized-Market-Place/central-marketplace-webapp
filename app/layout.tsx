@@ -31,7 +31,7 @@ export default function RootLayout({
                 <SidebarProvider>
                   <Header />
                   <AppSidebar />
-                  <SidebarInset>{children}</SidebarInset>
+                  <SidebarInset><div className="mt-16">{children}</div></SidebarInset>
                 </SidebarProvider>
               </ThemeProvider>
             </AuthProvider>
