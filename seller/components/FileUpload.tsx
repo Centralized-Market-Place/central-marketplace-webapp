@@ -2,7 +2,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertCircle, CheckCircle2, File, Loader2, Upload } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  File,
+  Loader2,
+  Upload,
+  X,
+} from "lucide-react";
 import { useFileUpload } from "@/files/hooks/useFileUpload";
 import { allowedFileTypes } from "@/files/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -54,10 +61,23 @@ export function FileUpload({
     }
   };
 
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    setUploadedUrl(null);
+    onFileSelected(""); // Clear the file URL in parent component
+
+    // Reset file input
+    const fileInput = document.getElementById(
+      "file-upload"
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
+
   const processFile = async (file: File) => {
     setError(null);
 
-    // Validate file
     const validation = validateFile(file);
     if (!validation.valid) {
       setError(validation.error || "Invalid file");
@@ -68,7 +88,6 @@ export function FileUpload({
     setIsUploading(true);
 
     try {
-      // Get signed URL
       getSignedUrl({
         signedUrlRequest: {
           fileType: file.type.split("/")[1],
@@ -76,7 +95,6 @@ export function FileUpload({
         },
         onSuccess: async (signedUrlData: SignedUrlResponse) => {
           try {
-            // Upload to Cloudinary using the signed URL response
             const fileUrl = await uploadToCloudinary(file, signedUrlData);
             setUploadedUrl(fileUrl);
             onFileSelected(fileUrl);
@@ -145,7 +163,17 @@ export function FileUpload({
             {Math.round(selectedFile.size / 1024)} KB
           </p>
         </div>
-        <CheckCircle2 className="h-5 w-5 text-green-500 ml-2" />
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="h-5 w-5 text-green-500" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 rounded-full hover:bg-destructive/10"
+            onClick={handleRemoveFile}
+          >
+            <X className="h-5 w-5 text-destructive" />
+          </Button>
+        </div>
       </div>
     );
   }
