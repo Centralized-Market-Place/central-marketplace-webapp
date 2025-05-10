@@ -180,7 +180,7 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     tooltip={
-                      state === "collapsed" ? "Become a Seller" : undefined
+                      state === "collapsed" ?  user?.role === "SELLER" ? "Register your Channel" : "Become a Seller" : undefined
                     }
                   >
                     <Link href="/seller/apply">
@@ -191,7 +191,7 @@ export function AppSidebar() {
                           state === "collapsed" && "opacity-0 w-0 -ml-0"
                         )}
                       >
-                        Become a Seller
+                        {user?.role === "SELLER" ? "Register your Channel" : "Become a Seller"}
                       </span>
                     </Link>
                   </SidebarMenuButton>
