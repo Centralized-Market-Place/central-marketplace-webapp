@@ -25,7 +25,8 @@ export default function BecomeSellerPage() {
   const [activeStep, setActiveStep] = useState(0);
   const [channelId, setChannelId] = useState<string>("");
   const [channelName, setChannelName] = useState<string>("");
-  const botStatus = useBotStatus(channelId);
+  const [isPolling, setIsPolling] = useState<boolean>(false);
+  const botStatus = useBotStatus(channelId, isPolling);
 
   const getCurrentStep = () => {
     if (!user?.telegram) {
@@ -47,6 +48,7 @@ export default function BecomeSellerPage() {
   const handleChannelSelection = (channelId: string, channelName: string) => {
     setChannelId(channelId);
     setChannelName(channelName);
+    setIsPolling(true);
     botStatus.refetch();
   };
 
@@ -122,6 +124,7 @@ export default function BecomeSellerPage() {
             onBotAdded={handleNextStep}
             selectedChannelId={channelId}
             botStatus={botStatus}
+            onCancelPolling={() => setIsPolling(false)}
           />
         )}
 

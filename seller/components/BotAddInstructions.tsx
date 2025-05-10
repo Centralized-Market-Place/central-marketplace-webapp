@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2Icon, RotateCcw } from "lucide-react";
+import { CheckCircle2Icon, RotateCcw, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from "next/image";
 
@@ -25,6 +25,7 @@ interface BotAddInstructionsProps {
     isLoading: boolean;
     refetch: () => void;
   };
+  onCancelPolling: () => void;
 }
 
 export function BotAddInstructions({
@@ -32,18 +33,22 @@ export function BotAddInstructions({
   onBotAdded,
   selectedChannelId,
   botStatus,
+  onCancelPolling,
 }: BotAddInstructionsProps) {
   const [channelId, setChannelId] = useState(selectedChannelId);
   const [channelName, setChannelName] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
+  
 
-  // When bot status changes, update the verification state
   useEffect(() => {
     if (botStatus.botStatus?.hasBotAdminAccess) {
       setIsVerifying(false);
 
-      // If verification is complete, proceed to next step
-      if (selectedChannelId === channelId && channelName) {
+      if (
+        selectedChannelId === channelId &&
+        channelName &&
+        botStatus.botStatus.verifiedChannelOwnership
+      ) {
         setTimeout(() => {
           onBotAdded();
         }, 1500);
@@ -66,6 +71,12 @@ export function BotAddInstructions({
 
   const handleRefreshStatus = () => {
     botStatus.refetch();
+    setIsVerifying(true);
+  };
+
+  const handleCancel = () => {
+    setIsVerifying(false);
+    onCancelPolling();
   };
 
   return (
@@ -89,7 +100,11 @@ export function BotAddInstructions({
                 placeholder="e.g. @channel_username"
                 value={channelId}
                 onChange={(e) => setChannelId(e.target.value)}
-                disabled={isVerifying || botStatus.botStatus?.hasBotAdminAccess}
+                disabled={
+                  isVerifying ||
+                  (botStatus.botStatus?.hasBotAdminAccess &&
+                    botStatus.botStatus?.verifiedChannelOwnership)
+                }
               />
               <p className="text-xs text-muted-foreground">
                 add @ to the beginning of the channel username. optionally you
@@ -105,7 +120,11 @@ export function BotAddInstructions({
                 placeholder="e.g., My Product Channel"
                 value={channelName}
                 onChange={(e) => setChannelName(e.target.value)}
-                disabled={isVerifying || botStatus.botStatus?.hasBotAdminAccess}
+                disabled={
+                  isVerifying ||
+                  (botStatus.botStatus?.hasBotAdminAccess &&
+                    botStatus.botStatus?.verifiedChannelOwnership)
+                }
               />
             </div>
           </div>
@@ -148,18 +167,38 @@ export function BotAddInstructions({
           </div>
         </div>
 
-        {botStatus.botStatus?.hasBotAdminAccess ? (
-          <div className="flex flex-col items-center p-4 bg-green-50 rounded-md border border-green-200">
-            <CheckCircle2Icon className="h-10 w-10 text-green-500 mb-2" />
-            <h3 className="text-lg font-medium text-green-700">
-              Bot Successfully Added!
-            </h3>
-            <p className="text-sm text-green-600 text-center mb-4">
-              The bot has been successfully added to your channel as an
-              administrator.
-            </p>
-            <Button onClick={onBotAdded}>Continue to Next Step</Button>
-          </div>
+        {botStatus.botStatus?.hasBotAdminAccess && !isVerifying ? (
+          botStatus.botStatus.verifiedChannelOwnership ? (
+            <div className="flex flex-col items-center p-4 bg-green-50 rounded-md border border-green-200">
+              <CheckCircle2Icon className="h-10 w-10 text-green-500 mb-2" />
+              <h3 className="text-lg font-medium text-green-700">
+                Bot Successfully Added!
+              </h3>
+              <p className="text-sm text-green-600 text-center mb-4">
+                The bot has been successfully added to your channel as an
+                administrator.
+              </p>
+              <Button onClick={onBotAdded}>Continue to Next Step</Button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center p-4 bg-amber-50 rounded-md border border-amber-200">
+              <AlertCircle className="h-10 w-10 text-amber-500 mb-2" />
+              <h3 className="text-lg font-medium text-amber-700">
+                Channel Ownership Verification Failed
+              </h3>
+              <p className="text-sm text-amber-600 text-center mb-4">
+                The bot has been added to the channel, but we couldn&apos;t
+                verify that you are the admin of this channel. Please make sure
+                you are an administrator of the channel with appropriate rights.
+              </p>
+              <div className="flex flex-row gap-4">
+                <Button variant="outline" onClick={handleRefreshStatus}>
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  Retry Verification
+                </Button>
+              </div>
+            </div>
+          )
         ) : (
           <div className="flex flex-col md:flex-row gap-4">
             {!isVerifying ? (
@@ -175,10 +214,15 @@ export function BotAddInstructions({
                 <p className="flex-1 py-2 text-muted-foreground">
                   Checking bot access status...
                 </p>
-                <Button variant="outline" onClick={handleRefreshStatus}>
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Refresh Status
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={handleCancel}>
+                    Cancel
+                  </Button>
+                  <Button variant="outline" onClick={handleRefreshStatus}>
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                    Refresh Status
+                  </Button>
+                </div>
               </>
             )}
           </div>

@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { useSellerApplicationMutation } from "@/seller/hooks/useSellerApplicationMutation";
 import { SellerApplicationSave } from "@/seller/schema";
 import { FileUpload } from "@/seller/components/FileUpload";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { CheckCircle2, AlertCircle } from "lucide-react";
 
 interface SellerApplicationFormProps {
   channelId: string;
@@ -27,10 +29,10 @@ export function SellerApplicationForm({
   // Form state
   const [businessName, setBusinessName] = useState("");
   const [tinNumber, setTinNumber] = useState("");
-  const [governmentId, setGovernmentId] = useState(
-    "https://example.com/placeholder-id-url"
-  );
+  const [governmentId, setGovernmentId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   // Mutations
   const { submitApplication, isLoading } = useSellerApplicationMutation();
@@ -41,6 +43,7 @@ export function SellerApplicationForm({
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
 
     if (!isFormValid) return;
 
@@ -58,21 +61,43 @@ export function SellerApplicationForm({
       data: applicationData,
       onSuccess: () => {
         setIsSubmitting(false);
-        onApplicationSubmitted();
+        setSubmitSuccess(true);
+        // Call the parent callback after a short delay to allow the user to see the success message
+        setTimeout(() => {
+          onApplicationSubmitted();
+        }, 2000);
       },
       onError: () => {
         setIsSubmitting(false);
+        setSubmitError("Failed to submit application. Please try again.");
       },
     });
   };
 
-  // Handle file upload (mock implementation)
-  const handleFileUpload = (file: File) => {
-    console.log("File selected:", file.name);
-    // In a real implementation, you would upload the file to a server
-    // and then set the URL returned from the server
-    setGovernmentId(`https://cloudinary.com/uploads/${file.name}`);
+  // Handle file upload
+  const handleFileUpload = (fileUrl: string) => {
+    setGovernmentId(fileUrl);
   };
+
+  if (submitSuccess) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Application Submitted Successfully</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Alert className="bg-green-50 border-green-200">
+            <CheckCircle2 className="h-5 w-5 text-green-600" />
+            <AlertTitle className="text-green-800">Success!</AlertTitle>
+            <AlertDescription className="text-green-700">
+              Your seller application has been submitted. We will review your
+              information and get back to you shortly.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -84,6 +109,12 @@ export function SellerApplicationForm({
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {submitError && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{submitError}</AlertDescription>
+          </Alert>
+        )}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <div className="grid grid-cols-1 gap-4">
@@ -125,10 +156,13 @@ export function SellerApplicationForm({
 
               <div className="space-y-2">
                 <Label htmlFor="governmentId">Government Issued ID</Label>
-                <FileUpload onFileSelected={handleFileUpload} />
+                <FileUpload
+                  onFileSelected={handleFileUpload}
+                  folder="government-ids"
+                />
                 <p className="text-xs text-muted-foreground">
                   Please upload a clear image of a valid government ID. Accepted
-                  formats: JPG, PNG, PDF (max 5MB).
+                  formats: JPG, PNG, PDF (max 10MB).
                 </p>
               </div>
             </div>

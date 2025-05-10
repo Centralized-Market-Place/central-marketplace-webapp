@@ -48,7 +48,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="mt-16">
       <SidebarHeader className="flex flex-col items-start gap-4 px-4 pt-4">
         <div className="flex items-center">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
             <Store className="size-5 text-primary-foreground" />
           </div>
           <span
@@ -175,7 +175,7 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              {user.role !== "SELLER" && user.role !== "ADMIN" && (
+              {user.role !== "ADMIN" && (
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
@@ -198,7 +198,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               )}
 
-              {user.role !== "SELLER" && user.role !== "ADMIN" && (
+              {user.role !== "ADMIN" && (
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
