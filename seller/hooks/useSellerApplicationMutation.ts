@@ -13,6 +13,7 @@ import { API_URL } from "@/lib/utils";
 import { useAuthContext } from "@/providers/auth-context";
 import { useAlert } from "@/providers/alert-provider";
 import * as humps from "humps";
+import { AxiosError } from "axios";
 export function useSellerApplicationMutation() {
   const baseUrl = `${API_URL}/api/v1/sellers/apply`;
   const { token } = useAuthContext();
@@ -47,11 +48,17 @@ export function useSellerApplicationMutation() {
       });
       alert?.success("Application saved successfully");
     },
-    onError: (_, variables) => {
-      console.log(_, variables);
+    onError: (error, variables) => {
+      console.log(error, variables);
       const { onError } = variables;
       onError?.();
-      alert?.error("Failed to save application");
+      if (error instanceof AxiosError) {
+        const errorMessage = (error.response?.data as { detail?: string })
+          ?.detail;
+        alert?.error(errorMessage ?? "Failed to save application");
+      } else {
+        alert?.error("Failed to save application");
+      }
     },
   });
 

@@ -52,6 +52,22 @@ export const PaginatedSellerApplicationSchema = z.object({
   items: z.array(SellerApplicationSchema),
 });
 
+export const BotChannelFormSchema = z.object({
+  channelId: z.string().regex(/^(?:@[A-Za-z][A-Za-z0-9_]{4,31}|\d+)$/, {
+    message:
+      "Channel ID must be either a Telegram username (e.g. @my_channel) or a numeric ID",
+  }),
+  channelName: z.string().min(1, { message: "Channel name is required" }),
+});
+
+export const SellerApplicationFormSchema = z.object({
+  businessName: z.string().min(1, { message: "Business name is required" }),
+  tinNumber: z
+    .string()
+    .regex(/^\d{10}$/, { message: "TIN must be exactly 10 digits" }),
+  governmentId: z.string().min(1, { message: "Government ID is required" }),
+});
+
 export type SellerApplication = z.infer<typeof SellerApplicationSchema>;
 export type SellerApplicationSave = z.infer<typeof SellerApplicationSaveSchema>;
 export type SellerApplicationReview = z.infer<
@@ -65,3 +81,5 @@ export type BotStatus = z.infer<typeof BotStatusSchema>;
 export type SellerApplications = z.infer<
   typeof PaginatedSellerApplicationSchema
 >;
+export type BotChannelForm = z.infer<typeof BotChannelFormSchema>;
+export type SellerApplicationForm = z.infer<typeof SellerApplicationFormSchema>;
