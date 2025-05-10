@@ -26,7 +26,7 @@ export function SellerApplicationForm({
   channelName,
   onApplicationSubmitted,
 }: SellerApplicationFormProps) {
-  // Form state
+
   const [businessName, setBusinessName] = useState("");
   const [tinNumber, setTinNumber] = useState("");
   const [governmentId, setGovernmentId] = useState("");
@@ -34,13 +34,10 @@ export function SellerApplicationForm({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  // Mutations
   const { submitApplication, isLoading } = useSellerApplicationMutation();
 
-  // Form validation
   const isFormValid = businessName && tinNumber && governmentId;
 
-  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
@@ -62,7 +59,6 @@ export function SellerApplicationForm({
       onSuccess: () => {
         setIsSubmitting(false);
         setSubmitSuccess(true);
-        // Call the parent callback after a short delay to allow the user to see the success message
         setTimeout(() => {
           onApplicationSubmitted();
         }, 2000);
@@ -74,7 +70,6 @@ export function SellerApplicationForm({
     });
   };
 
-  // Handle file upload
   const handleFileUpload = (fileUrl: string) => {
     setGovernmentId(fileUrl);
   };

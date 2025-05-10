@@ -13,12 +13,13 @@ interface AdminSellerApplicationsParams {
   page?: number;
   pageSize?: number;
   status?: SellerApplicationStatus;
+  search?: string;
 }
 
 export function useAdminSellerApplications(
   params: AdminSellerApplicationsParams = {}
 ) {
-  const { page = 1, pageSize = 10, status } = params;
+  const { page = 1, pageSize = 10, status, search } = params;
   const baseUrl = `${API_URL}/api/v1/sellers/applications`;
   const { token, user } = useAuthContext();
 
@@ -28,6 +29,10 @@ export function useAdminSellerApplications(
 
   if (status) {
     queryParams.append("status", status);
+  }
+
+  if (search) {
+    queryParams.append("search", search);
   }
 
   const getApplications = () => {

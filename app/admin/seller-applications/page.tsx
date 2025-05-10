@@ -18,11 +18,15 @@ import { AdminSellerApplicationReview } from "@/seller/components/AdminSellerApp
 import { useAuthContext } from "@/providers/auth-context";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { Search, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 export default function AdminSellerApplicationsPage() {
   const { user } = useAuthContext();
   const router = useRouter();
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<
     SellerApplicationStatus | undefined
   >(undefined);
@@ -34,6 +38,7 @@ export default function AdminSellerApplicationsPage() {
     page,
     pageSize: 10,
     status: selectedStatus,
+    search: searchQuery,
   });
 
   if (user?.role !== "ADMIN") {
@@ -42,175 +47,232 @@ export default function AdminSellerApplicationsPage() {
   }
 
   return (
-    <div className="container py-8 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Seller Applications</h1>
+    <div className="min-h-screen bg-background/50 py-8">
+      <div className="container max-w-7xl mx-auto px-4">
+        <div className="bg-card rounded-xl shadow-sm border p-6 mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+              Seller Applications
+            </h1>
 
-        <div className="flex items-center gap-4">
-          <div className="w-[180px]">
-            <Select
-              value={selectedStatus}
-              onValueChange={(value) =>
-                setSelectedStatus(
-                  value === "ALL"
-                    ? undefined
-                    : (value as SellerApplicationStatus)
-                )
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All statuses</SelectItem>
-                <SelectItem value="PENDING">Pending</SelectItem>
-                <SelectItem value="APPROVED">Approved</SelectItem>
-                <SelectItem value="REJECTED">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
-
-      {isLoading ? (
-        <div className="flex justify-center my-16">
-          <LoadingSpinner />
-        </div>
-      ) : applications.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>No Applications Found</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              There are no seller applications matching your current filters.
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 gap-6">
-            {applications.map((application) => (
-              <Card key={application.id} className="overflow-hidden">
-                <CardHeader className="pb-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle>
-                        {application.sellerInfo.businessName}
-                      </CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        Submitted on{" "}
-                        {new Date(application.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <SellerApplicationStatusBadge status={application.status} />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <h3 className="text-sm font-semibold text-muted-foreground mb-1">
-                        TIN Number
-                      </h3>
-                      <p>{application.sellerInfo.tinNumber}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-muted-foreground mb-1">
-                        Channel
-                      </h3>
-                      <p>{application.sellerInfo.channelName}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-muted-foreground mb-1">
-                        Channel ID
-                      </h3>
-                      <p>{application.sellerInfo.channelId}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-muted-foreground mb-1">
-                        Bot Admin Status
-                      </h3>
-                      <p
-                        className={
-                          application.sellerInfo.hasBotAdminAccess
-                            ? "text-green-500"
-                            : "text-red-500"
-                        }
-                      >
-                        {application.sellerInfo.hasBotAdminAccess
-                          ? "Yes"
-                          : "No"}
-                      </p>
-                    </div>
-                    {application.status !== "PENDING" &&
-                      application.adminReviewNotes && (
-                        <div className="col-span-2">
-                          <h3 className="text-sm font-semibold text-muted-foreground mb-1">
-                            Admin Notes
-                          </h3>
-                          <p>{application.adminReviewNotes}</p>
-                        </div>
-                      )}
-                  </div>
-
-                  <div className="mt-4">
-                    <h3 className="text-sm font-semibold text-muted-foreground mb-2">
-                      Government ID
-                    </h3>
-                    <div className="border rounded-md p-2 bg-muted/50">
-                      <Image
-                        // src={application.sellerInfo.governmentId}
-                        src="/bot_admin_access.png"
-                        alt="Government ID (placeholder)"
-                        width={120}
-                        height={80}
-                      />
-                    </div>
-                  </div>
-
-                  {application.status === "PENDING" && (
-                    <div className="mt-6 flex gap-4">
-                      <Button
-                        onClick={() => setSelectedApplicationId(application.id)}
-                        className="flex-1"
-                      >
-                        Review Application
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Pagination controls */}
-          {pagination && pagination.total > 0 && (
-            <div className="flex justify-between items-center mt-8">
-              <p className="text-sm text-muted-foreground">
-                Showing {Math.min((page - 1) * 10 + 1, pagination.total)} to{" "}
-                {Math.min(page * 10, pagination.total)} of {pagination.total}{" "}
-                applications
-              </p>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  disabled={page === 1}
-                  onClick={() => setPage(page - 1)}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+              <div className="relative flex-1 sm:w-[280px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by business name or TIN..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <div className="w-full sm:w-[180px]">
+                <Select
+                  value={selectedStatus}
+                  onValueChange={(value) =>
+                    setSelectedStatus(
+                      value === "ALL"
+                        ? undefined
+                        : (value as SellerApplicationStatus)
+                    )
+                  }
                 >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  disabled={page * 10 >= pagination.total}
-                  onClick={() => setPage(page + 1)}
-                >
-                  Next
-                </Button>
+                  <SelectTrigger>
+                    <Filter className="mr-2 h-4 w-4" />
+                    <SelectValue placeholder="Filter status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All statuses</SelectItem>
+                    <SelectItem value="PENDING">Pending</SelectItem>
+                    <SelectItem value="APPROVED">Approved</SelectItem>
+                    <SelectItem value="REJECTED">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+          </div>
+
+          {isLoading ? (
+            <div className="flex justify-center my-16">
+              <LoadingSpinner />
+            </div>
+          ) : applications.length === 0 ? (
+            <Card className="border-dashed bg-card">
+              <CardHeader>
+                <CardTitle className="text-foreground">
+                  No Applications Found
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  There are no seller applications matching your current
+                  filters.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 gap-4">
+                {applications.map((application) => (
+                  <Card
+                    key={application.id}
+                    className={cn(
+                      "overflow-hidden transition-all duration-200 hover:shadow-md bg-card",
+                      application.status === "PENDING" &&
+                        "border-l-4 border-l-orange-500",
+                      application.status === "APPROVED" &&
+                        "border-l-4 border-l-green-500",
+                      application.status === "REJECTED" &&
+                        "border-l-4 border-l-red-500"
+                    )}
+                  >
+                    <CardHeader className="pb-4">
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                        <div>
+                          <CardTitle className="text-xl text-foreground">
+                            {application.sellerInfo.businessName}
+                          </CardTitle>
+                          <p className="text-sm text-muted-foreground">
+                            Submitted on{" "}
+                            {new Date(application.createdAt).toLocaleDateString(
+                              undefined,
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              }
+                            )}
+                          </p>
+                        </div>
+                        <SellerApplicationStatusBadge
+                          status={application.status}
+                          className="w-fit"
+                        />
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <div className="space-y-1.5">
+                          <h3 className="text-sm font-medium text-muted-foreground">
+                            TIN Number
+                          </h3>
+                          <p className="font-medium text-foreground">
+                            {application.sellerInfo.tinNumber}
+                          </p>
+                        </div>
+                        <div className="space-y-1.5">
+                          <h3 className="text-sm font-medium text-muted-foreground">
+                            Channel
+                          </h3>
+                          <p className="font-medium text-foreground">
+                            {application.sellerInfo.channelName}
+                          </p>
+                        </div>
+                        <div className="space-y-1.5">
+                          <h3 className="text-sm font-medium text-muted-foreground">
+                            Channel ID
+                          </h3>
+                          <p className="font-medium text-foreground">
+                            {application.sellerInfo.channelId}
+                          </p>
+                        </div>
+                        <div className="space-y-1.5">
+                          <h3 className="text-sm font-medium text-muted-foreground">
+                            Bot Admin Status
+                          </h3>
+                          <p
+                            className={cn(
+                              "font-medium",
+                              application.sellerInfo.hasBotAdminAccess
+                                ? "text-green-500 dark:text-green-400"
+                                : "text-red-500 dark:text-red-400"
+                            )}
+                          >
+                            {application.sellerInfo.hasBotAdminAccess
+                              ? "Yes"
+                              : "No"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {application.status !== "PENDING" &&
+                        application.adminReviewNotes && (
+                          <div className="mt-4 p-4 bg-muted/30 dark:bg-muted/10 rounded-lg border">
+                            <h3 className="text-sm font-medium text-foreground mb-2">
+                              Admin Notes
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {application.adminReviewNotes}
+                            </p>
+                          </div>
+                        )}
+
+                      <div className="mt-6">
+                        <h3 className="text-sm font-medium text-muted-foreground mb-3">
+                          Government ID
+                        </h3>
+                        <div className="relative overflow-hidden rounded-lg border bg-muted/30 dark:bg-muted/10 hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors">
+                          <Image
+                            src={application.sellerInfo.governmentId}
+                            alt="Government ID"
+                            width={200}
+                            height={120}
+                            className="object-cover"
+                          />
+                        </div>
+                      </div>
+
+                      {application.status === "PENDING" && (
+                        <div className="mt-6">
+                          <Button
+                            onClick={() =>
+                              setSelectedApplicationId(application.id)
+                            }
+                            className="w-full sm:w-auto"
+                            size="lg"
+                          >
+                            Review Application
+                          </Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Pagination controls */}
+              {pagination && pagination.total > 0 && (
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8">
+                  <p className="text-sm text-muted-foreground order-2 sm:order-1">
+                    Showing {Math.min((page - 1) * 10 + 1, pagination.total)} to{" "}
+                    {Math.min(page * 10, pagination.total)} of{" "}
+                    {pagination.total} applications
+                  </p>
+                  <div className="flex items-center gap-2 order-1 sm:order-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page === 1}
+                      onClick={() => setPage(page - 1)}
+                    >
+                      <ChevronLeft className="h-4 w-4 mr-1" />
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page * 10 >= pagination.total}
+                      onClick={() => setPage(page + 1)}
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
-        </>
-      )}
+        </div>
+      </div>
 
       {selectedApplicationId && (
         <AdminSellerApplicationReview
