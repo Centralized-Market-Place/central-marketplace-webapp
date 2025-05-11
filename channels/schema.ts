@@ -19,6 +19,7 @@ export const ChannelSchema = z.object({
   hasLink:      z.boolean().optional(),
   broadcast:    z.boolean(),
   telegramId:  z.number(),
+  channelUsername: z.string(),
 });
 
 

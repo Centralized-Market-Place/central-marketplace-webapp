@@ -53,10 +53,7 @@ export const PaginatedSellerApplicationSchema = z.object({
 });
 
 export const BotChannelFormSchema = z.object({
-  channelId: z.string().regex(/^(?:@[A-Za-z][A-Za-z0-9_]{4,31}|\d+)$/, {
-    message:
-      "Channel ID must be either a Telegram username (e.g. @my_channel) or a numeric ID",
-  }),
+  channelId: z.string().min(1, { message: "Channel username is required" }),
   channelName: z.string().min(1, { message: "Channel name is required" }),
 });
 

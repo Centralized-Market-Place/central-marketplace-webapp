@@ -64,9 +64,8 @@ export function FileUpload({
   const handleRemoveFile = () => {
     setSelectedFile(null);
     setUploadedUrl(null);
-    onFileSelected(""); // Clear the file URL in parent component
+    onFileSelected("");
 
-    // Reset file input
     const fileInput = document.getElementById(
       "file-upload"
     ) as HTMLInputElement;

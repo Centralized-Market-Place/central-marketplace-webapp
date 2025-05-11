@@ -156,18 +156,16 @@ export function BotAddInstructions({
                   name="channelId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Channel ID</FormLabel>
+                      <FormLabel>Channel Username</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="e.g. @channel_username"
+                          placeholder="e.g. channel_username"
                           disabled={isVerifying || isChannelVerified}
                           {...field}
                         />
                       </FormControl>
                       <p className="text-xs text-muted-foreground">
-                        add @ to the beginning of the channel username.
-                        optionally you can add channel id which you can obtain
-                        by sending a message to @username_to_id_bot
+                      your channel must be a public channel to have a username.
                       </p>
                       <FormMessage />
                     </FormItem>
