@@ -31,7 +31,11 @@ export default function RootLayout({
                 <SidebarProvider>
                   <Header />
                   <AppSidebar />
-                  <SidebarInset><div className="mt-16">{children}</div></SidebarInset>
+                  <SidebarInset>
+                    <div className="mt-16 w-full overflow-y-auto">
+                      {children}
+                    </div>
+                  </SidebarInset>
                 </SidebarProvider>
               </ThemeProvider>
             </AuthProvider>

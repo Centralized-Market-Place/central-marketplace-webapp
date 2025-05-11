@@ -13,6 +13,7 @@ import { API_URL } from "@/lib/utils";
 import { useAuthContext } from "@/providers/auth-context";
 import { useAlert } from "@/providers/alert-provider";
 import * as humps from "humps";
+import { AxiosError } from "axios";
 
 export function useSellerApplicationReview() {
   const baseUrl = `${API_URL}/api/v1/sellers/applications`;
@@ -55,10 +56,16 @@ export function useSellerApplicationReview() {
         queryKey: sellerApplicationQueryKey.all,
       });
     },
-    onError: (_, variables) => {
+    onError: (error, variables) => {
       const { onError } = variables;
       onError?.();
-      alert?.error("Failed to review application");
+      if (error instanceof AxiosError) {
+        const errorMessage = (error.response?.data as { detail?: string })
+          ?.detail;
+        alert?.error(errorMessage ?? "Failed to review application");
+      } else {
+        alert?.error("Failed to review application");
+      }
     },
   });
 

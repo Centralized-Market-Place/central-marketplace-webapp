@@ -8,13 +8,20 @@ import { ProductCard } from "@/products/components/product-card";
 import { useDebounce } from "@/hooks/use-debounce";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { DEFAULT_FILTERS, useProducts } from "@/products/hooks/useProducts";
-import LoadingIcon from "@/components/state/loading";
 import { useChannel } from "@/channels/hooks/useChannel";
+import { Search, ExternalLink } from "lucide-react";
+import { ProductLoading } from "@/components/common/product-loading";
+import { EmptyState, ErrorState } from "@/components/common/empty-state";
 
-function LoadingSpinner() {
+function ChannelHeaderSkeleton() {
   return (
-    <div className="flex justify-center items-center py-6">
-      <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    <div className="flex md:flex-row items-center gap-4 md:gap-6 p-4 border-b">
+      <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-muted animate-pulse"></div>
+      <div className="flex-1">
+        <div className="h-8 w-48 bg-muted animate-pulse rounded mb-3"></div>
+        <div className="h-4 w-32 bg-muted animate-pulse rounded mb-2"></div>
+        <div className="h-4 w-full max-w-md bg-muted animate-pulse rounded"></div>
+      </div>
     </div>
   );
 }
@@ -24,7 +31,9 @@ export default function ChannelPage() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const { channel, isLoading: channelLoading } = useChannel(channelId as string);
+  const { channel, isLoading: channelLoading } = useChannel(
+    channelId as string
+  );
 
   const {
     products,
@@ -39,12 +48,24 @@ export default function ChannelPage() {
   });
 
   return (
-    <main className="container mt-16 px-4 mx-auto space-y-6">
-      {channelLoading ? (
-        <LoadingIcon className="size-8 mx-auto" />
-      ) : channel ? (
-        <div>
-          <div className="flex  md:flex-row items-center gap-4 md:gap-6 p-4  border-b ">
+    <main className="container px-4 mx-auto pt-1">
+      <div className="sticky top-0 z-50 py-4 bg-background/80 backdrop-blur-sm border-b">
+        <div className="max-w-xl mx-auto">
+          <Input
+            type="search"
+            placeholder="Search for products in this channel..."
+            className="w-full"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="mt-6 mb-8">
+        {channelLoading ? (
+          <ChannelHeaderSkeleton />
+        ) : channel ? (
+          <div className="flex md:flex-row items-center gap-4 md:gap-6 p-4 rounded-lg border shadow-sm">
             <Image
               src={channel.data.thumbnailUrl || "/tgthumbnail.jpeg"}
               alt={channel.data.title || "Channel Thumbnail"}
@@ -52,54 +73,70 @@ export default function ChannelPage() {
               height={64}
               className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border"
             />
-            <div className="text-center md:text-left">
-              <div className="flex gap-4">
+            <div className="flex-1">
+              <div className="flex gap-4 items-center mb-1">
                 <h1 className="text-2xl font-bold">{channel.data.title}</h1>
-                <a href={`https://t.me/${channel.data.username}`} target="_blank" rel="noopener noreferrer">
-                  <svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth="2"  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 15l6 -6" /><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" /><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" /></svg>
+                <a
+                  href={`https://t.me/${channel.data.username}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-blue-600 hover:text-blue-800"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  <span className="ml-1 text-sm">Visit Channel</span>
                 </a>
               </div>
-              {channel.data.participants && <p className="text-gray-700 text-md">
-                <span className="font-semibold">{channel.data.participants.toLocaleString()} Subscribers</span>
-              </p>}
-              {channel.data.description && <p className="text-gray-600 text-sm">{channel.data.description}</p>}
+              {channel.data.participants && (
+                <p className="text-muted-foreground mb-1">
+                  <span className="font-medium">
+                    {channel.data.participants.toLocaleString()} Subscribers
+                  </span>
+                </p>
+              )}
+              {channel.data.description && (
+                <p className="text-muted-foreground text-sm mt-2">
+                  {channel.data.description}
+                </p>
+              )}
             </div>
           </div>
-          <div className="fixed top-0 left-0 w-full z-50 py-4">
-            <div className="max-w-xl mx-auto">
-              <Input
-                type="search"
-                placeholder="Search for products in this channel..."
-                className="w-full"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-          </div>
-
-
+        ) : (
+          <ErrorState
+            message="Channel not found."
+            onRetry={() => window.location.reload()}
+          />
+        )}
       </div>
-      ) : (
-        <p className="text-center text-red-500">Channel not found.</p>
-      )}
 
       {isError && (
-        <p className="text-center text-red-500">
-          An error occurred. Please try again later.
-        </p>
+        <ErrorState
+          message="An error occurred. Please try again later."
+          onRetry={() => window.location.reload()}
+        />
       )}
 
       {productsLoading && products.length === 0 ? (
-        <LoadingIcon className="size-8 mx-auto" />
+        <ProductLoading />
       ) : (
         <InfiniteScroll
           dataLength={products.length}
           next={fetchNextPage}
           hasMore={!!hasNextPage}
-          loader={<LoadingSpinner />}
-          endMessage={<p className="text-center py-4">You reached the end!</p>}
+          loader={
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-[28rem] bg-muted animate-pulse rounded-lg"
+                ></div>
+              ))}
+            </div>
+          }
+          endMessage={
+            <p className="text-center py-4">You&apos;ve reached the end!</p>
+          }
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {products.map((product) => (
               <ProductCard key={product.id} prod={product} />
             ))}
@@ -108,7 +145,10 @@ export default function ChannelPage() {
       )}
 
       {!productsLoading && !isError && products.length === 0 && (
-        <p className="text-center py-6">No products found in this channel.</p>
+        <EmptyState
+          message="No products found in this channel."
+          icon={Search}
+        />
       )}
     </main>
   );

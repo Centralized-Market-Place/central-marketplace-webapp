@@ -48,7 +48,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="mt-16">
       <SidebarHeader className="flex flex-col items-start gap-4 px-4 pt-4">
         <div className="flex items-center">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
             <Store className="size-5 text-primary-foreground" />
           </div>
           <span
@@ -175,12 +175,12 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              {user.role !== "SELLER" && user.role !== "ADMIN" && (
+              {user.role !== "ADMIN" && (
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
                     tooltip={
-                      state === "collapsed" ? "Become a Seller" : undefined
+                      state === "collapsed" ?  user?.role === "SELLER" ? "Register your Channel" : "Become a Seller" : undefined
                     }
                   >
                     <Link href="/seller/apply">
@@ -191,14 +191,14 @@ export function AppSidebar() {
                           state === "collapsed" && "opacity-0 w-0 -ml-0"
                         )}
                       >
-                        Become a Seller
+                        {user?.role === "SELLER" ? "Register your Channel" : "Become a Seller"}
                       </span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
 
-              {user.role !== "SELLER" && user.role !== "ADMIN" && (
+              {user.role !== "ADMIN" && (
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild

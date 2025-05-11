@@ -1,13 +1,14 @@
 import { apiGet } from "@/services/api";
 import { BotStatus, BotStatusSchema } from "../schema";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { botStatusQueryKey } from "../utils";
 import { API_URL } from "@/lib/utils";
 import { useAuthContext } from "@/providers/auth-context";
 
-export function useBotStatus(channelId: string) {
+export function useBotStatus(channelId: string, shouldPoll: boolean = true) {
   const baseUrl = `${API_URL}/api/v1/sellers/bot-status/${channelId}`;
   const { token } = useAuthContext();
+  const queryClient = useQueryClient();
 
   const getBotStatus = async () => {
     const response = await apiGet<BotStatus>(
@@ -24,17 +25,26 @@ export function useBotStatus(channelId: string) {
     queryFn: getBotStatus,
     enabled: !!token && !!channelId,
     refetchInterval: (query) => {
-      const data = query.state.data;
-      const isChannelOwner = data?.verifiedChannelOwnership;
+      if (!shouldPoll) return false;
 
-      return isChannelOwner ? false : 3000;
+      const data = query.state.data;
+      const shouldRefetch =
+        data?.verifiedChannelOwnership || data?.hasBotAdminAccess;
+
+      return shouldRefetch ? false : 3000;
     },
   });
+  const refetchBotStatus = () => {
+    queryClient.invalidateQueries({
+      queryKey: botStatusQueryKey.detail(channelId),
+    });
+  };
 
   return {
     botStatus: botStatusQuery.data,
     isLoading: botStatusQuery.isLoading,
     isError: botStatusQuery.isError,
     refetch: botStatusQuery.refetch,
+    refetchBotStatus,
   };
 }

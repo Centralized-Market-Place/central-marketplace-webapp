@@ -8,10 +8,20 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { CheckCircle2Icon, RotateCcw } from "lucide-react";
+import { CheckCircle2Icon, RotateCcw, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from "next/image";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { BotChannelForm, BotChannelFormSchema } from "@/seller/schema";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 interface BotAddInstructionsProps {
   onChannelSelected: (channelId: string, channelName: string) => void;
@@ -23,8 +33,9 @@ interface BotAddInstructionsProps {
       verifiedChannelOwnership: boolean;
     };
     isLoading: boolean;
-    refetch: () => void;
+    refetch: () => Promise<unknown>;
   };
+  onCancelPolling: () => void;
 }
 
 export function BotAddInstructions({
@@ -32,18 +43,31 @@ export function BotAddInstructions({
   onBotAdded,
   selectedChannelId,
   botStatus,
+  onCancelPolling,
 }: BotAddInstructionsProps) {
-  const [channelId, setChannelId] = useState(selectedChannelId);
-  const [channelName, setChannelName] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
 
-  // When bot status changes, update the verification state
+  const form = useForm<BotChannelForm>({
+    resolver: zodResolver(BotChannelFormSchema),
+    defaultValues: {
+      channelId: selectedChannelId || "",
+      channelName: "",
+    },
+  });
+
+  const { watch } = form;
+  const channelId = watch("channelId");
+  const channelName = watch("channelName");
+
   useEffect(() => {
     if (botStatus.botStatus?.hasBotAdminAccess) {
       setIsVerifying(false);
 
-      // If verification is complete, proceed to next step
-      if (selectedChannelId === channelId && channelName) {
+      if (
+        selectedChannelId === channelId &&
+        channelName &&
+        botStatus.botStatus.verifiedChannelOwnership
+      ) {
         setTimeout(() => {
           onBotAdded();
         }, 1500);
@@ -57,16 +81,56 @@ export function BotAddInstructions({
     onBotAdded,
   ]);
 
-  const handleVerify = () => {
-    if (channelId && channelName) {
-      setIsVerifying(true);
-      onChannelSelected(channelId, channelName);
-    }
+  const handleVerify = (data: BotChannelForm) => {
+    setIsVerifying(true);
+    onChannelSelected(data.channelId, data.channelName);
   };
 
   const handleRefreshStatus = () => {
-    botStatus.refetch();
+    setIsVerifying(true);
+    botStatus.refetch().finally(() => {
+      setIsVerifying(false);
+    });
   };
+
+  const handleCancel = () => {
+    setIsVerifying(false);
+    onCancelPolling();
+  };
+
+  const isChannelVerified =
+    botStatus.botStatus?.hasBotAdminAccess &&
+    botStatus.botStatus?.verifiedChannelOwnership;
+
+  useEffect(() => {
+    if (isChannelVerified) {
+      form.reset({
+        channelId,
+        channelName,
+      });
+    }
+  }, [isChannelVerified, channelId, channelName, form]);
+
+  const determineUiState = () => {
+    if (isVerifying) {
+      return "checking";
+    }
+
+    if (!botStatus.botStatus) {
+      return "initial";
+    }
+
+    if (botStatus.botStatus.hasBotAdminAccess) {
+      return botStatus.botStatus.verifiedChannelOwnership
+        ? "success"
+        : "admin-but-not-verified";
+    }
+
+    return "initial";
+  };
+
+  const uiState = determineUiState();
+  console.log(uiState);
 
   return (
     <Card>
@@ -81,34 +145,55 @@ export function BotAddInstructions({
       <CardContent className="space-y-6">
         <div className="space-y-4">
           <h3 className="text-lg font-medium">Channel Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="channelId">Channel ID</Label>
-              <Input
-                id="channelId"
-                placeholder="e.g. @channel_username"
-                value={channelId}
-                onChange={(e) => setChannelId(e.target.value)}
-                disabled={isVerifying || botStatus.botStatus?.hasBotAdminAccess}
-              />
-              <p className="text-xs text-muted-foreground">
-                add @ to the beginning of the channel username. optionally you
-                can add channel id which you can obtain by sending a message to
-                @username_to_id_bot
-              </p>
-            </div>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleVerify)}
+              className="space-y-4"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="channelId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel ID</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g. @channel_username"
+                          disabled={isVerifying || isChannelVerified}
+                          {...field}
+                        />
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground">
+                        add @ to the beginning of the channel username.
+                        optionally you can add channel id which you can obtain
+                        by sending a message to @username_to_id_bot
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <div className="space-y-2">
-              <Label htmlFor="channelName">Channel Name</Label>
-              <Input
-                id="channelName"
-                placeholder="e.g., My Product Channel"
-                value={channelName}
-                onChange={(e) => setChannelName(e.target.value)}
-                disabled={isVerifying || botStatus.botStatus?.hasBotAdminAccess}
-              />
-            </div>
-          </div>
+                <FormField
+                  control={form.control}
+                  name="channelName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., My Product Channel"
+                          disabled={isVerifying || isChannelVerified}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </form>
+          </Form>
         </div>
 
         <div className="space-y-4">
@@ -148,7 +233,7 @@ export function BotAddInstructions({
           </div>
         </div>
 
-        {botStatus.botStatus?.hasBotAdminAccess ? (
+        {uiState === "success" && (
           <div className="flex flex-col items-center p-4 bg-green-50 rounded-md border border-green-200">
             <CheckCircle2Icon className="h-10 w-10 text-green-500 mb-2" />
             <h3 className="text-lg font-medium text-green-700">
@@ -160,27 +245,54 @@ export function BotAddInstructions({
             </p>
             <Button onClick={onBotAdded}>Continue to Next Step</Button>
           </div>
-        ) : (
-          <div className="flex flex-col md:flex-row gap-4">
-            {!isVerifying ? (
-              <Button
-                onClick={handleVerify}
-                className="flex-1"
-                disabled={!channelId || !channelName}
-              >
-                Verify Bot Access
+        )}
+
+        {uiState === "admin-but-not-verified" && (
+          <div className="flex flex-col items-center p-4 bg-amber-50 rounded-md border border-amber-200">
+            <AlertCircle className="h-10 w-10 text-amber-500 mb-2" />
+            <h3 className="text-lg font-medium text-amber-700">
+              Channel Ownership Verification Failed
+            </h3>
+            <p className="text-sm text-amber-600 text-center mb-4">
+              The bot has been added to the channel, but we couldn&apos;t verify
+              that you are the admin of this channel. Please make sure you are
+              an administrator of the channel with appropriate rights.
+            </p>
+            <div className="flex flex-row gap-4">
+              <Button variant="outline" onClick={handleRefreshStatus}>
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Retry Verification
               </Button>
-            ) : (
-              <>
-                <p className="flex-1 py-2 text-muted-foreground">
-                  Checking bot access status...
-                </p>
-                <Button variant="outline" onClick={handleRefreshStatus}>
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Refresh Status
-                </Button>
-              </>
-            )}
+            </div>
+          </div>
+        )}
+
+        {uiState === "initial" && (
+          <div className="flex flex-col md:flex-row gap-4">
+            <Button
+              onClick={form.handleSubmit(handleVerify)}
+              className="flex-1"
+              disabled={!channelId || !channelName}
+            >
+              Verify Bot Access
+            </Button>
+          </div>
+        )}
+
+        {uiState === "checking" && (
+          <div className="flex flex-col md:flex-row gap-4">
+            <p className="flex-1 py-2 text-muted-foreground">
+              Checking bot access status...
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
+              <Button variant="outline" onClick={handleRefreshStatus}>
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Refresh Status
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>
