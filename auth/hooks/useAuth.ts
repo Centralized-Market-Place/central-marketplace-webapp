@@ -8,6 +8,8 @@ import {
   UserLogin,
   UserRegister,
   UserSchema,
+  UserSignUp,
+  UserSignUpSchema,
 } from "../shema";
 import { useAuthContext } from "../../providers/auth-context";
 import { useAlert } from "@/providers/alert-provider";
@@ -17,6 +19,8 @@ export function useAuth() {
   const baseUrl = `${API_URL}/api/v1/users`;
   const { setCredential } = useAuthContext();
   const alert = useAlert();
+
+
   const login = async ({
     userLogin,
   }: {
@@ -56,7 +60,7 @@ export function useAuth() {
     onSuccess?: () => void;
     onError?: () => void;
   }) => {
-    return apiPost<User>(`${baseUrl}/register`, UserSchema, userRegister);
+    return apiPost<UserSignUp>(`${baseUrl}/register`, UserSignUpSchema, userRegister);
   };
 
   const signUpMutation = useMutation({
@@ -103,14 +107,12 @@ export function useAuth() {
     },
   });
 
-
-
   return {
-    login: loginMutation.mutate,
-    signUp: signUpMutation.mutate,
+    login: loginMutation,
+    signUp: signUpMutation,
     signUpLoading: signUpMutation.isPending,
     loginLoading: loginMutation.isPending,
-    telegramLogin: telegramLoginMutation.mutate,
+    telegramLogin: telegramLoginMutation,
     telegramLoginLoading: telegramLoginMutation.isPending,
   };
 }

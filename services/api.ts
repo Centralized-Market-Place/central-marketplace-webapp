@@ -39,25 +39,36 @@ export async function apiPost<T>(
   authToken?: string,
   headers?: Record<string, string>
 ): Promise<ApiResult<T>> {
-  const finalHeaders = {
-    "Content-Type": "application/json",
+  try {
+    const finalHeaders = {
+      "Content-Type": "application/json",
     ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
     ...headers,
   };
 
   const response =
-    payload instanceof FormData
-      ? await axios.postForm(url, payload, { headers: finalHeaders })
-      : await axios.post(url, payload, { headers: finalHeaders });
-
+  payload instanceof FormData
+  ? await axios.postForm(url, payload, { headers: finalHeaders })
+  : await axios.post(url, payload, { headers: finalHeaders });
+  
   const data: T = humps.camelizeKeys(response.data) as T;
-
+  
+  console.log("data", data);
   const validatedData = schema.parse(data);
-
+  
   return {
-    data: validatedData,
-    status: response.status,
-  };
+      data: validatedData,
+      status: response.status,
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        data: error.response?.data as T,
+        status: error.response?.status ?? 403,
+      };
+    }
+    throw error;
+  }
 }
 
 interface ApiDeleteResult {

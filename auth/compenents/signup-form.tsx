@@ -17,14 +17,17 @@ import { PasswordInput } from "@/components/common/password-input";
 export default function SignUpForm({
   onSave,
   isLoading = false,
+  error = false,
 }: {
   onSave: (data: UserRegister) => void;
   isLoading?: boolean;
+  error?: boolean;
 }) {
   const form = useForm<UserRegister>({
     resolver: zodResolver(UserRegisterSchema),
     defaultValues: {
-      name: "",
+      first_name: "",
+      last_name: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -33,24 +36,48 @@ export default function SignUpForm({
   const password = useWatch({ control: form.control, name: "password" });
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSave)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full Name</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter your full name"
-                  disabled={isLoading}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <form
+        onSubmit={form.handleSubmit(onSave)}
+        className={`space-y-4 p-4 rounded-md  ${
+          error ? "border-2 border-red-500" : "border"
+        }`}
+      >
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="first_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>First Name</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter your first name"
+                    disabled={isLoading}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="last_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Last Name</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter your last name"
+                    disabled={isLoading}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}

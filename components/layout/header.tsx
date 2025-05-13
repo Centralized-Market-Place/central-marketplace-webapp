@@ -44,7 +44,7 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2">
                   <User className="h-5 w-5" />
-                  <span className="hidden sm:inline">{user.name}</span>
+                  <span className="hidden sm:inline">{user.firstName}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>

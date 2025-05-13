@@ -20,7 +20,7 @@ const TelegramLoginButton = ({ onSuccess }: { onSuccess?: () => void }) => {
 
   const handleTelegramResponse = (response: TelegramAuthData) => {
     console.log("Telegram auth callback received user:", response);
-    telegramLogin({
+    telegramLogin.mutateAsync({
       telegramLogin: {
         id: response.id,
         first_name: response.first_name,
