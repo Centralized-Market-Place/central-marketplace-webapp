@@ -31,10 +31,8 @@ export default function SignUpPage() {
       } else {
         setErrorMsg("An error occurred. Please try again.");
       }
-    } catch (error: any) {
-      
-        setErrorMsg("An error occurred. Please try again.");
-      
+    } catch (error: unknown) {
+      setErrorMsg(error instanceof Error ? error.message : "An error occurred. Please try again.");
     }
   };
 

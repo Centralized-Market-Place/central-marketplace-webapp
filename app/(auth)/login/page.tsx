@@ -37,8 +37,8 @@ export default function LoginPage() {
                     } else if (data?.status === 400) {
                       setErrorMsg("Invalid credentials");
                     }
-                  } catch (error) {
-                    setErrorMsg("An error occurred. Please try again.");
+                  } catch (error: unknown) {
+                    setErrorMsg( error instanceof Error ? error.message : "An error occurred. Please try again.");
                 }
             }}
             isLoading={loginLoading}
