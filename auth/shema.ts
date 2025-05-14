@@ -133,6 +133,7 @@ export const UserSignUpSchema = z.object({
   updatedAt: z.string(),
 });
 
+
 export type UserLogin = z.infer<typeof UserLoginSchema>;
 export type UserRegister = z.infer<typeof UserRegisterSchema>;
 export type User = z.infer<typeof UserSchema>;
