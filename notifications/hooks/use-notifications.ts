@@ -11,16 +11,16 @@ export function useNotifications() {
   const { token, user } = useAuthContext();
 
   useEffect(() => {
-    console.log('useNotifications: Effect triggered', { hasToken: !!token, hasUser: !!user });
+ 
     if (token && user) {
-      console.log('useNotifications: Starting polling with token');
+     
       store.startPolling(token);
       return () => {
-        console.log('useNotifications: Cleaning up polling');
+       
         store.stopPolling();
       };
     } else {
-      console.log('useNotifications: No token or user available, skipping polling');
+      
       store.stopPolling();
     }
   }, [token, user]);

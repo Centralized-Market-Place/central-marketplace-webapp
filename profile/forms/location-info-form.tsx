@@ -12,9 +12,10 @@ interface LocationInfoFormProps {
   isEditing: boolean
   onSave: (updatedData: Partial<User>) => void
   onCancel: () => void
+  isLoading?: boolean
 }
 
-export function LocationInfoForm({ user, isEditing, onSave, onCancel }: LocationInfoFormProps) {
+export function LocationInfoForm({ user, isEditing, onSave, onCancel, isLoading }: LocationInfoFormProps) {
   const [formData, setFormData] = useState({
     country: user.locationInfo.country,
     city: user.locationInfo.city,
@@ -137,7 +138,7 @@ export function LocationInfoForm({ user, isEditing, onSave, onCancel }: Location
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit}>Save Changes</Button>
+        <Button onClick={handleSubmit} disabled={isLoading}>Save Changes</Button>
       </div>
     </div>
   )

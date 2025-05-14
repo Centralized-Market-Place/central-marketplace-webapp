@@ -9,7 +9,7 @@ import { apiGet } from "@/services/api";
 import { API_URL } from "@/lib/utils";
 import { AxiosError } from "axios";
 
-const PUBLIC_PATH = ["/login", "/signup", "/","/profile", "/404"];
+const PUBLIC_PATH = ["/login", "/signup", "/", "/404"];
 
 interface AuthContextType {
   user: User | null;

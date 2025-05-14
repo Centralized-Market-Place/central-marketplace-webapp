@@ -12,9 +12,10 @@ interface PrivacySettingsFormProps {
   isEditing: boolean
   onSave: (updatedData: Partial<User>) => void
   onCancel: () => void
+  isLoading?: boolean
 }
 
-export function PrivacySettingsForm({ user, isEditing, onSave, onCancel }: PrivacySettingsFormProps) {
+export function PrivacySettingsForm({ user, isEditing, onSave, onCancel, isLoading }: PrivacySettingsFormProps) {
   const [formData, setFormData] = useState({
     profileVisibility: user.privacySettings.profileVisibility,
     showEmail: user.privacySettings.showEmail,
@@ -182,7 +183,7 @@ export function PrivacySettingsForm({ user, isEditing, onSave, onCancel }: Priva
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit}>Save Changes</Button>
+        <Button onClick={handleSubmit} disabled={isLoading}>Save Changes</Button>
       </div>
     </div>
   )

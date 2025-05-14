@@ -9,7 +9,8 @@ import { LocationInfoForm } from "@/profile/forms/location-info-form"
 import { CommunicationPreferencesForm } from "@/profile/forms/communication-preferences-form"
 import { PrivacySettingsForm } from "@/profile/forms/privacy-settings-form"
 import { VerificationStatusForm } from "@/profile/forms/verification-status-form"
-import { mockUser } from "@/lib/mock-data"
+import { useAuthContext } from "@/providers/auth-context"
+import { useProfileUpdate } from "@/profile/hooks/useProfileUpdate"
 
 type CategoryType =
   | "personalInfo"
@@ -20,13 +21,20 @@ type CategoryType =
   | "verificationStatus"
 
 export function ProfilePage() {
-  const [user, setUser] = useState<User>(mockUser)
+  const { user, setCredential } = useAuthContext()
   const [activeCategory, setActiveCategory] = useState<CategoryType>("personalInfo")
   const [isEditing, setIsEditing] = useState(false)
+  const profileUpdate = useProfileUpdate()
+
+  if (!user) return null
 
   const handleUpdateUser = (updatedData: Partial<User>) => {
-    setUser((prev) => ({ ...prev, ...updatedData }))
-    setIsEditing(false)
+    profileUpdate.mutate(updatedData, {
+      onSuccess: (data) => {
+        setCredential(data.data, localStorage.getItem("token")!)
+        setIsEditing(false)
+      },
+    })
   }
 
   const renderForm = () => {
@@ -38,6 +46,7 @@ export function ProfilePage() {
             isEditing={isEditing}
             onSave={handleUpdateUser}
             onCancel={() => setIsEditing(false)}
+            isLoading={profileUpdate.isPending}
           />
         )
       case "contactInfo":
@@ -47,6 +56,7 @@ export function ProfilePage() {
             isEditing={isEditing}
             onSave={handleUpdateUser}
             onCancel={() => setIsEditing(false)}
+            isLoading={profileUpdate.isPending}
           />
         )
       case "locationInfo":
@@ -56,6 +66,7 @@ export function ProfilePage() {
             isEditing={isEditing}
             onSave={handleUpdateUser}
             onCancel={() => setIsEditing(false)}
+            isLoading={profileUpdate.isPending}
           />
         )
       case "communicationPreferences":
@@ -65,6 +76,7 @@ export function ProfilePage() {
             isEditing={isEditing}
             onSave={handleUpdateUser}
             onCancel={() => setIsEditing(false)}
+            isLoading={profileUpdate.isPending}
           />
         )
       case "privacySettings":
@@ -74,15 +86,17 @@ export function ProfilePage() {
             isEditing={isEditing}
             onSave={handleUpdateUser}
             onCancel={() => setIsEditing(false)}
+            isLoading={profileUpdate.isPending}
           />
         )
       case "verificationStatus":
         return (
           <VerificationStatusForm
             user={user}
-            isEditing={isEditing}
+            isEditing={false}
             onSave={handleUpdateUser}
             onCancel={() => setIsEditing(false)}
+            isLoading={profileUpdate.isPending}
           />
         )
       default:

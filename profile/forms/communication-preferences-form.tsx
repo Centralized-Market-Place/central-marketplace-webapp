@@ -12,9 +12,10 @@ interface CommunicationPreferencesFormProps {
   isEditing: boolean
   onSave: (updatedData: Partial<User>) => void
   onCancel: () => void
+  isLoading?: boolean
 }
 
-export function CommunicationPreferencesForm({ user, isEditing, onSave, onCancel }: CommunicationPreferencesFormProps) {
+export function CommunicationPreferencesForm({ user, isEditing, onSave, onCancel, isLoading }: CommunicationPreferencesFormProps) {
   const [formData, setFormData] = useState({
     language: user.communicationPreferences.language,
     emailNotifications: user.communicationPreferences.emailNotifications,
@@ -179,7 +180,7 @@ export function CommunicationPreferencesForm({ user, isEditing, onSave, onCancel
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit}>Save Changes</Button>
+        <Button onClick={handleSubmit} disabled={isLoading}>Save Changes</Button>
       </div>
     </div>
   )

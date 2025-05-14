@@ -53,7 +53,7 @@ export async function apiPost<T>(
   
   const data: T = humps.camelizeKeys(response.data) as T;
   
-  console.log("data", data);
+  
   const validatedData = schema.parse(data);
   
   return {
@@ -113,6 +113,38 @@ export async function apiPut<T>(
 
   const data: T = humps.camelizeKeys(response.data) as T;
   const validatedData = schema.parse(data);
+
+  return {
+    data: validatedData,
+    status: response.status,
+  };
+}
+
+export async function apiPatch<T>(
+  url: string,
+  schema: z.ZodSchema<T>,
+  payload: object,
+  authToken?: string,
+  headers?: Record<string, string>
+): Promise<ApiResult<T>> {
+  const finalHeaders = {
+    "Content-Type": "application/json",
+    ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+    ...headers,
+  };
+  
+  const snakeCasePayload = humps.decamelizeKeys(payload);
+
+  console.log("snakeCasePayload===========================", snakeCasePayload);
+  const response =
+    snakeCasePayload instanceof FormData
+      ? await axios.patchForm(url, snakeCasePayload, { headers: finalHeaders })
+      : await axios.patch(url, snakeCasePayload, { headers: finalHeaders });
+
+  
+  const data: T = humps.camelizeKeys(response.data) as T;
+  const validatedData = schema.parse(data);
+  console.log("validatedData===========================", validatedData); 
 
   return {
     data: validatedData,

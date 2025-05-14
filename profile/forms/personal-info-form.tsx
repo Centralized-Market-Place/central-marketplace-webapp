@@ -18,9 +18,10 @@ interface PersonalInfoFormProps {
   isEditing: boolean
   onSave: (updatedData: Partial<User>) => void
   onCancel: () => void
+  isLoading?: boolean
 }
 
-export function PersonalInfoForm({ user, isEditing, onSave, onCancel }: PersonalInfoFormProps) {
+export function PersonalInfoForm({ user, isEditing, onSave, onCancel, isLoading }: PersonalInfoFormProps) {
   const [formData, setFormData] = useState({
     firstName: user.firstName,
     lastName: user.lastName,
@@ -40,7 +41,6 @@ export function PersonalInfoForm({ user, isEditing, onSave, onCancel }: Personal
       firstName: formData.firstName,
       lastName: formData.lastName,
       personalInfo: {
-        ...user.personalInfo,
         dateOfBirth: formData.dateOfBirth,
         gender: formData.gender,
         nationality: formData.nationality,
@@ -149,6 +149,7 @@ export function PersonalInfoForm({ user, isEditing, onSave, onCancel }: Personal
                 selected={formData.dateOfBirth ? new Date(formData.dateOfBirth) : undefined}
                 onSelect={(date: { toISOString: () => string | null }) => handleChange("dateOfBirth", date ? date.toISOString() : null)}
                 initialFocus
+                required={false}
               />
             </PopoverContent>
           </Popover>
@@ -186,7 +187,7 @@ export function PersonalInfoForm({ user, isEditing, onSave, onCancel }: Personal
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit}>Save Changes</Button>
+        <Button onClick={handleSubmit} disabled={isLoading}>Save Changes</Button>
       </div>
     </div>
   )

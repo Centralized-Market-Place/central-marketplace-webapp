@@ -12,9 +12,10 @@ interface VerificationStatusFormProps {
   isEditing: boolean
   onSave: (updatedData: Partial<User>) => void
   onCancel: () => void
+  isLoading?: boolean
 }
 
-export function VerificationStatusForm({ user, isEditing, onSave, onCancel }: VerificationStatusFormProps) {
+export function VerificationStatusForm({ user, isEditing, onSave, onCancel, isLoading }: VerificationStatusFormProps) {
   const [formData, setFormData] = useState({
     emailVerified: user.verificationStatus.emailVerified,
     phoneVerified: user.verificationStatus.phoneVerified,
@@ -170,7 +171,7 @@ export function VerificationStatusForm({ user, isEditing, onSave, onCancel }: Ve
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit}>Save Changes</Button>
+        <Button onClick={handleSubmit} disabled={isLoading}>Save Changes</Button>
       </div>
     </div>
   )
