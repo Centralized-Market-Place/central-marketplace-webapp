@@ -147,9 +147,9 @@ export function PersonalInfoForm({ user, isEditing, onSave, onCancel, isLoading 
               <Calendar
                 mode="single"
                 selected={formData.dateOfBirth ? new Date(formData.dateOfBirth) : undefined}
-                onSelect={(date: { toISOString: () => string | null }) => handleChange("dateOfBirth", date ? date.toISOString() : null)}
+                onSelect={(date: Date | undefined) => handleChange("dateOfBirth", date ? date.toISOString() : null)}
                 initialFocus
-                required={false}
+               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               />
             </PopoverContent>
           </Popover>
