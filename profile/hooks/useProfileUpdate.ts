@@ -16,24 +16,32 @@ export function useProfileUpdate() {
   const queryClient = useQueryClient();
 
   const updateProfileMutation = useMutation({
-    mutationFn: (data: UpdateUserInfo) =>
+    mutationFn: ({
+      data,
+    }: {
+      data: UpdateUserInfo;
+      onSuccess?: (data: User) => void;
+      onError?: (error: Error) => void;
+    }) =>
       apiPatch<User>(
         baseUrl,
         UserSchema,
         humps.decamelizeKeys(data),
         token ?? undefined
       ),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       alert?.success("Profile updated successfully");
       queryClient.invalidateQueries({ queryKey: userQueryKeys.details() });
+      variables.onSuccess?.(data.data);
     },
-    onError: (error: Error) => {
+    onError: (error: Error, variables) => {
       if (error instanceof AxiosError) {
         const errorMsg = error.response?.data as { detail?: string };
         alert?.error(errorMsg.detail ?? "Failed to update profile");
       } else {
         alert?.error("Failed to update profile");
       }
+      variables.onError?.(error);
     },
   });
 

@@ -75,6 +75,8 @@ export function PersonalInfoForm({
 
   const handleSubmit = (data: PersonalInfoFormValues) => {
     onSave({
+      firstName: data.firstName,
+      lastName: data.lastName,
       personalInfo: {
         dateOfBirth: data.dateOfBirth,
         gender: data.gender,

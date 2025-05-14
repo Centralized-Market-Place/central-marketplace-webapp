@@ -16,6 +16,7 @@ interface AuthContextType {
   token: string | null;
   setCredential: (user: User, token: string) => void;
   logout: () => void;
+  setUser: (user: User | null) => void;
   isAuthenticated: boolean;
   loading: boolean;
 }
@@ -101,6 +102,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     logout,
     isAuthenticated: !!user,
     loading,
+    setUser,
     setCredential,
   };
 

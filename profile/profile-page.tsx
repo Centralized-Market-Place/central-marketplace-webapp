@@ -11,6 +11,7 @@ import { VerificationStatusForm } from "@/profile/forms/verification-status-form
 import { useAuthContext } from "@/providers/auth-context";
 import { useProfileUpdate } from "@/profile/hooks/useProfileUpdate";
 import { UpdateUserInfo } from "./schemas";
+import { User } from "@/auth/shema";
 
 type CategoryType =
   | "personalInfo"
@@ -21,7 +22,7 @@ type CategoryType =
   | "verificationStatus";
 
 export function ProfilePage() {
-  const { user } = useAuthContext();
+  const { user, setUser } = useAuthContext();
   const [activeCategory, setActiveCategory] =
     useState<CategoryType>("personalInfo");
   const [isEditing, setIsEditing] = useState(false);
@@ -30,9 +31,11 @@ export function ProfilePage() {
   if (!user) return null;
 
   const handleUpdateUser = (updatedData: UpdateUserInfo) => {
-    updateProfile(updatedData, {
-      onSuccess: () => {
+    updateProfile({
+      data: updatedData,
+      onSuccess: (data: User) => {
         setIsEditing(false);
+        setUser(data);
       },
     });
   };
