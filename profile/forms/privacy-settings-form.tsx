@@ -17,11 +17,11 @@ interface PrivacySettingsFormProps {
 
 export function PrivacySettingsForm({ user, isEditing, onSave, onCancel, isLoading }: PrivacySettingsFormProps) {
   const [formData, setFormData] = useState({
-    profileVisibility: user.privacySettings.profileVisibility,
-    showEmail: user.privacySettings.showEmail,
-    showPhone: user.privacySettings.showPhone,
-    showLocation: user.privacySettings.showLocation,
-    showActivity: user.privacySettings.showActivity,
+    profileVisibility: user.privacySettings?.profileVisibility || "public",
+    showEmail: user.privacySettings?.showEmail || false,
+    showPhone: user.privacySettings?.showPhone || false,
+    showLocation: user.privacySettings?.showLocation || false,
+    showActivity: user.privacySettings?.showActivity || false,
   })
 
   const handleChange = (field: string, value: string | boolean) => {

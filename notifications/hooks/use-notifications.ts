@@ -29,7 +29,7 @@ export function useNotifications() {
     userId: string;
     content: string;
     notificationType: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }) => {
     if (!token) {
       console.log('useNotifications: Cannot create notification - no token');

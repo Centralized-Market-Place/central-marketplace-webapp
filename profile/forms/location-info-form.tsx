@@ -1,45 +1,75 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import type { User } from "@/auth/shema"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import type { User } from "@/auth/shema";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { UpdateUserInfo } from "../schemas";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const LocationInfoFormSchema = z.object({
+  country: z.string().nullable(),
+  city: z.string().nullable(),
+  address: z.string().nullable(),
+  postalCode: z.string().nullable(),
+  timezone: z.string().nullable(),
+});
+
+type LocationInfoFormValues = z.infer<typeof LocationInfoFormSchema>;
 
 interface LocationInfoFormProps {
-  user: User
-  isEditing: boolean
-  onSave: (updatedData: Partial<User>) => void
-  onCancel: () => void
-  isLoading?: boolean
+  user: User;
+  isEditing: boolean;
+  onSave: (updatedData: UpdateUserInfo) => void;
+  onCancel: () => void;
+  isLoading?: boolean;
 }
 
-export function LocationInfoForm({ user, isEditing, onSave, onCancel, isLoading }: LocationInfoFormProps) {
-  const [formData, setFormData] = useState({
-    country: user.locationInfo.country,
-    city: user.locationInfo.city,
-    address: user.locationInfo.address,
-    postalCode: user.locationInfo.postalCode,
-    timezone: user.locationInfo.timezone,
-  })
+export function LocationInfoForm({
+  user,
+  isEditing,
+  onSave,
+  onCancel,
+  isLoading,
+}: LocationInfoFormProps) {
+  const form = useForm<LocationInfoFormValues>({
+    resolver: zodResolver(LocationInfoFormSchema),
+    defaultValues: {
+      country: user.locationInfo?.country || "",
+      city: user.locationInfo?.city || "",
+      address: user.locationInfo?.address || "",
+      postalCode: user.locationInfo?.postalCode || "",
+      timezone: user.locationInfo?.timezone || "",
+    },
+  });
 
-  const handleChange = (field: string, value: string | null) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
-
-  const handleSubmit = () => {
+  const handleSubmit = (data: LocationInfoFormValues) => {
     onSave({
       locationInfo: {
-        ...user.locationInfo,
-        country: formData.country,
-        city: formData.city,
-        address: formData.address,
-        postalCode: formData.postalCode,
-        timezone: formData.timezone,
+        country: data.country,
+        city: data.city,
+        address: data.address,
+        postalCode: data.postalCode,
+        timezone: data.timezone,
       },
-    })
-  }
+    });
+  };
 
   if (!isEditing) {
     return (
@@ -49,97 +79,186 @@ export function LocationInfoForm({ user, isEditing, onSave, onCancel, isLoading 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h3 className="text-sm font-medium text-gray-500">Country</h3>
-            <p className="mt-1">{user.locationInfo.country || "Not specified"}</p>
+            <p className="mt-1">
+              {user.locationInfo?.country || "Not specified"}
+            </p>
           </div>
           <div>
             <h3 className="text-sm font-medium text-gray-500">City</h3>
-            <p className="mt-1">{user.locationInfo.city || "Not specified"}</p>
+            <p className="mt-1">{user.locationInfo?.city || "Not specified"}</p>
           </div>
           <div>
             <h3 className="text-sm font-medium text-gray-500">Address</h3>
-            <p className="mt-1">{user.locationInfo.address || "Not specified"}</p>
+            <p className="mt-1">
+              {user.locationInfo?.address || "Not specified"}
+            </p>
           </div>
           <div>
             <h3 className="text-sm font-medium text-gray-500">Postal Code</h3>
-            <p className="mt-1">{user.locationInfo.postalCode || "Not specified"}</p>
+            <p className="mt-1">
+              {user.locationInfo?.postalCode || "Not specified"}
+            </p>
           </div>
           <div>
             <h3 className="text-sm font-medium text-gray-500">Timezone</h3>
-            <p className="mt-1">{user.locationInfo.timezone || "Not specified"}</p>
+            <p className="mt-1">
+              {user.locationInfo?.timezone || "Not specified"}
+            </p>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold">Edit Location Information</h2>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <h2 className="text-xl font-semibold">Edit Location Information</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <Label htmlFor="country">Country</Label>
-          <Select value={formData.country || ""} onValueChange={(value) => handleChange("country", value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select country" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="us">United States</SelectItem>
-              <SelectItem value="ca">Canada</SelectItem>
-              <SelectItem value="uk">United Kingdom</SelectItem>
-              <SelectItem value="au">Australia</SelectItem>
-              <SelectItem value="de">Germany</SelectItem>
-              <SelectItem value="fr">France</SelectItem>
-              <SelectItem value="jp">Japan</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="city">City</Label>
-          <Input id="city" value={formData.city || ""} onChange={(e) => handleChange("city", e.target.value)} />
-        </div>
-        <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="address">Address</Label>
-          <Input
-            id="address"
-            value={formData.address || ""}
-            onChange={(e) => handleChange("address", e.target.value)}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Country</FormLabel>
+                <FormControl>
+                  <Select
+                    value={field.value || ""}
+                    onValueChange={field.onChange}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="us">United States</SelectItem>
+                      <SelectItem value="ca">Canada</SelectItem>
+                      <SelectItem value="uk">United Kingdom</SelectItem>
+                      <SelectItem value="au">Australia</SelectItem>
+                      <SelectItem value="de">Germany</SelectItem>
+                      <SelectItem value="fr">France</SelectItem>
+                      <SelectItem value="jp">Japan</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="city"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>City</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isLoading}
+                    {...field}
+                    value={field.value || ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="address"
+            render={({ field }) => (
+              <FormItem className="md:col-span-2">
+                <FormLabel>Address</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isLoading}
+                    {...field}
+                    value={field.value || ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="postalCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Postal Code</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isLoading}
+                    {...field}
+                    value={field.value || ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="timezone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Timezone</FormLabel>
+                <FormControl>
+                  <Select
+                    value={field.value || ""}
+                    onValueChange={field.onChange}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select timezone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="UTC-8">
+                        Pacific Time (UTC-8)
+                      </SelectItem>
+                      <SelectItem value="UTC-7">
+                        Mountain Time (UTC-7)
+                      </SelectItem>
+                      <SelectItem value="UTC-6">
+                        Central Time (UTC-6)
+                      </SelectItem>
+                      <SelectItem value="UTC-5">
+                        Eastern Time (UTC-5)
+                      </SelectItem>
+                      <SelectItem value="UTC+0">
+                        Greenwich Mean Time (UTC+0)
+                      </SelectItem>
+                      <SelectItem value="UTC+1">
+                        Central European Time (UTC+1)
+                      </SelectItem>
+                      <SelectItem value="UTC+8">
+                        China Standard Time (UTC+8)
+                      </SelectItem>
+                      <SelectItem value="UTC+9">
+                        Japan Standard Time (UTC+9)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="postalCode">Postal Code</Label>
-          <Input
-            id="postalCode"
-            value={formData.postalCode || ""}
-            onChange={(e) => handleChange("postalCode", e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="timezone">Timezone</Label>
-          <Select value={formData.timezone || ""} onValueChange={(value) => handleChange("timezone", value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select timezone" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="UTC-8">Pacific Time (UTC-8)</SelectItem>
-              <SelectItem value="UTC-7">Mountain Time (UTC-7)</SelectItem>
-              <SelectItem value="UTC-6">Central Time (UTC-6)</SelectItem>
-              <SelectItem value="UTC-5">Eastern Time (UTC-5)</SelectItem>
-              <SelectItem value="UTC+0">Greenwich Mean Time (UTC+0)</SelectItem>
-              <SelectItem value="UTC+1">Central European Time (UTC+1)</SelectItem>
-              <SelectItem value="UTC+8">China Standard Time (UTC+8)</SelectItem>
-              <SelectItem value="UTC+9">Japan Standard Time (UTC+9)</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
 
-      <div className="flex justify-end space-x-4">
-        <Button variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button onClick={handleSubmit} disabled={isLoading}>Save Changes</Button>
-      </div>
-    </div>
-  )
+        <div className="flex justify-end space-x-4">
+          <Button variant="outline" onClick={onCancel} type="button">
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            Save Changes
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
 }

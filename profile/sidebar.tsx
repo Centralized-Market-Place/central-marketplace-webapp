@@ -9,12 +9,6 @@ import {
   Bell,
   Shield,
   CheckCircle,
-  LayoutDashboard,
-  PlusCircle,
-  FolderClosed,
-  History,
-  CreditCard,
-  Settings,
   LogOut,
 } from "lucide-react"
 
@@ -42,20 +36,11 @@ export function Sidebar({ activeCategory, onCategoryChange, user }: SidebarProps
     { id: "verificationStatus", label: "Verification", icon: <CheckCircle className="h-5 w-5" /> },
   ]
 
-  const navigationItems = [
-    { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
-    { id: "newTransaction", label: "New Transaction", icon: <PlusCircle className="h-5 w-5" /> },
-    { id: "myProjects", label: "My Projects", icon: <FolderClosed className="h-5 w-5" /> },
-    { id: "myTransactions", label: "My Transactions", icon: <History className="h-5 w-5" /> },
-    { id: "billing", label: "Billing & Payment", icon: <CreditCard className="h-5 w-5" /> },
-    { id: "settings", label: "Settings", icon: <Settings className="h-5 w-5" /> },
-  ]
-
   return (
     <div className="w-64 bg-gray-900 text-white flex flex-col h-screen">
       <div className="p-6 flex flex-col items-center">
         <Avatar className="h-20 w-20 mb-2 bg-blue-400">
-          <AvatarImage src={user.personalInfo.profilePicture || undefined} alt={`${user.firstName} ${user.lastName}`} />
+          <AvatarImage src={user.personalInfo?.profilePicture || undefined} alt={`${user.firstName} ${user.lastName}`} />
           <AvatarFallback className="text-xl">{`${user.firstName.charAt(0)}${user.lastName.charAt(0)}`}</AvatarFallback>
         </Avatar>
         <div className="text-center">

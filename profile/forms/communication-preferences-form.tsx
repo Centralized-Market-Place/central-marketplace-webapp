@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import { CommunicationPreferences } from "../schemas"
 
 interface CommunicationPreferencesFormProps {
   user: User
@@ -16,12 +17,12 @@ interface CommunicationPreferencesFormProps {
 }
 
 export function CommunicationPreferencesForm({ user, isEditing, onSave, onCancel, isLoading }: CommunicationPreferencesFormProps) {
-  const [formData, setFormData] = useState({
-    language: user.communicationPreferences.language,
-    emailNotifications: user.communicationPreferences.emailNotifications,
-    smsNotifications: user.communicationPreferences.smsNotifications,
-    marketingEmails: user.communicationPreferences.marketingEmails,
-    notificationFrequency: user.communicationPreferences.notificationFrequency,
+  const [formData, setFormData] = useState<CommunicationPreferences>({
+    language: user.communicationPreferences?.language || "en",
+    emailNotifications: user.communicationPreferences?.emailNotifications || false,
+    smsNotifications: user.communicationPreferences?.smsNotifications || false,
+    marketingEmails: user.communicationPreferences?.marketingEmails || false,
+    notificationFrequency: user.communicationPreferences?.notificationFrequency || "daily",
   })
 
   const handleChange = (field: string, value: string | boolean) => {
