@@ -1,4 +1,6 @@
 import { SellerInfoSchema } from "@/seller/schema";
+import { PersonalInfoSchema, ContactInfoSchema, LocationInfoSchema, CommunicationPreferencesSchema, PrivacySettingsSchema, VerificationStatusSchema } from "@/profile/schemas";
+import { User } from "lucide-react";
 import { z } from "zod";
 
 export const UserLoginSchema = z.object({
@@ -10,11 +12,12 @@ export const UserLoginSchema = z.object({
 
 export const UserRegisterSchema = z
   .object({
+    firstName: z.string().min(1, { message: "First name is required" }),
+    lastName: z.string().min(1, { message: "Last name is required" }),
     email: z.string().email({ message: "Invalid email address" }),
     password: z
       .string()
       .min(8, { message: "Password must be at least 8 characters long" }),
-    name: z.string().min(1, { message: "Name is required" }),
     confirmPassword: z
       .string()
       .min(8, { message: "Password must be at least 8 characters long" }),
@@ -37,25 +40,33 @@ export const TelegramDataSchema = z.object({
 
 export const UserSchema = z.object({
   id: z.string(),
-  name: z.string(),
-  email: z.string().optional().nullable(),
+  firstName: z.string(),
+  lastName: z.string(),
+  email: z.string(),
+  personalInfo: PersonalInfoSchema.nullable().optional(),
+  contactInfo: ContactInfoSchema.nullable().optional(),
+  locationInfo: LocationInfoSchema.nullable().optional(),
+  communicationPreferences: CommunicationPreferencesSchema.nullable().optional(),
+  privacySettings: PrivacySettingsSchema.nullable().optional(),
+  verificationStatus: VerificationStatusSchema.nullable().optional(),
+  role: UserRole,
+  isVerified: z.boolean(),
+  sellerInfos: z.array(SellerInfoSchema),
+  telegram: TelegramDataSchema.nullable(),
+  lastLogin: z.coerce.date().nullable(),
+  lastActive: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
-  image: z.string().nullable(),
-  role: UserRole,
-  lastLogin: z.coerce.date().nullable(),
-  sellerInfos: z.array(SellerInfoSchema).optional().nullable(),
-  isVerified: z.boolean(),
-  telegram: TelegramDataSchema.optional().nullable(),
 });
+
 
 export const TelegramLoginSchema = z.object({
   id: z.number(),
-  first_name: z.string(),
-  last_name: z.string().nullable(),
+  firstName: z.string(),
+  lastName: z.string().nullable(),
   username: z.string().nullable(),
-  photo_url: z.string().nullable(),
-  auth_date: z.number(),
+  photoUrl: z.string().nullable(),
+  authDate: z.number(),
   hash: z.string(),
 });
 
@@ -63,6 +74,7 @@ export const AuthResponseSchema = z.object({
   user: UserSchema,
   token: z.string(),
 });
+
 
 export type UserLogin = z.infer<typeof UserLoginSchema>;
 export type UserRegister = z.infer<typeof UserRegisterSchema>;

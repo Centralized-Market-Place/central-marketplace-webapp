@@ -12,11 +12,14 @@ import {
 import { useAuthContext } from "../../providers/auth-context";
 import { useAlert } from "@/providers/alert-provider";
 import { API_URL } from "@/lib/utils";
+import { AxiosError } from "axios";
+import humps from "humps";
 
 export function useAuth() {
   const baseUrl = `${API_URL}/api/v1/users`;
   const { setCredential } = useAuthContext();
   const alert = useAlert();
+
   const login = async ({
     userLogin,
   }: {
@@ -27,27 +30,23 @@ export function useAuth() {
     return apiPost<AuthResponse>(
       `${baseUrl}/login`,
       AuthResponseSchema,
-      userLogin
+      humps.decamelizeKeys(userLogin)
     );
   };
 
-  const loginWithTelegram =  async (
-    {
-      telegramLogin
-    } : {
-      telegramLogin: TelegramLogin;
-      onSuccess?: () => void;
-      onError?: () => void;
-    }
-  ) => {
-
+  const loginWithTelegram = async ({
+    telegramLogin,
+  }: {
+    telegramLogin: TelegramLogin;
+    onSuccess?: () => void;
+    onError?: () => void;
+  }) => {
     return apiPost<AuthResponse>(
       `${baseUrl}/telegram`,
       AuthResponseSchema,
-      telegramLogin
+      humps.decamelizeKeys(telegramLogin)
     );
-
-  }
+  };
 
   const signUp = async ({
     userRegister,
@@ -56,7 +55,7 @@ export function useAuth() {
     onSuccess?: () => void;
     onError?: () => void;
   }) => {
-    return apiPost<User>(`${baseUrl}/register`, UserSchema, userRegister);
+    return apiPost<User>(`${baseUrl}/register`, UserSchema, humps.decamelizeKeys(userRegister));
   };
 
   const signUpMutation = useMutation({
@@ -64,7 +63,7 @@ export function useAuth() {
     onSuccess: (data, variables) => {
       const { onSuccess } = variables;
       onSuccess?.();
-      alert?.success("logged in successfully!");
+      alert?.success("Signed up successfully!");
     },
     onError: (_error, variables) => {
       const { onError } = variables;
@@ -77,12 +76,13 @@ export function useAuth() {
     mutationFn: login,
     onSuccess: (data, variables) => {
       const { onSuccess } = variables;
+      setCredential(data.data.user, data.data.token );
       onSuccess?.();
-      setCredential(data.data.user, data.data.token);
-      alert?.success("logged in Successfully!");
+      alert?.success("Logged in successfully!");
     },
     onError: (_error, variables) => {
       const { onError } = variables;
+      console.log("error", _error);
       onError?.();
       alert?.error("Error occurred when trying to login");
     },
@@ -92,9 +92,9 @@ export function useAuth() {
     mutationFn: loginWithTelegram,
     onSuccess: (data, variables) => {
       const { onSuccess } = variables;
+      setCredential(data.data.user, data.data.token );
       onSuccess?.();
-      setCredential(data.data.user, data.data.token);
-      alert?.success("logged in Successfully!");
+      alert?.success("Logged in successfully!");
     },
     onError: (_error, variables) => {
       const { onError } = variables;
@@ -103,7 +103,14 @@ export function useAuth() {
     },
   });
 
-
+  function getErrorMsg(error: Error | null) {
+    if (!error) return null;
+    if (error instanceof AxiosError) {
+      const err = error.response?.data as { detail?: string };
+      return err?.detail;
+    }
+    return null;
+  }
 
   return {
     login: loginMutation.mutate,
@@ -112,5 +119,8 @@ export function useAuth() {
     loginLoading: loginMutation.isPending,
     telegramLogin: telegramLoginMutation.mutate,
     telegramLoginLoading: telegramLoginMutation.isPending,
+    loginErrMsg: getErrorMsg(loginMutation.error),
+    signUpErrMsg: getErrorMsg(signUpMutation.error),
+    telegramLoginErrMsg: getErrorMsg(telegramLoginMutation.error),
   };
 }

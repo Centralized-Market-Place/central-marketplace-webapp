@@ -2,7 +2,6 @@
 
 import {
   BarChart3,
-  Bell,
   BookMarked,
   CheckCircle,
   FileText,
@@ -36,6 +35,7 @@ import {
 import Link from "next/link";
 import { CustomSidebarTrigger } from "./sidebar-trigger";
 import { useAuthContext } from "@/providers/auth-context";
+import { NotificationBell } from '@/notifications/components/notification-bell';
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -135,7 +135,7 @@ export function AppSidebar() {
                   tooltip={state === "collapsed" ? "Notifications" : undefined}
                 >
                   <Link href="/notifications">
-                    <Bell className="size-5" />
+                    <NotificationBell />
                     <span
                       className={cn(
                         "ml-2 transition-opacity duration-200",
@@ -143,14 +143,6 @@ export function AppSidebar() {
                       )}
                     >
                       Notifications
-                    </span>
-                    <span
-                      className={cn(
-                        "ml-auto bg-primary/15 text-primary rounded-full px-2 py-0.5 text-xs font-medium",
-                        state === "collapsed" && "opacity-0 w-0"
-                      )}
-                    >
-                      3
                     </span>
                   </Link>
                 </SidebarMenuButton>

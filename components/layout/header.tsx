@@ -12,11 +12,15 @@ import {
 import { useTheme } from "next-themes";
 import { useAuthContext } from "@/providers/auth-context";
 import { useSidebar } from "@/components/ui/sidebar";
+import { useRouter } from "next/navigation";
+
 
 export function Header() {
   const { user, logout } = useAuthContext();
   const { setTheme, theme } = useTheme();
   const { toggleSidebar, isMobile } = useSidebar();
+
+  const router = useRouter();
 
   return (
     <header className="border-b fixed top-0 w-full bg-white dark:bg-background z-50">
@@ -44,11 +48,12 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2">
                   <User className="h-5 w-5" />
-                  <span className="hidden sm:inline">{user.name}</span>
+                  <span className="hidden sm:inline">{user.firstName}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/profile")}>profile</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (

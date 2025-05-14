@@ -16,7 +16,7 @@ import TelegramLoginButton from "@/auth/compenents/telegram-auth-button";
 
 export default function SignUpPage() {
   const router = useRouter();
-  const { signUp, signUpLoading } = useAuth();
+  const { signUp, signUpLoading, signUpErrMsg } = useAuth();
 
   return (
     <main className="container m-16 max-w-md py-12 mx-auto">
@@ -36,7 +36,11 @@ export default function SignUpPage() {
               });
             }}
             isLoading={signUpLoading}
+            error={!!signUpErrMsg}
           />
+          {signUpErrMsg && (
+            <div className="mt-2 text-center text-red-600">{signUpErrMsg}</div>
+          )}
         </CardContent>
         <CardFooter className="flex flex-col items-center">
           <TelegramLoginButton />
