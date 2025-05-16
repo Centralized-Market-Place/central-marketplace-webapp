@@ -76,14 +76,12 @@ export function useAuth() {
     mutationFn: login,
     onSuccess: (data, variables) => {
       const { onSuccess } = variables;
-      console.log("data", data);
       setCredential(data.data.user, data.data.token );
       onSuccess?.();
       alert?.success("Logged in successfully!");
     },
     onError: (_error, variables) => {
       const { onError } = variables;
-      console.log("error", _error);
       onError?.();
       alert?.error("Error occurred when trying to login");
     },

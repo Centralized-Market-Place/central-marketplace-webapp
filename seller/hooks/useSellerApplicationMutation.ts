@@ -49,7 +49,6 @@ export function useSellerApplicationMutation() {
       alert?.success("Application saved successfully");
     },
     onError: (error, variables) => {
-      console.log(error, variables);
       const { onError } = variables;
       onError?.();
       if (error instanceof AxiosError) {
