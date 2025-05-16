@@ -35,7 +35,11 @@ import {
 import Link from "next/link";
 import { CustomSidebarTrigger } from "./sidebar-trigger";
 import { useAuthContext } from "@/providers/auth-context";
-import { NotificationBell } from '@/notifications/components/notification-bell';
+import { NotificationBell } from "@/notifications/components/notification-bell";
+
+// Define a constant for the common hover class
+const menuButtonHoverClass =
+  "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:bg-sidebar-accent focus-visible:text-sidebar-accent-foreground transition-colors";
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -46,7 +50,7 @@ export function AppSidebar() {
   }
   return (
     <Sidebar collapsible="icon" className="mt-16">
-      <SidebarHeader className="flex flex-col items-start gap-4 px-4 pt-4">
+      <SidebarHeader className="flex flex-col items-start gap-4 px-4 pt-4 border-b border-sidebar-border pb-4">
         <div className="flex items-center">
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
             <Store className="size-5 text-primary-foreground" />
@@ -76,6 +80,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   tooltip={state === "collapsed" ? "Marketplace" : undefined}
+                  className={menuButtonHoverClass}
                 >
                   <Link href="/">
                     <ShoppingBag className="size-5" />
@@ -95,6 +100,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   tooltip={state === "collapsed" ? "Channels" : undefined}
+                  className={menuButtonHoverClass}
                 >
                   <Link href="/channels">
                     <MessageSquare className="size-5" />
@@ -114,6 +120,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   tooltip={state === "collapsed" ? "Bookmarks" : undefined}
+                  className={menuButtonHoverClass}
                 >
                   <Link href="/bookmarks">
                     <BookMarked className="size-5" />
@@ -133,6 +140,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   tooltip={state === "collapsed" ? "Notifications" : undefined}
+                  className={menuButtonHoverClass}
                 >
                   <Link href="/notifications">
                     <NotificationBell />
@@ -152,6 +160,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   tooltip={state === "collapsed" ? "Search" : undefined}
+                  className={menuButtonHoverClass}
                 >
                   <Link href="/search">
                     <Search className="size-5" />
@@ -172,8 +181,13 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     tooltip={
-                      state === "collapsed" ?  user?.role === "SELLER" ? "Register your Channel" : "Become a Seller" : undefined
+                      state === "collapsed"
+                        ? user?.role === "SELLER"
+                          ? "Register your Channel"
+                          : "Become a Seller"
+                        : undefined
                     }
+                    className={menuButtonHoverClass}
                   >
                     <Link href="/seller/apply">
                       <Store className="size-5" />
@@ -183,7 +197,9 @@ export function AppSidebar() {
                           state === "collapsed" && "opacity-0 w-0 -ml-0"
                         )}
                       >
-                        {user?.role === "SELLER" ? "Register your Channel" : "Become a Seller"}
+                        {user?.role === "SELLER"
+                          ? "Register your Channel"
+                          : "Become a Seller"}
                       </span>
                     </Link>
                   </SidebarMenuButton>
@@ -197,6 +213,7 @@ export function AppSidebar() {
                     tooltip={
                       state === "collapsed" ? "My Applications" : undefined
                     }
+                    className={menuButtonHoverClass}
                   >
                     <Link href="/seller/applications">
                       <FileText className="size-5" />
@@ -231,6 +248,7 @@ export function AppSidebar() {
                     tooltip={
                       state === "collapsed" ? "Seller Dashboard" : undefined
                     }
+                    className={menuButtonHoverClass}
                   >
                     <Link href="/seller/dashboard">
                       <LayoutDashboard className="size-5" />
@@ -250,6 +268,7 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     tooltip={state === "collapsed" ? "My Products" : undefined}
+                    className={menuButtonHoverClass}
                   >
                     <Link href="/seller/products">
                       <Package className="size-5" />
@@ -269,6 +288,7 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     tooltip={state === "collapsed" ? "Analytics" : undefined}
+                    className={menuButtonHoverClass}
                   >
                     <Link href="/seller/analytics">
                       <BarChart3 className="size-5" />
@@ -290,6 +310,7 @@ export function AppSidebar() {
                     tooltip={
                       state === "collapsed" ? "Channel Management" : undefined
                     }
+                    className={menuButtonHoverClass}
                   >
                     <Link href="/seller/channels">
                       <Zap className="size-5" />
@@ -309,6 +330,7 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     tooltip={state === "collapsed" ? "Verification" : undefined}
+                    className={menuButtonHoverClass}
                   >
                     <Link href="/seller/verification">
                       <CheckCircle className="size-5" />
@@ -343,6 +365,7 @@ export function AppSidebar() {
                     tooltip={
                       state === "collapsed" ? "Admin Dashboard" : undefined
                     }
+                    className={menuButtonHoverClass}
                   >
                     <Link href="/admin/dashboard">
                       <ShieldCheck className="size-5" />
@@ -364,6 +387,7 @@ export function AppSidebar() {
                     tooltip={
                       state === "collapsed" ? "Seller Applications" : undefined
                     }
+                    className={menuButtonHoverClass}
                   >
                     <Link href="/admin/seller-applications">
                       <Store className="size-5" />
@@ -387,6 +411,7 @@ export function AppSidebar() {
                         ? "Verification Requests"
                         : undefined
                     }
+                    className={menuButtonHoverClass}
                   >
                     <Link href="/admin/verification-requests">
                       <CheckCircle className="size-5" />
@@ -416,6 +441,7 @@ export function AppSidebar() {
                     tooltip={
                       state === "collapsed" ? "User Management" : undefined
                     }
+                    className={menuButtonHoverClass}
                   >
                     <Link href="/admin/users">
                       <Users className="size-5" />
@@ -437,6 +463,7 @@ export function AppSidebar() {
                     tooltip={
                       state === "collapsed" ? "Channel Management" : undefined
                     }
+                    className={menuButtonHoverClass}
                   >
                     <Link href="/admin/channels">
                       <MessageSquare className="size-5" />
@@ -456,6 +483,7 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     tooltip={state === "collapsed" ? "Reports" : undefined}
+                    className={menuButtonHoverClass}
                   >
                     <a href="/admin/reports">
                       <FileText className="size-5" />
@@ -482,6 +510,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   tooltip={state === "collapsed" ? "Settings" : undefined}
+                  className={menuButtonHoverClass}
                 >
                   <a href="/settings">
                     <Settings className="size-5" />

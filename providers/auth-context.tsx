@@ -38,21 +38,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const query = useQueryClient();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
+  useEffect(() => {
     async function fetchUser() {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        if (token) {
-          const response = await apiGet<User>(
-            `${API_URL}/api/v1/users/me`,
-            UserSchema,
-            token
-          );
+        const response = await apiGet<User>(
+          `${API_URL}/api/v1/users/me`,
+          UserSchema,
+          token
+        );
 
-          setCredential(response.data, token);
-        }
+        console.log("fetch user response", response);
+        setUser(response.data);
       } catch (error) {
+        console.error("Error fetching user:", error);
         if (error instanceof AxiosError && error.response?.status === 401) {
           logout();
         }
@@ -62,21 +74,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     fetchUser();
-  }, []);
+  }, [token]);
 
   useEffect(() => {
-    if (!loading && !user) {
-      if (!PUBLIC_PATH.includes(pathName)) {
-        setLoading(true);
+    if (!loading) {
+      if (!user && !PUBLIC_PATH.includes(pathName)) {
         localStorage.removeItem("token");
-        localStorage.removeItem("user");
         router.push("/login");
         query.clear();
-        setLoading(false);
-      }
-    }
-    if (!loading && user) {
-      if (["/login", "/signup"].includes(pathName)) {
+      } else if (user && ["/login", "/signup"].includes(pathName)) {
         router.push("/");
       }
     }
@@ -86,14 +92,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(null);
     setToken(null);
     localStorage.removeItem("token");
-    localStorage.removeItem("user");
   };
 
   const setCredential = (user: User, token: string) => {
+    console.log("set credential", user, token);
     setUser(user);
     setToken(token);
     localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
   };
 
   const value: AuthContextType = {
