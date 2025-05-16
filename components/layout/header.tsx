@@ -13,6 +13,7 @@ import { useTheme } from "next-themes";
 import { useAuthContext } from "@/providers/auth-context";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
+import { NotificationBell } from "@/notifications/components/notification-bell";
 
 export function Header() {
   const { user, logout } = useAuthContext();
@@ -42,6 +43,7 @@ export function Header() {
         </div>
 
         <div className="flex items-center justify-end gap-4 md:gap-6">
+          {user && <NotificationBell />}
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
