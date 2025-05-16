@@ -4,7 +4,6 @@ export const PersonalInfoSchema = z.object({
   dateOfBirth: z.string().nullable().optional(),
   gender: z.string().nullable().optional(),
   nationality: z.string().nullable().optional(),
-  profilePicture: z.string().nullable().optional(),
   bio: z.string().nullable().optional(),
 });
 
@@ -49,7 +48,7 @@ export const VerificationStatusSchema = z.object({
 export const updateUserInfoSchema = z.object({
   firstName: z.string().nullable().optional(),
   lastName: z.string().nullable().optional(),
-  email: z.string().email().nullable().optional(),
+  profilePictureUrl: z.string().nullable().optional(),
   personalInfo: PersonalInfoSchema.nullable().optional(),
   contactInfo: ContactInfoSchema.nullable().optional(),
   locationInfo: LocationInfoSchema.nullable().optional(),

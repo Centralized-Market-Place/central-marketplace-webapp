@@ -11,6 +11,10 @@ export default {
     "!./**/.*/*.{js,ts,jsx,tsx,mdx}",
     "./notifications/**/*.{js,ts,jsx,tsx,mdx}",
     "./seller/**/*.{js,ts,jsx,tsx,mdx}",
+    "./profile/**/*.{js,ts,jsx,tsx,mdx}",
+    "./auth/**/*.{js,ts,jsx,tsx,mdx}",
+    "./channels/**/*.{js,ts,jsx,tsx,mdx}",
+    "./files/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {

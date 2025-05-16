@@ -2,7 +2,7 @@
 
 /* Input styling */
 .date-picker-dark {
-  color: #fff;
+  color: hsl(var(--foreground));
   background-color: hsl(var(--background));
   border-color: hsl(var(--border));
 }
@@ -86,4 +86,36 @@
 
 .date-picker-dark-calendar .react-datepicker__navigation:hover *::before {
   border-color: hsl(var(--primary));
+}
+
+/* Light mode overrides for consistency */
+.react-datepicker {
+  background-color: hsl(var(--background));
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+.react-datepicker__header {
+  background-color: hsl(var(--card));
+  border-bottom-color: hsl(var(--border));
+}
+
+.react-datepicker__day,
+.react-datepicker__day-name {
+  color: hsl(var(--foreground));
+}
+
+.react-datepicker__day:hover {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.react-datepicker__day--selected {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+/* Ensure datepicker input has correct text color */
+.react-datepicker__input-container input {
+  color: hsl(var(--foreground));
 }

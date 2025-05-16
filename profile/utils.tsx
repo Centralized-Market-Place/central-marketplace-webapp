@@ -91,7 +91,7 @@ export function SearchableCombobox({
             placeholder={`Search ${placeholder.toLowerCase()}...`}
           />
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandList className="h-[2.5rem] overflow-auto">
+          <CommandList className="h-[10rem] overflow-auto">
             <CommandGroup>
               {options.map((option) => (
                 <CommandItem
@@ -129,11 +129,11 @@ export function formDataToUpdateUserInfo(
       return {
         firstName: data.firstName,
         lastName: data.lastName,
+        profilePictureUrl: data.profilePictureUrl,
         personalInfo: {
           dateOfBirth: data.dateOfBirth ?? undefined,
           gender: data.gender ?? undefined,
           nationality: data.nationality ?? undefined,
-          profilePicture: data.profilePicture ?? undefined,
           bio: data.bio ?? undefined,
         },
       };

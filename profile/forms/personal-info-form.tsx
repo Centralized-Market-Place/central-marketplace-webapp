@@ -10,10 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { Upload } from "lucide-react";
 import { UpdateUserInfo } from "../schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
@@ -36,9 +34,10 @@ import {
 } from "@/components/ui/form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { AvatarUpload } from "../components/avatar-upload";
+import { ProfileAvatar } from "../components/profile-avatar";
 
 import "./date-picker.css";
 
@@ -57,7 +56,6 @@ export function PersonalInfoForm({
   onCancel,
   isLoading,
 }: PersonalInfoFormProps) {
-  const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -72,7 +70,7 @@ export function PersonalInfoForm({
       dateOfBirth: user.personalInfo?.dateOfBirth || null,
       gender: user.personalInfo?.gender || null,
       nationality: user.personalInfo?.nationality || null,
-      profilePicture: user.personalInfo?.profilePicture || null,
+      profilePictureUrl: user?.profilePictureUrl || null,
       bio: user.personalInfo?.bio || null,
     },
   });
@@ -96,15 +94,7 @@ export function PersonalInfoForm({
     return (
       <div className="space-y-6">
         <div className="flex items-center space-x-4">
-          <Avatar className="h-20 w-20">
-            <AvatarImage
-              src={user.personalInfo?.profilePicture || undefined}
-              alt={`${user.firstName} ${user.lastName}`}
-            />
-            <AvatarFallback className="text-xl">{`${user.firstName.charAt(
-              0
-            )}${user.lastName.charAt(0)}`}</AvatarFallback>
-          </Avatar>
+          <ProfileAvatar user={user} size="xl" />
           <div>
             <h2 className="text-xl font-semibold text-foreground">
               {user.firstName} {user.lastName}
@@ -170,29 +160,24 @@ export function PersonalInfoForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="flex items-center space-x-4">
-          <div className="relative">
-            <Avatar className="h-20 w-20">
-              <AvatarImage
-                src={form.getValues("profilePicture") || undefined}
-                alt={`${form.getValues("firstName")} ${form.getValues(
-                  "lastName"
-                )}`}
-              />
-              <AvatarFallback className="text-xl">
-                {`${form.getValues("firstName").charAt(0)}${form
-                  .getValues("lastName")
-                  .charAt(0)}`}
-              </AvatarFallback>
-            </Avatar>
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute bottom-0 right-0 rounded-full h-8 w-8"
-            >
-              <Upload className="h-4 w-4" />
-              <span className="sr-only">Upload profile picture</span>
-            </Button>
-          </div>
+          <FormField
+            control={form.control}
+            name="profilePictureUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <AvatarUpload
+                    currentImageUrl={field.value}
+                    firstName={form.getValues("firstName")}
+                    lastName={form.getValues("lastName")}
+                    onImageUploaded={(url) => field.onChange(url)}
+                    size="xl"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <div>
             <h2 className="text-xl font-semibold text-foreground">
               Edit Personal Information
@@ -254,24 +239,14 @@ export function PersonalInfoForm({
                           dateFormat="MMMM d, yyyy"
                           placeholderText="Select date of birth"
                           className={cn(
-                            "w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-                            mounted && theme === "dark"
-                              ? "date-picker-dark"
-                              : ""
+                            "w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                            mounted ? "date-picker-dark" : ""
                           )}
                           disabled={isLoading}
                           calendarClassName={
-                            mounted && theme === "dark"
-                              ? "date-picker-dark-calendar"
-                              : ""
+                            mounted ? "date-picker-dark-calendar" : ""
                           }
-                          dayClassName={() =>
-                            cn(
-                              mounted && theme === "dark"
-                                ? "date-picker-dark-day"
-                                : ""
-                            )
-                          }
+                          dayClassName={() => ""}
                         />
                       )}
                     />

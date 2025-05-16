@@ -3,10 +3,10 @@ import { z } from "zod";
 export const PersonalInfoClientSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
+  profilePictureUrl: z.string().nullable().optional(),
   dateOfBirth: z.string().nullable().optional(),
   gender: z.string().nullable().optional(),
   nationality: z.string().nullable().optional(),
-  profilePicture: z.string().nullable().optional(),
   bio: z.string().nullable().optional(),
 });
 
