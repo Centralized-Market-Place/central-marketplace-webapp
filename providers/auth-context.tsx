@@ -53,10 +53,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           token
         );
 
-        console.log("fetch user response", response);
-        setUser(response.data);
+        setCredential(response.data, token);
       } catch (error) {
-        console.error("Error fetching user:", error);
         if (error instanceof AxiosError && error.response?.status === 401) {
           logout();
         }
@@ -66,7 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     fetchUser();
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     if (!loading) {

@@ -51,6 +51,7 @@ export function useBookmarks(
     );
   };
 
+  console.log("token", token);
   const bookmarksQuery = useInfiniteQuery({
     queryKey: bookmarkKeys.list(query),
     queryFn: getBookmarkedProducts,
