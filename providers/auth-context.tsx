@@ -37,6 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const query = useQueryClient();
 
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -49,6 +50,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             UserSchema,
             token
           );
+
+          console.log("fetch user response", response);
 
           setCredential(response.data, token);
         }
@@ -69,7 +72,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!PUBLIC_PATH.includes(pathName)) {
         setLoading(true);
         localStorage.removeItem("token");
-        localStorage.removeItem("user");
         router.push("/login");
         query.clear();
         setLoading(false);
@@ -86,14 +88,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(null);
     setToken(null);
     localStorage.removeItem("token");
-    localStorage.removeItem("user");
   };
 
   const setCredential = (user: User, token: string) => {
+    console.log("set credential", user, token);
     setUser(user);
     setToken(token);
     localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
   };
 
   const value: AuthContextType = {

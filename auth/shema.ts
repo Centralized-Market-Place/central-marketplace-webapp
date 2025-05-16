@@ -27,7 +27,7 @@ export const UserRegisterSchema = z
     path: ["confirmPassword"],
   });
 
-export const UserRole = z.enum(["USER", "SELLER", "ADMIN"]);
+export const UserRole = z.enum(["USER", "SELLER", "ADMIN", "SUPER_ADMIN"]);
 
 export const TelegramDataSchema = z.object({
   telegramId: z.number(),

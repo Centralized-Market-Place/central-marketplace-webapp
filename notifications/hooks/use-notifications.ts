@@ -1,107 +1,69 @@
-'use client'
+"use client";
 
-import { useCallback, useEffect } from 'react';
-import { useNotificationStore } from '../lib/store';
-import { useAlert } from '@/providers/alert-provider';
-import { useAuthContext } from '@/providers/auth-context';
+import { useQuery } from "@tanstack/react-query";
+import { apiGet } from "@/services/api";
+import { notificationKeys } from "../utils";
+import { NotificationsResponse, notificationsResponseSchema } from "../schema";
+import { useAuthContext } from "@/providers/auth-context";
+import { API_URL } from "@/lib/utils";
 
-export function useNotifications() {
-  const store = useNotificationStore();
-  const alert = useAlert();
+export interface NotificationFilter {
+  page?: number;
+  pageSize?: number;
+}
+
+export const DEFAULT_NOTIFICATION_FILTERS: NotificationFilter = {
+  page: 1,
+  pageSize: 20,
+};
+
+const buildQuery = (filters: NotificationFilter) => {
+  return `?page=${filters.page}&page_size=${filters.pageSize}`;
+};
+
+export function useNotifications(
+  filters: NotificationFilter = DEFAULT_NOTIFICATION_FILTERS,
+  pollInterval: number = 45000
+) {
   const { token, user } = useAuthContext();
+  const baseUrl = `${API_URL}/api/v1/notifications`;
+  const query = buildQuery(filters);
 
-  useEffect(() => {
- 
-    if (token && user) {
-     
-      store.startPolling(token);
-      return () => {
-       
-        store.stopPolling();
-      };
-    } else {
-      
-      store.stopPolling();
-    }
-  }, [token, user]);
+  const fetchNotifications = async () => {
+    const response = await apiGet<NotificationsResponse>(
+      `${baseUrl}${query}`,
+      notificationsResponseSchema,
+      token ?? undefined
+    );
+    return response.data;
+  };
 
-  const createNotification = useCallback(async (data: {
-    userId: string;
-    content: string;
-    notificationType: string;
-    metadata?: Record<string, unknown>;
-  }) => {
-    if (!token) {
-      console.log('useNotifications: Cannot create notification - no token');
-      return;
-    }
-    try {
-      await store.createNotification(token, data);
-      alert?.success('Notification created');
-    } catch (error) {
-      console.error('useNotifications: Error creating notification', error);
-      alert?.error('Failed to create notification');
-    }
-  }, [alert, token]);
+  const notificationsQuery = useQuery({
+    queryKey: notificationKeys.lists(),
+    queryFn: fetchNotifications,
+    enabled: !!token && !!user,
+    refetchInterval: pollInterval,
+    staleTime: 30000,
+  });
 
-  const markAsRead = useCallback(async (id: string) => {
-    if (!token) {
-      console.log('useNotifications: Cannot mark as read - no token');
-      return;
-    }
-    try {
-      await store.markAsRead(token, id);
-      alert?.success('Notification marked as read');
-    } catch (error) {
-      console.error('useNotifications: Error marking as read', error);
-      alert?.error('Failed to mark notification as read');
-    }
-  }, [alert, token]);
-
-  const deleteNotification = useCallback(async (id: string) => {
-    if (!token) {
-      console.log('useNotifications: Cannot delete - no token');
-      return;
-    }
-    try {
-      await store.deleteNotification(token, id);
-      alert?.success('Notification deleted');
-    } catch (error) {
-      console.error('useNotifications: Error deleting notification', error);
-      alert?.error('Failed to delete notification');
-    }
-  }, [alert, token]);
-
-  const deleteAll = useCallback(async () => {
-    if (!token) {
-      console.log('useNotifications: Cannot delete all - no token');
-      return;
-    }
-    try {
-      await store.deleteAllNotifications(token);
-      alert?.success('All notifications cleared');
-    } catch (error) {
-      console.error('useNotifications: Error deleting all notifications', error);
-      alert?.error('Failed to clear notifications');
-    }
-  }, [alert, token]);
+  const hasMore =
+    !!notificationsQuery.data &&
+    notificationsQuery.data.page <
+      Math.ceil(
+        notificationsQuery.data.total / notificationsQuery.data.pageSize
+      );
 
   return {
-    notifications: store.notifications,
-    unreadCount: store.unreadCount,
-    isLoading: store.isLoading,
-    error: store.error,
-    hasMore: store.hasMore,
-    createNotification,
-    markAsRead,
-    deleteNotification,
-    deleteAll,
-    loadMore: () => {
-      if (!token) {
-        console.log('useNotifications: Cannot load more - no token');
-        return;
-      }
-      store.fetchNotifications(token, store.page + 1);
-    }
+    notifications: notificationsQuery.data?.items || [],
+    unreadCount:
+      notificationsQuery.data?.items.filter((n) => !n.read).length || 0,
+    isLoading: notificationsQuery.isLoading,
+    isError: notificationsQuery.isError,
+    error: notificationsQuery.error ? "Failed to load notifications" : null,
+    hasMore,
+    page: notificationsQuery.data?.page || 1,
+    pageSize: notificationsQuery.data?.pageSize || filters.pageSize,
+    total: notificationsQuery.data?.total || 0,
+    refetch: notificationsQuery.refetch,
   };
-} 
+}
