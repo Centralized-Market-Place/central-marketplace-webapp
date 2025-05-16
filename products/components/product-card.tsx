@@ -184,7 +184,7 @@ export function ProductCard({ prod }: ProductCardProps) {
       <ProductModal
         product={product}
         isOpen={isModalOpen}
-        isLoading={isLoading}
+        isLoading={isReactionLoading}
         handleReaction={handleReaction}
         handleBookmark={handleBookmark}
         isBookmarkLoading={isAddingBookmark || isRemovingBookmark}
