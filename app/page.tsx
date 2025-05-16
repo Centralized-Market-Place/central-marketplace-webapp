@@ -9,6 +9,7 @@ import { DEFAULT_FILTERS, useProducts } from "@/products/hooks/useProducts";
 import { EmptyState, ErrorState } from "@/components/common/empty-state";
 import { Search } from "lucide-react";
 import { ProductLoading } from "@/components/common/product-loading";
+import { SearchBar } from "../components/ui/SearchBar";
 
 export default function Home() {
   const [search, setSearch] = useState("");
@@ -21,15 +22,12 @@ export default function Home() {
     });
 
   return (
-    <main className="container mt-4 px-4 mx-auto">
-      <div className="mt-4 max-w-2xl mx-auto text-center mb-4 space-y-4">
-        <h1 className="text-3xl font-bold">Search and find anything</h1>
-        <Input
-          type="search"
+    <main className="px-4 mx-auto ">
+      <div className="mx-auto text-center space-y-4 my-16">
+        <SearchBar
           placeholder="Type to search..."
-          className="max-w-xl mx-auto"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onSearch={setSearch}
+          className="mx-auto "
         />
       </div>
 
