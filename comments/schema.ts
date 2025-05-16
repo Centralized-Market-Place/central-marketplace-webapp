@@ -1,3 +1,4 @@
+import { UserSchema } from "@/auth/shema";
 import { z } from "zod";
 
 export const ReactionTarget = z.enum(["comment", "product"]);
@@ -12,11 +13,10 @@ export const CommentSchema = z.object({
   dislikes: z.number(),
   userId: z.string(),
   productId: z.string(),
+  user: UserSchema.nullable(),
   parentId: z.string().nullable(),
   userReaction: ReactionType.nullable(),
 });
-
-
 
 export const ReactionSchema = z.object({
   id: z.string(),
