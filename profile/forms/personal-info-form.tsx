@@ -21,7 +21,11 @@ import {
   PersonalInfoClientSchema,
   PersonalInfoFormValues,
 } from "../client-schemas";
-import { formDataToUpdateUserInfo, nationalities } from "../utils";
+import {
+  formDataToUpdateUserInfo,
+  nationalities,
+  SearchableCombobox,
+} from "../utils";
 import {
   Form,
   FormControl,
@@ -36,7 +40,6 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
-// Custom styles for the DatePicker to support dark mode
 import "./date-picker.css";
 
 interface PersonalInfoFormProps {
@@ -312,25 +315,13 @@ export function PersonalInfoForm({
               <FormItem>
                 <FormLabel>Nationality</FormLabel>
                 <FormControl>
-                  <Select
+                  <SearchableCombobox
+                    options={nationalities}
                     value={field.value || ""}
-                    onValueChange={field.onChange}
+                    onChange={field.onChange}
+                    placeholder="Select nationality"
                     disabled={isLoading}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select nationality" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {nationalities.map((nationality) => (
-                        <SelectItem
-                          key={nationality.value}
-                          value={nationality.value}
-                        >
-                          {nationality.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

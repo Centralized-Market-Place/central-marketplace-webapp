@@ -113,7 +113,7 @@ export function ProfilePage() {
         }}
         user={user}
       />
-      <main className="flex-1 mt-16 border-l border-gray-200">
+      <main className="flex-1 mt-16 mb-8 border-l border-gray-200">
         <div className="max-w-4xl mx-auto rounded-lg overflow-hidden">
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">

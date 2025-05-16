@@ -1,29 +1,29 @@
 import { z } from "zod";
 
 export const PersonalInfoSchema = z.object({
-  dateOfBirth: z.string().nullable(),
-  gender: z.string().nullable(),
-  nationality: z.string().nullable(),
-  profilePicture: z.string().nullable(),
-  bio: z.string().nullable(),
+  dateOfBirth: z.string().nullable().optional(),
+  gender: z.string().nullable().optional(),
+  nationality: z.string().nullable().optional(),
+  profilePicture: z.string().nullable().optional(),
+  bio: z.string().nullable().optional(),
 });
 
 export const ContactInfoSchema = z.object({
-  phoneNumber: z.string().nullable(),
-  alternativeEmail: z.string().nullable(),
-  preferredContactMethod: z.string().nullable(),
+  phoneNumber: z.string().nullable().optional(),
+  alternativeEmail: z.string().nullable().optional(),
+  preferredContactMethod: z.string().nullable().optional(),
 });
 
 export const LocationInfoSchema = z.object({
-  country: z.string().nullable(),
-  city: z.string().nullable(),
-  address: z.string().nullable(),
-  postalCode: z.string().nullable(),
-  timezone: z.string().nullable(),
+  country: z.string().nullable().optional(),
+  city: z.string().nullable().optional(),
+  address: z.string().nullable().optional(),
+  postalCode: z.string().nullable().optional(),
+  timezone: z.string().nullable().optional(),
 });
 
 export const CommunicationPreferencesSchema = z.object({
-  language: z.string(),
+  language: z.string().nullable().optional(),
   emailNotifications: z.boolean(),
   smsNotifications: z.boolean(),
   marketingEmails: z.boolean(),

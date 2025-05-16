@@ -17,7 +17,11 @@ import {
   LocationInfoClientSchema,
   LocationInfoFormValues,
 } from "../client-schemas";
-import { formDataToUpdateUserInfo, countries } from "../utils";
+import {
+  formDataToUpdateUserInfo,
+  countriesList,
+  SearchableCombobox,
+} from "../utils";
 import {
   Form,
   FormControl,
@@ -68,8 +72,9 @@ export function LocationInfoForm({
             <h3 className="text-sm font-medium text-gray-500">Country</h3>
             <p className="mt-1">
               {user.locationInfo?.country
-                ? countries.find((c) => c.value === user.locationInfo?.country)
-                    ?.label || user.locationInfo?.country
+                ? countriesList.find(
+                    (c) => c.value === user.locationInfo?.country
+                  )?.label || user.locationInfo?.country
                 : "Not specified"}
             </p>
           </div>
@@ -113,22 +118,13 @@ export function LocationInfoForm({
               <FormItem>
                 <FormLabel>Country</FormLabel>
                 <FormControl>
-                  <Select
-                    value={field.value || ""}
-                    onValueChange={field.onChange}
+                  <SearchableCombobox
+                    options={countriesList}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Select country"
                     disabled={isLoading}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countries.map((country) => (
-                        <SelectItem key={country.value} value={country.value}>
-                          {country.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
