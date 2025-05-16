@@ -23,7 +23,11 @@ import { CalendarIcon, Upload } from "lucide-react";
 import { UpdateUserInfo } from "../schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import {
+  PersonalInfoClientSchema,
+  PersonalInfoFormValues,
+} from "../client-schemas";
+import { formDataToUpdateUserInfo, nationalities } from "../utils";
 import {
   Form,
   FormControl,
@@ -32,18 +36,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-const PersonalInfoFormSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  dateOfBirth: z.string().nullable(),
-  gender: z.string().nullable(),
-  nationality: z.string().nullable(),
-  profilePicture: z.string().nullable(),
-  bio: z.string().nullable(),
-});
-
-type PersonalInfoFormValues = z.infer<typeof PersonalInfoFormSchema>;
 
 interface PersonalInfoFormProps {
   user: User;
@@ -61,30 +53,22 @@ export function PersonalInfoForm({
   isLoading,
 }: PersonalInfoFormProps) {
   const form = useForm<PersonalInfoFormValues>({
-    resolver: zodResolver(PersonalInfoFormSchema),
+    resolver: zodResolver(PersonalInfoClientSchema),
     defaultValues: {
       firstName: user.firstName,
       lastName: user.lastName,
-      dateOfBirth: user.personalInfo?.dateOfBirth,
-      gender: user.personalInfo?.gender,
-      nationality: user.personalInfo?.nationality,
-      profilePicture: user.personalInfo?.profilePicture,
-      bio: user.personalInfo?.bio,
+      dateOfBirth: user.personalInfo?.dateOfBirth || null,
+      gender: user.personalInfo?.gender || null,
+      nationality: user.personalInfo?.nationality || null,
+      profilePicture: user.personalInfo?.profilePicture || null,
+      bio: user.personalInfo?.bio || null,
     },
   });
 
   const handleSubmit = (data: PersonalInfoFormValues) => {
-    onSave({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      personalInfo: {
-        dateOfBirth: data.dateOfBirth,
-        gender: data.gender,
-        nationality: data.nationality,
-        profilePicture: data.profilePicture,
-        bio: data.bio,
-      },
-    });
+    // Convert form data to the expected format
+    const updateData = formDataToUpdateUserInfo(data, "personalInfo");
+    onSave(updateData);
   };
 
   if (!isEditing) {
@@ -132,7 +116,11 @@ export function PersonalInfoForm({
           <div>
             <h3 className="text-sm font-medium text-gray-500">Nationality</h3>
             <p className="mt-1">
-              {user.personalInfo?.nationality || "Not specified"}
+              {user.personalInfo?.nationality
+                ? nationalities.find(
+                    (n) => n.value === user.personalInfo?.nationality
+                  )?.label || user.personalInfo?.nationality
+                : "Not specified"}
             </p>
           </div>
         </div>
@@ -284,11 +272,25 @@ export function PersonalInfoForm({
               <FormItem>
                 <FormLabel>Nationality</FormLabel>
                 <FormControl>
-                  <Input
-                    disabled={isLoading}
-                    {...field}
+                  <Select
                     value={field.value || ""}
-                  />
+                    onValueChange={field.onChange}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select nationality" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {nationalities.map((nationality) => (
+                        <SelectItem
+                          key={nationality.value}
+                          value={nationality.value}
+                        >
+                          {nationality.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormControl>
                 <FormMessage />
               </FormItem>

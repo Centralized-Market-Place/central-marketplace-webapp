@@ -12,8 +12,12 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { UpdateUserInfo } from "../schemas";
+import {
+  ContactInfoClientSchema,
+  ContactInfoFormValues,
+} from "../client-schemas";
+import { formDataToUpdateUserInfo } from "../utils";
 import {
   Form,
   FormControl,
@@ -22,14 +26,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-const ContactInfoFormSchema = z.object({
-  phoneNumber: z.string().nullable(),
-  alternativeEmail: z.string().email("Invalid email format").nullable(),
-  preferredContactMethod: z.string().nullable(),
-});
-
-type ContactInfoFormValues = z.infer<typeof ContactInfoFormSchema>;
 
 interface ContactInfoFormProps {
   user: User;
@@ -47,22 +43,17 @@ export function ContactInfoForm({
   isLoading,
 }: ContactInfoFormProps) {
   const form = useForm<ContactInfoFormValues>({
-    resolver: zodResolver(ContactInfoFormSchema),
+    resolver: zodResolver(ContactInfoClientSchema),
     defaultValues: {
-      phoneNumber: user.contactInfo?.phoneNumber,
-      alternativeEmail: user.contactInfo?.alternativeEmail,
-      preferredContactMethod: user.contactInfo?.preferredContactMethod,
+      phoneNumber: user.contactInfo?.phoneNumber || null,
+      alternativeEmail: user.contactInfo?.alternativeEmail || null,
+      preferredContactMethod: user.contactInfo?.preferredContactMethod || null,
     },
   });
 
   const handleSubmit = (data: ContactInfoFormValues) => {
-    onSave({
-      contactInfo: {
-        phoneNumber: data.phoneNumber,
-        alternativeEmail: data.alternativeEmail,
-        preferredContactMethod: data.preferredContactMethod,
-      },
-    });
+    const updateData = formDataToUpdateUserInfo(data, "contactInfo");
+    onSave(updateData);
   };
 
   if (!isEditing) {

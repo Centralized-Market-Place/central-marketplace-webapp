@@ -34,8 +34,12 @@ export function ProfilePage() {
     updateProfile({
       data: updatedData,
       onSuccess: (data: User) => {
+        console.log("Profile updated successfully:", data);
         setIsEditing(false);
         setUser(data);
+      },
+      onError: (error) => {
+        console.error("Error updating profile:", error);
       },
     });
   };
@@ -103,11 +107,14 @@ export function ProfilePage() {
     <div className="flex bg-gray-200">
       <Sidebar
         activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
+        onCategoryChange={(category) => {
+          setActiveCategory(category);
+          setIsEditing(false); // Reset editing state when changing categories
+        }}
         user={user}
       />
       <main className="flex-1 mt-16 border-l border-gray-200">
-        <div className="max-w-4xl mx-auto  rounded-lg overflow-hidden">
+        <div className="max-w-4xl mx-auto rounded-lg overflow-hidden">
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-semibold text-gray-800">

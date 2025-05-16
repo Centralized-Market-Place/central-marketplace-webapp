@@ -1,112 +1,174 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import type { User } from "@/auth/shema"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { CommunicationPreferences } from "../schemas"
+import { useState } from "react";
+import type { User } from "@/auth/shema";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { UpdateUserInfo } from "../schemas";
+import { CommunicationPreferencesFormValues } from "../client-schemas";
+import { formDataToUpdateUserInfo } from "../utils";
+import {
+  CheckCircle,
+  BellRing,
+  BellOff,
+  Mail,
+  MessageSquare,
+} from "lucide-react";
 
 interface CommunicationPreferencesFormProps {
-  user: User
-  isEditing: boolean
-  onSave: (updatedData: Partial<User>) => void
-  onCancel: () => void
-  isLoading?: boolean
+  user: User;
+  isEditing: boolean;
+  onSave: (updatedData: UpdateUserInfo) => void;
+  onCancel: () => void;
+  isLoading?: boolean;
 }
 
-export function CommunicationPreferencesForm({ user, isEditing, onSave, onCancel, isLoading }: CommunicationPreferencesFormProps) {
-  const [formData, setFormData] = useState<CommunicationPreferences>({
+export function CommunicationPreferencesForm({
+  user,
+  isEditing,
+  onSave,
+  onCancel,
+  isLoading,
+}: CommunicationPreferencesFormProps) {
+  const [formData, setFormData] = useState<CommunicationPreferencesFormValues>({
     language: user.communicationPreferences?.language || "en",
-    emailNotifications: user.communicationPreferences?.emailNotifications || false,
+    emailNotifications:
+      user.communicationPreferences?.emailNotifications || false,
     smsNotifications: user.communicationPreferences?.smsNotifications || false,
     marketingEmails: user.communicationPreferences?.marketingEmails || false,
-    notificationFrequency: user.communicationPreferences?.notificationFrequency || "daily",
-  })
+    notificationFrequency:
+      user.communicationPreferences?.notificationFrequency || "daily",
+  });
 
   const handleChange = (field: string, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = () => {
-    onSave({
-      communicationPreferences: {
-        ...user.communicationPreferences,
-        language: formData.language,
-        emailNotifications: formData.emailNotifications,
-        smsNotifications: formData.smsNotifications,
-        marketingEmails: formData.marketingEmails,
-        notificationFrequency: formData.notificationFrequency,
-      },
-    })
-  }
+    const updateData = formDataToUpdateUserInfo(
+      formData,
+      "communicationPreferences"
+    );
+    onSave(updateData);
+  };
+
+  const NotificationIndicator = ({
+    enabled,
+    label,
+    description,
+    icon: Icon,
+  }: {
+    enabled: boolean;
+    label: string;
+    description: string;
+    icon: React.ElementType;
+  }) => (
+    <div className="flex justify-between items-center p-3 rounded-lg border border-border bg-card shadow-sm hover:shadow transition-all">
+      <div className="flex gap-4 items-center space-x-3">
+        <div
+          className={`p-2 rounded-full ${
+            enabled
+              ? "bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400"
+              : "bg-muted text-muted-foreground"
+          }`}
+        >
+          <Icon className="h-5 w-5" />
+        </div>
+        <div>
+          <h3 className="font-medium text-foreground">{label}</h3>
+          <p className="text-sm text-muted-foreground">{description}</p>
+        </div>
+      </div>
+      <div
+        className={`flex items-center ${
+          enabled
+            ? "text-green-600 dark:text-green-400"
+            : "text-muted-foreground"
+        }`}
+      >
+        {enabled ? (
+          <>
+            <CheckCircle className="h-5 w-5 mr-1" />
+            <span className="text-sm font-medium">Enabled</span>
+          </>
+        ) : (
+          <span className="text-sm font-medium">Disabled</span>
+        )}
+      </div>
+    </div>
+  );
 
   if (!isEditing) {
     return (
       <div className="space-y-6">
-        <h2 className="text-xl font-semibold">Communication Preferences</h2>
+        <h2 className="text-xl font-semibold text-foreground">
+          Communication Preferences
+        </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Preferred Language</h3>
-            <p className="mt-1">{formData.language}</p>
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Preferred Language
+            </h3>
+            <p className="mt-1 text-foreground">{formData.language}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Notification Frequency</h3>
-            <p className="mt-1">{formData.notificationFrequency}</p>
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Notification Frequency
+            </h3>
+            <p className="mt-1 text-foreground">
+              {formData.notificationFrequency}
+            </p>
           </div>
         </div>
 
         <div className="space-y-4 mt-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="font-medium">Email Notifications</h3>
-              <p className="text-sm text-gray-500">Receive notifications via email</p>
-            </div>
-            <div className="h-6 w-11 rounded-full bg-gray-200 flex items-center px-0.5">
-              <div
-                className={`h-5 w-5 rounded-full transition-transform ${formData.emailNotifications ? "bg-blue-500 translate-x-5" : "bg-white"}`}
-              ></div>
-            </div>
-          </div>
+          <NotificationIndicator
+            enabled={formData.emailNotifications}
+            label="Email Notifications"
+            description="Receive notifications via email"
+            icon={Mail}
+          />
 
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="font-medium">SMS Notifications</h3>
-              <p className="text-sm text-gray-500">Receive notifications via SMS</p>
-            </div>
-            <div className="h-6 w-11 rounded-full bg-gray-200 flex items-center px-0.5">
-              <div
-                className={`h-5 w-5 rounded-full transition-transform ${formData.smsNotifications ? "bg-blue-500 translate-x-5" : "bg-white"}`}
-              ></div>
-            </div>
-          </div>
+          <NotificationIndicator
+            enabled={formData.smsNotifications}
+            label="SMS Notifications"
+            description="Receive notifications via SMS"
+            icon={MessageSquare}
+          />
 
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="font-medium">Marketing Emails</h3>
-              <p className="text-sm text-gray-500">Receive marketing and promotional emails</p>
-            </div>
-            <div className="h-6 w-11 rounded-full bg-gray-200 flex items-center px-0.5">
-              <div
-                className={`h-5 w-5 rounded-full transition-transform ${formData.marketingEmails ? "bg-blue-500 translate-x-5" : "bg-white"}`}
-              ></div>
-            </div>
-          </div>
+          <NotificationIndicator
+            enabled={formData.marketingEmails}
+            label="Marketing Emails"
+            description="Receive marketing and promotional emails"
+            icon={formData.marketingEmails ? BellRing : BellOff}
+          />
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold">Edit Communication Preferences</h2>
+      <h2 className="text-xl font-semibold text-foreground">
+        Edit Communication Preferences
+      </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="language">Preferred Language</Label>
-          <Select value={formData.language} onValueChange={(value) => handleChange("language", value)}>
+          <Select
+            value={formData.language}
+            onValueChange={(value) => handleChange("language", value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select language" />
             </SelectTrigger>
@@ -124,7 +186,9 @@ export function CommunicationPreferencesForm({ user, isEditing, onSave, onCancel
           <Label htmlFor="notificationFrequency">Notification Frequency</Label>
           <Select
             value={formData.notificationFrequency}
-            onValueChange={(value) => handleChange("notificationFrequency", value)}
+            onValueChange={(value) =>
+              handleChange("notificationFrequency", value)
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="Select frequency" />
@@ -140,39 +204,88 @@ export function CommunicationPreferencesForm({ user, isEditing, onSave, onCancel
       </div>
 
       <div className="space-y-4 mt-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label htmlFor="emailNotifications">Email Notifications</Label>
-            <p className="text-sm text-muted-foreground">Receive notifications via email</p>
+        <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-card transition-all hover:shadow">
+          <div className="flex gap-4 items-center space-x-3">
+            <div
+              className={`p-2 rounded-full ${
+                formData.emailNotifications
+                  ? "bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              <Mail className="h-5 w-5" />
+            </div>
+            <div className="space-y-0.5">
+              <Label htmlFor="emailNotifications">Email Notifications</Label>
+              <p className="text-sm text-muted-foreground">
+                Receive notifications via email
+              </p>
+            </div>
           </div>
           <Switch
             id="emailNotifications"
             checked={formData.emailNotifications}
-            onCheckedChange={(checked: string | boolean) => handleChange("emailNotifications", checked)}
+            onCheckedChange={(checked: string | boolean) =>
+              handleChange("emailNotifications", checked)
+            }
           />
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label htmlFor="smsNotifications">SMS Notifications</Label>
-            <p className="text-sm text-muted-foreground">Receive notifications via SMS</p>
+        <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-card transition-all hover:shadow">
+          <div className="flex gap-4 items-center space-x-3">
+            <div
+              className={`p-2 rounded-full ${
+                formData.smsNotifications
+                  ? "bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              <MessageSquare className="h-5 w-5" />
+            </div>
+            <div className="space-y-0.5">
+              <Label htmlFor="smsNotifications">SMS Notifications</Label>
+              <p className="text-sm text-muted-foreground">
+                Receive notifications via SMS
+              </p>
+            </div>
           </div>
           <Switch
             id="smsNotifications"
             checked={formData.smsNotifications}
-            onCheckedChange={(checked: string | boolean) => handleChange("smsNotifications", checked)}
+            onCheckedChange={(checked: string | boolean) =>
+              handleChange("smsNotifications", checked)
+            }
           />
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label htmlFor="marketingEmails">Marketing Emails</Label>
-            <p className="text-sm text-muted-foreground">Receive marketing and promotional emails</p>
+        <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-card transition-all hover:shadow">
+          <div className="flex gap-4 items-center space-x-3">
+            <div
+              className={`p-2 rounded-full ${
+                formData.marketingEmails
+                  ? "bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {formData.marketingEmails ? (
+                <BellRing className="h-5 w-5" />
+              ) : (
+                <BellOff className="h-5 w-5" />
+              )}
+            </div>
+            <div className="space-y-0.5">
+              <Label htmlFor="marketingEmails">Marketing Emails</Label>
+              <p className="text-sm text-muted-foreground">
+                Receive marketing and promotional emails
+              </p>
+            </div>
           </div>
           <Switch
             id="marketingEmails"
             checked={formData.marketingEmails}
-            onCheckedChange={(checked: string | boolean) => handleChange("marketingEmails", checked)}
+            onCheckedChange={(checked: string | boolean) =>
+              handleChange("marketingEmails", checked)
+            }
           />
         </div>
       </div>
@@ -181,8 +294,10 @@ export function CommunicationPreferencesForm({ user, isEditing, onSave, onCancel
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit} disabled={isLoading}>Save Changes</Button>
+        <Button onClick={handleSubmit} disabled={isLoading}>
+          Save Changes
+        </Button>
       </div>
     </div>
-  )
+  );
 }

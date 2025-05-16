@@ -108,8 +108,6 @@ export function ProductModal({
           window.open(telegramUrl, "_blank");
         },
       });
-    } else {
-      window.open(telegramUrl, "_blank");
     }
   };
 
