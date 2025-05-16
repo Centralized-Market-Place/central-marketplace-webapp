@@ -12,17 +12,11 @@ import {
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { UpdateUserInfo } from "../schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import {
   PersonalInfoClientSchema,
   PersonalInfoFormValues,
@@ -36,6 +30,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+
+// Custom styles for the DatePicker to support dark mode
+import "./date-picker.css";
 
 interface PersonalInfoFormProps {
   user: User;
@@ -52,6 +54,13 @@ export function PersonalInfoForm({
   onCancel,
   isLoading,
 }: PersonalInfoFormProps) {
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const form = useForm<PersonalInfoFormValues>({
     resolver: zodResolver(PersonalInfoClientSchema),
     defaultValues: {
@@ -71,6 +80,15 @@ export function PersonalInfoForm({
     onSave(updateData);
   };
 
+  const formatDobDisplay = (dobString: string | null | undefined) => {
+    if (!dobString) return "Not specified";
+    try {
+      return format(new Date(dobString), "PPP");
+    } catch {
+      return dobString;
+    }
+  };
+
   if (!isEditing) {
     return (
       <div className="space-y-6">
@@ -85,37 +103,47 @@ export function PersonalInfoForm({
             )}${user.lastName.charAt(0)}`}</AvatarFallback>
           </Avatar>
           <div>
-            <h2 className="text-xl font-semibold">
+            <h2 className="text-xl font-semibold text-foreground">
               {user.firstName} {user.lastName}
             </h2>
-            <p className="text-gray-500">{user.email}</p>
+            <p className="text-muted-foreground">{user.email}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="text-sm font-medium text-gray-500">First Name</h3>
-            <p className="mt-1">{user.firstName}</p>
+            <h3 className="text-sm font-medium text-muted-foreground">
+              First Name
+            </h3>
+            <p className="mt-1 text-foreground">{user.firstName}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Last Name</h3>
-            <p className="mt-1">{user.lastName}</p>
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Last Name
+            </h3>
+            <p className="mt-1 text-foreground">{user.lastName}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Date of Birth</h3>
-            <p className="mt-1">
-              {user.personalInfo?.dateOfBirth || "Not specified"}
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Date of Birth
+            </h3>
+            <p className="mt-1 text-foreground">
+              {formatDobDisplay(user.personalInfo?.dateOfBirth)}
             </p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Gender</h3>
-            <p className="mt-1">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Gender
+            </h3>
+            <p className="mt-1 text-foreground">
               {user.personalInfo?.gender || "Not specified"}
             </p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Nationality</h3>
-            <p className="mt-1">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Nationality
+            </h3>
+            <p className="mt-1 text-foreground">
               {user.personalInfo?.nationality
                 ? nationalities.find(
                     (n) => n.value === user.personalInfo?.nationality
@@ -126,8 +154,8 @@ export function PersonalInfoForm({
         </div>
 
         <div>
-          <h3 className="text-sm font-medium text-gray-500">Bio</h3>
-          <p className="mt-1 whitespace-pre-line">
+          <h3 className="text-sm font-medium text-muted-foreground">Bio</h3>
+          <p className="mt-1 whitespace-pre-line text-foreground">
             {user.personalInfo?.bio || "No bio provided"}
           </p>
         </div>
@@ -163,7 +191,9 @@ export function PersonalInfoForm({
             </Button>
           </div>
           <div>
-            <h2 className="text-xl font-semibold">Edit Personal Information</h2>
+            <h2 className="text-xl font-semibold text-foreground">
+              Edit Personal Information
+            </h2>
           </div>
         </div>
 
@@ -199,36 +229,50 @@ export function PersonalInfoForm({
           <FormField
             control={form.control}
             name="dateOfBirth"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>Date of Birth</FormLabel>
                 <FormControl>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal"
-                        disabled={isLoading}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {field.value
-                          ? format(new Date(field.value), "PPP")
-                          : "Pick a date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={
-                          field.value ? new Date(field.value) : undefined
-                        }
-                        onSelect={(date) =>
-                          field.onChange(date ? date.toISOString() : null)
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <div className="relative w-full">
+                    <Controller
+                      control={form.control}
+                      name="dateOfBirth"
+                      render={({ field }) => (
+                        <DatePicker
+                          selected={field.value ? new Date(field.value) : null}
+                          onChange={(date) =>
+                            field.onChange(date ? date.toISOString() : null)
+                          }
+                          showYearDropdown
+                          scrollableYearDropdown
+                          yearDropdownItemNumber={100}
+                          dropdownMode="select"
+                          showMonthDropdown
+                          dateFormat="MMMM d, yyyy"
+                          placeholderText="Select date of birth"
+                          className={cn(
+                            "w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                            mounted && theme === "dark"
+                              ? "date-picker-dark"
+                              : ""
+                          )}
+                          disabled={isLoading}
+                          calendarClassName={
+                            mounted && theme === "dark"
+                              ? "date-picker-dark-calendar"
+                              : ""
+                          }
+                          dayClassName={() =>
+                            cn(
+                              mounted && theme === "dark"
+                                ? "date-picker-dark-day"
+                                : ""
+                            )
+                          }
+                        />
+                      )}
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -253,10 +297,6 @@ export function PersonalInfoForm({
                     <SelectContent>
                       <SelectItem value="male">Male</SelectItem>
                       <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="non-binary">Non-binary</SelectItem>
-                      <SelectItem value="prefer-not-to-say">
-                        Prefer not to say
-                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
