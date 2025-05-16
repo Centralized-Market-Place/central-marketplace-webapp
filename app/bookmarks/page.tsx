@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { ProductCard } from "@/products/components/product-card";
 
 export default function BookmarksPage() {
-
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const { bookmarks, isLoading, isError, fetchNextPage, hasNextPage } =
@@ -44,15 +43,25 @@ export default function BookmarksPage() {
         <EmptyState message="No products found." icon={Bookmark} />
       )}
 
+      {isLoading && <ProductLoading />}
+
       {
         <InfiniteScroll
           dataLength={bookmarks.length}
           next={fetchNextPage}
           hasMore={!!hasNextPage}
-          loader={<ProductLoading />}
-          endMessage={<p className="text-center"></p>}
+          loader={
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-[28rem] bg-muted animate-pulse rounded-lg"
+                ></div>
+              ))}
+            </div>
+          }
         >
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {bookmarks.map((product) => (
               <ProductCard key={product.id} prod={product} />
             ))}

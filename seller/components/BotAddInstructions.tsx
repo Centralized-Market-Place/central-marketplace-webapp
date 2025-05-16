@@ -130,7 +130,6 @@ export function BotAddInstructions({
   };
 
   const uiState = determineUiState();
-  console.log(uiState);
 
   return (
     <Card>

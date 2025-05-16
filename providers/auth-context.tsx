@@ -38,15 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const query = useQueryClient();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      setToken(storedToken);
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
+    const token = localStorage.getItem("token");
     async function fetchUser() {
       if (!token) {
         setLoading(false);
@@ -61,10 +53,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           token
         );
 
-        console.log("fetch user response", response);
-        setUser(response.data);
+        setCredential(response.data, token);
       } catch (error) {
-        console.error("Error fetching user:", error);
         if (error instanceof AxiosError && error.response?.status === 401) {
           logout();
         }
@@ -74,7 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     fetchUser();
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     if (!loading) {
@@ -95,7 +85,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const setCredential = (user: User, token: string) => {
-    console.log("set credential", user, token);
     setUser(user);
     setToken(token);
     localStorage.setItem("token", token);

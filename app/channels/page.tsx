@@ -82,9 +82,6 @@ export default function ChannelsPage() {
                 ))}
               </div>
             }
-            endMessage={
-              <p className="text-center py-4">You&apos;ve reached the end!</p>
-            }
           >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {channels.map((channel: Channel) => (

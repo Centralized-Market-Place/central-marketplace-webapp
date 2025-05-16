@@ -27,7 +27,6 @@ export default function SignUpPage() {
         <CardContent>
           <SignUpForm
             onSave={(userRegister: UserRegister) => {
-              console.log("user", userRegister);
               signUp({
                 userRegister,
                 onSuccess: () => {

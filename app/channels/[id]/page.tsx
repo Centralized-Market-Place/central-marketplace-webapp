@@ -132,9 +132,6 @@ export default function ChannelPage() {
               ))}
             </div>
           }
-          endMessage={
-            <p className="text-center py-4">You&apos;ve reached the end!</p>
-          }
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {products.map((product) => (
