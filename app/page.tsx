@@ -30,7 +30,6 @@ export default function Home() {
           className="mx-auto "
         />
       </div>
-
       {isError && (
         <ErrorState
           message="Something went wrong. Please try again."
