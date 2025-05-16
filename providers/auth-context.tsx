@@ -37,25 +37,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const query = useQueryClient();
 
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
     async function fetchUser() {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        if (token) {
-          const response = await apiGet<User>(
-            `${API_URL}/api/v1/users/me`,
-            UserSchema,
-            token
-          );
+        const response = await apiGet<User>(
+          `${API_URL}/api/v1/users/me`,
+          UserSchema,
+          token
+        );
 
-          console.log("fetch user response", response);
-
-          setCredential(response.data, token);
-        }
+        console.log("fetch user response", response);
+        setUser(response.data);
       } catch (error) {
+        console.error("Error fetching user:", error);
         if (error instanceof AxiosError && error.response?.status === 401) {
           logout();
         }
@@ -65,20 +74,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     fetchUser();
-  }, []);
+  }, [token]);
 
   useEffect(() => {
-    if (!loading && !user) {
-      if (!PUBLIC_PATH.includes(pathName)) {
-        setLoading(true);
+    if (!loading) {
+      if (!user && !PUBLIC_PATH.includes(pathName)) {
         localStorage.removeItem("token");
         router.push("/login");
         query.clear();
-        setLoading(false);
-      }
-    }
-    if (!loading && user) {
-      if (["/login", "/signup"].includes(pathName)) {
+      } else if (user && ["/login", "/signup"].includes(pathName)) {
         router.push("/");
       }
     }

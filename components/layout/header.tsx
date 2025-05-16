@@ -14,7 +14,6 @@ import { useAuthContext } from "@/providers/auth-context";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
 
-
 export function Header() {
   const { user, logout } = useAuthContext();
   const { setTheme, theme } = useTheme();
@@ -24,9 +23,9 @@ export function Header() {
 
   return (
     <header className="border-b fixed top-0 w-full bg-white dark:bg-background z-50">
-      <div className="container flex items-center justify-between h-16 px-4 md:ml-20">
+      <div className="container flex items-center justify-between h-16 px-4 md:ml-10">
         <div className="flex items-center gap-2">
-          {isMobile && (
+          {isMobile && user && (
             <Button
               variant="ghost"
               size="icon"
@@ -42,18 +41,28 @@ export function Header() {
           </Link>
         </div>
 
-        <div className="flex items-center justify-end gap-4 md:gap-16">
+        <div className="flex items-center justify-end gap-4 md:gap-6">
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="gap-2">
+                <Button
+                  variant="ghost"
+                  className="gap-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
                   <User className="h-5 w-5" />
                   <span className="hidden sm:inline">{user.firstName}</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push("/profile")}>profile</DropdownMenuItem>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem
+                  onClick={() => router.push("/profile")}
+                  className="cursor-pointer"
+                >
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={logout} className="cursor-pointer">
+                  Logout
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
@@ -65,6 +74,7 @@ export function Header() {
             variant="ghost"
             size="icon"
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            className="mr-2 md:mr-4"
           >
             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
