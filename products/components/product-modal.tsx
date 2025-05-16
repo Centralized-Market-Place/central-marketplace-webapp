@@ -10,13 +10,32 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CommentSection } from "@/comments/components/comment-section";
-import { Share2, ThumbsDown, ThumbsUp, Eye, Bookmark } from "lucide-react";
+import {
+  Share2,
+  ThumbsDown,
+  ThumbsUp,
+  Eye,
+  Bookmark,
+  Copy,
+  ExternalLink,
+  MessageSquare,
+} from "lucide-react";
 import Image from "next/image";
 import { cn, formatNumber } from "@/lib/utils";
 import { useAuthContext } from "@/providers/auth-context";
 import { format } from "date-fns";
+import { useSearchParams } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { useShareAction } from "../hooks/useShareAction";
+import { useAlert } from "@/providers/alert-provider";
 
 interface ProductModalProps {
   product: Product;
@@ -28,29 +47,75 @@ interface ProductModalProps {
   onClose: () => void;
 }
 
-export function ProductModal({ product, handleReaction, isLoading, handleBookmark, isBookmarkLoading, isOpen, onClose }: ProductModalProps) {
+export function ProductModal({
+  product,
+  handleReaction,
+  isLoading,
+  handleBookmark,
+  isBookmarkLoading,
+  isOpen,
+  onClose,
+}: ProductModalProps) {
   const [activeTab, setActiveTab] = useState("details");
   const { isAuthenticated } = useAuthContext();
+  const searchParams = useSearchParams();
+  const { shareProduct, isSharing } = useShareAction(product.id);
+  const alert = useAlert();
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator
-        .share({
-          title: product.name || "Product",
-          text: product.description || "Check out this product",
-          url: window.location.href,
-        })
-        .catch((error) => console.log("Error sharing", error));
+  useEffect(() => {
+    const currentTab = searchParams.get("tab");
+    if (currentTab === "comments" || currentTab === "details") {
+      setActiveTab(currentTab);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", tab);
+
+    window.history.replaceState({}, "", url.toString());
+  };
+
+  const getShareableUrl = () => {
+    const url = new URL(window.location.origin + window.location.pathname);
+    url.searchParams.set("productId", product.id);
+    url.searchParams.set("tab", activeTab);
+    return url.toString();
+  };
+
+  const handleCopyLink = () => {
+    const url = getShareableUrl();
+    navigator.clipboard.writeText(url);
+
+    alert?.success("Product link copied to clipboard");
+    if (isAuthenticated) {
+      shareProduct({});
+    }
+  };
+
+  const handleTelegramShare = () => {
+    const url = getShareableUrl();
+    const text = product.name || "Check out this product";
+    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(
+      url
+    )}&text=${encodeURIComponent(text)}`;
+
+    if (isAuthenticated) {
+      shareProduct({
+        onSuccess: () => {
+          window.open(telegramUrl, "_blank");
+        },
+      });
     } else {
-      // Fallback for browsers that don't support the Web Share API
-      navigator.clipboard.writeText(window.location.href);
-      // You could show a toast notification here
+      window.open(telegramUrl, "_blank");
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-full md:max-w-2xl max-h-[90vh] overflow-y-auto hide-scrollbar">
+      <DialogContent className="w-full md:max-w-3xl max-h-[90vh] overflow-y-auto hide-scrollbar">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             {product.name || "Unnamed Product"}
@@ -93,9 +158,16 @@ export function ProductModal({ product, handleReaction, isLoading, handleBookmar
                 <Eye size={16} />
                 {formatNumber(product.views)} views
               </span>
+              <span className="flex items-center gap-1 font-medium">
+                <Share2
+                  size={16}
+                  className={product.shares > 0 ? "text-primary" : ""}
+                />
+                {formatNumber(product.shares)} shares
+              </span>
               <span className="flex items-center gap-1">
-                <Share2 size={16} />
-                {formatNumber(product.forwards)} shares
+                <MessageSquare size={16} />
+                {formatNumber(product.comments)} comments
               </span>
             </div>
 
@@ -118,8 +190,7 @@ export function ProductModal({ product, handleReaction, isLoading, handleBookmar
               >
                 <ThumbsUp
                   className={cn(
-                    product.userReaction === "upvote" &&
-                      "fill-current"
+                    product.userReaction === "upvote" && "fill-current"
                   )}
                   size={16}
                 />
@@ -133,8 +204,7 @@ export function ProductModal({ product, handleReaction, isLoading, handleBookmar
               >
                 <ThumbsDown
                   className={cn(
-                    product.userReaction === "downvote" &&
-                      "fill-current"
+                    product.userReaction === "downvote" && "fill-current"
                   )}
                   size={16}
                 />
@@ -152,22 +222,42 @@ export function ProductModal({ product, handleReaction, isLoading, handleBookmar
                   className={cn(product.isBookmarked && "fill-current")}
                 />
               </Button>
-              
-              <Button
-                variant="outline"
-                className="flex items-center gap-1 ml-auto"
-                onClick={handleShare}
-              >
-                <Share2 size={16} />
-                Share
-              </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-1 ml-auto"
+                    disabled={!isAuthenticated || isSharing}
+                  >
+                    <Share2 size={16} />
+                    Share{" "}
+                    {product.shares > 0 && `(${formatNumber(product.shares)})`}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleCopyLink}>
+                    <Copy size={16} className="mr-2" />
+                    Copy Link
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleTelegramShare}>
+                    <ExternalLink size={16} className="mr-2" />
+                    Share on Telegram
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
 
         <Separator className="my-4" />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs
+          value={activeTab}
+          onValueChange={handleTabChange}
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="comments">
@@ -183,8 +273,6 @@ export function ProductModal({ product, handleReaction, isLoading, handleBookmar
             <div className="space-y-4">
               <h3 className="font-semibold">Product Summary</h3>
               <p>{product.summary || "No summary available."}</p>
-
-              {/* Additional product details could go here */}
             </div>
           </TabsContent>
           <TabsContent value="comments" className="mt-4">

@@ -7,7 +7,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProductModal } from "./product-modal";
 import {
   MessageSquare,
@@ -25,6 +25,7 @@ import { SwiperSlide, Swiper } from "swiper/react";
 import { Product } from "../schema";
 import { useBookmarkAction } from "../hooks/useBookmarkAction";
 import { useProduct } from "../hooks/useProduct";
+import { useSearchParams, useRouter } from "next/navigation";
 
 interface ProductCardProps {
   prod: Product;
@@ -37,6 +38,38 @@ export function ProductCard({ prod }: ProductCardProps) {
   const { product, isLoading } = useProduct(prod.id);
   const { addBookmark, removeBookmark, isAddingBookmark, isRemovingBookmark } =
     useBookmarkAction(prod.id);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    const productIdParam = searchParams.get("productId");
+    if (productIdParam === prod.id) {
+      setIsModalOpen(true);
+    }
+  }, [searchParams, prod.id]);
+
+  const handleModalOpen = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("productId", prod.id);
+
+    if (!params.has("tab")) {
+      params.set("tab", "details");
+    }
+
+    router.push(`?${params.toString()}`, { scroll: false });
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("productId");
+
+    router.push(
+      params.toString() ? `?${params.toString()}` : window.location.pathname,
+      { scroll: false }
+    );
+    setIsModalOpen(false);
+  };
 
   const handleBookmark = () => {
     if (!isAuthenticated || !product) return;
@@ -61,9 +94,7 @@ export function ProductCard({ prod }: ProductCardProps) {
   };
 
   if (!product || isLoading) {
-    return (
-      <div className="h-[28rem] bg-muted animate-pulse rounded-lg"></div>
-    );
+    return <div className="h-[28rem] bg-muted animate-pulse rounded-lg"></div>;
   }
 
   return (
@@ -116,15 +147,14 @@ export function ProductCard({ prod }: ProductCardProps) {
                 {formatNumber(product.views)}
               </span>
               <span className="flex items-center gap-1">
-                <Share2 size={14} />
-                {formatNumber(product.forwards)}
+                <Share2
+                  size={14}
+                  className={product.shares > 0 ? "text-primary" : ""}
+                />
+                {formatNumber(product.shares)}
               </span>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsModalOpen(true)}
-            >
+            <Button variant="ghost" size="sm" onClick={handleModalOpen}>
               <MessageSquare size={14} className="mr-1" />
               View Details
             </Button>
@@ -169,7 +199,9 @@ export function ProductCard({ prod }: ProductCardProps) {
                 size="sm"
                 className="flex items-center justify-center"
                 onClick={() => handleBookmark()}
-                disabled={isReactionLoading || isAddingBookmark || isRemovingBookmark}
+                disabled={
+                  isReactionLoading || isAddingBookmark || isRemovingBookmark
+                }
               >
                 <Bookmark
                   size={14}
@@ -188,7 +220,7 @@ export function ProductCard({ prod }: ProductCardProps) {
         handleReaction={handleReaction}
         handleBookmark={handleBookmark}
         isBookmarkLoading={isAddingBookmark || isRemovingBookmark}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleModalClose}
       />
     </>
   );
