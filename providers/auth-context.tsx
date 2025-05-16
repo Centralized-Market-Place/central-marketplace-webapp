@@ -38,15 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const query = useQueryClient();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      setToken(storedToken);
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
+    const token = localStorage.getItem("token");
     async function fetchUser() {
       if (!token) {
         setLoading(false);
