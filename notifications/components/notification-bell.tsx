@@ -5,14 +5,13 @@ import { useNotifications } from '../hooks/use-notifications';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
-import { Notification } from '../schema';
 
 export function NotificationBell() {
   const { unreadCount, notifications, } = useNotifications();
   const router = useRouter();
   const unreadNotifications = notifications.filter(n => !n.read);
 
-  const handleNotificationClick = async (notification: Notification) => {
+  const handleNotificationClick = async () => {
     router.push('/notifications');
   };
 
@@ -21,7 +20,7 @@ export function NotificationBell() {
       <DropdownMenuTrigger asChild>
         <div className="relative cursor-pointer">
           <Bell className={cn(
-            "size-5 transition-colors",
+            "size-4 transition-colors",
             unreadCount > 0 && "text-primary"
           )} />
           {unreadCount > 0 && (
@@ -35,10 +34,10 @@ export function NotificationBell() {
         {unreadNotifications.length === 0 ? (
           <div className="p-4 text-center text-muted-foreground text-sm">No unread notifications</div>
         ) : (
-          unreadNotifications.slice(0, 8).map((notification, idx) => (
+          unreadNotifications.slice(0, 8).map((notification) => (
             <DropdownMenuItem
               key={notification.id}
-              onClick={() => handleNotificationClick(notification as Notification)}
+              onClick={() => handleNotificationClick()}
               className="whitespace-nowrap overflow-hidden text-ellipsis max-w-full"
             >
               {notification.content.length > 40

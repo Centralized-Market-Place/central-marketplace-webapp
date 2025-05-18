@@ -1,3 +1,4 @@
+import { ChannelSchema } from "@/channels/schema";
 import { ReactionType } from "@/comments/schema";
 import { z } from "zod";
 
@@ -25,6 +26,7 @@ export const ProductSchema = z.object({
   downvotes: z.number(),
   comments: z.number(),
   shares: z.number(),
+  channel: ChannelSchema.nullable(),
   postedAt: z.coerce.date().optional(),
   isBookmarked: z.boolean().optional().nullable(),
   userReaction: ReactionType.nullable()

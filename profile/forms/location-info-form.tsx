@@ -12,8 +12,16 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { UpdateUserInfo } from "../schemas";
+import {
+  LocationInfoClientSchema,
+  LocationInfoFormValues,
+} from "../client-schemas";
+import {
+  formDataToUpdateUserInfo,
+  countriesList,
+  SearchableCombobox,
+} from "../utils";
 import {
   Form,
   FormControl,
@@ -22,16 +30,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-const LocationInfoFormSchema = z.object({
-  country: z.string().nullable(),
-  city: z.string().nullable(),
-  address: z.string().nullable(),
-  postalCode: z.string().nullable(),
-  timezone: z.string().nullable(),
-});
-
-type LocationInfoFormValues = z.infer<typeof LocationInfoFormSchema>;
 
 interface LocationInfoFormProps {
   user: User;
@@ -49,26 +47,19 @@ export function LocationInfoForm({
   isLoading,
 }: LocationInfoFormProps) {
   const form = useForm<LocationInfoFormValues>({
-    resolver: zodResolver(LocationInfoFormSchema),
+    resolver: zodResolver(LocationInfoClientSchema),
     defaultValues: {
       country: user.locationInfo?.country || "",
-      city: user.locationInfo?.city || "",
-      address: user.locationInfo?.address || "",
-      postalCode: user.locationInfo?.postalCode || "",
-      timezone: user.locationInfo?.timezone || "",
+      city: user.locationInfo?.city || null,
+      address: user.locationInfo?.address || null,
+      postalCode: user.locationInfo?.postalCode || null,
+      timezone: user.locationInfo?.timezone || null,
     },
   });
 
   const handleSubmit = (data: LocationInfoFormValues) => {
-    onSave({
-      locationInfo: {
-        country: data.country,
-        city: data.city,
-        address: data.address,
-        postalCode: data.postalCode,
-        timezone: data.timezone,
-      },
-    });
+    const updateData = formDataToUpdateUserInfo(data, "locationInfo");
+    onSave(updateData);
   };
 
   if (!isEditing) {
@@ -80,7 +71,11 @@ export function LocationInfoForm({
           <div>
             <h3 className="text-sm font-medium text-gray-500">Country</h3>
             <p className="mt-1">
-              {user.locationInfo?.country || "Not specified"}
+              {user.locationInfo?.country
+                ? countriesList.find(
+                    (c) => c.value === user.locationInfo?.country
+                  )?.label || user.locationInfo?.country
+                : "Not specified"}
             </p>
           </div>
           <div>
@@ -123,24 +118,13 @@ export function LocationInfoForm({
               <FormItem>
                 <FormLabel>Country</FormLabel>
                 <FormControl>
-                  <Select
-                    value={field.value || ""}
-                    onValueChange={field.onChange}
+                  <SearchableCombobox
+                    options={countriesList}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Select country"
                     disabled={isLoading}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="us">United States</SelectItem>
-                      <SelectItem value="ca">Canada</SelectItem>
-                      <SelectItem value="uk">United Kingdom</SelectItem>
-                      <SelectItem value="au">Australia</SelectItem>
-                      <SelectItem value="de">Germany</SelectItem>
-                      <SelectItem value="fr">France</SelectItem>
-                      <SelectItem value="jp">Japan</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

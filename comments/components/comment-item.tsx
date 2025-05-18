@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import type { Comment } from "@/comments/schema";
-import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -10,7 +9,8 @@ import { ReplySection } from "./reply-section";
 import { useReaction } from "@/comments/hooks/useReaction";
 import { useCommentAction } from "@/comments/hooks/useCommentAction";
 import { useAuthContext } from "@/providers/auth-context";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "@/comments/utils";
+import { ProfileAvatar } from "@/profile/components/profile-avatar";
 import {
   MessageSquare,
   ThumbsDown,
@@ -19,7 +19,6 @@ import {
   Edit,
   X,
   Check,
-  User2,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -51,7 +50,7 @@ export function CommentItem({ comm }: CommentItemProps) {
 
   const isCommentOwner = user?.id === comm.userId;
 
-  const [comment, setComment] = useState({...comm});
+  const [comment, setComment] = useState({ ...comm });
 
   const handleReaction = (reactionType: "like" | "dislike") => {
     if (!isAuthenticated) return;
@@ -68,8 +67,10 @@ export function CommentItem({ comm }: CommentItemProps) {
           if (reactionType === "like") {
             return {
               ...prev,
-              likes: prev.userReaction === "like" ? prev.likes - 1 : prev.likes + 1,
-              dislikes: prev.dislikes - (prev.userReaction === "dislike" ? 1 : 0),
+              likes:
+                prev.userReaction === "like" ? prev.likes - 1 : prev.likes + 1,
+              dislikes:
+                prev.dislikes - (prev.userReaction === "dislike" ? 1 : 0),
               userReaction: prev.userReaction === "like" ? null : "like",
             };
           } else if (reactionType === "dislike") {
@@ -87,8 +88,6 @@ export function CommentItem({ comm }: CommentItemProps) {
         });
       },
     });
-
-
   };
 
   const handleUpdateComment = () => {
@@ -110,7 +109,7 @@ export function CommentItem({ comm }: CommentItemProps) {
             ...prev,
             message: editText,
           };
-        } );
+        });
       },
     });
   };
@@ -128,19 +127,18 @@ export function CommentItem({ comm }: CommentItemProps) {
     <Card>
       <CardContent className="p-4">
         <div className="flex gap-3">
-          <Avatar className="size-8 flex items-center justify-center border-[1px] rounded-full">
-            {/* user icon */}
-            <User2 className="size-4" />
-          </Avatar>
+          <ProfileAvatar user={comment.user} size="sm" />
 
           <div className="flex-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="font-semibold">User</span>
+                <span className="font-semibold">
+                  {comment.user
+                    ? `${comment.user.firstName} ${comment.user.lastName}`
+                    : "Unknown User"}
+                </span>
                 <span className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(comment.createdAt), {
-                    addSuffix: true,
-                  })}
+                  {formatDistanceToNow(comment.createdAt)}
                 </span>
               </div>
 
@@ -220,9 +218,7 @@ export function CommentItem({ comm }: CommentItemProps) {
             disabled={isLoading || !isAuthenticated}
           >
             <ThumbsUp
-              className={cn(
-                comment.userReaction === "like" && "fill-current"
-              )}
+              className={cn(comment.userReaction === "like" && "fill-current")}
               size={14}
             />
             {formatNumber(comment.likes)}
@@ -236,8 +232,7 @@ export function CommentItem({ comm }: CommentItemProps) {
           >
             <ThumbsDown
               className={cn(
-                comment.userReaction === "dislike" &&
-                  "fill-current"
+                comment.userReaction === "dislike" && "fill-current"
               )}
               size={14}
             />
@@ -250,7 +245,7 @@ export function CommentItem({ comm }: CommentItemProps) {
             onClick={() => setShowReplies(!showReplies)}
           >
             <MessageSquare size={14} />
-            Replies
+            {showReplies ? "Hide Replies" : "Show Replies"}
           </Button>
         </div>
 
@@ -258,14 +253,21 @@ export function CommentItem({ comm }: CommentItemProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsReplying(!isReplying)}
+            onClick={() => {
+              if (isReplying) {
+                setIsReplying(false);
+              } else {
+                setIsReplying(true);
+                setShowReplies(true);
+              }
+            }}
           >
             {isReplying ? "Cancel" : "Reply"}
           </Button>
         )}
       </CardFooter>
 
-      {(isReplying || showReplies) && (
+      {showReplies && (
         <div className="px-4 pb-4">
           <ReplySection
             commentId={comment.id}

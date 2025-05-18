@@ -43,6 +43,7 @@ export const UserSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   email: z.string(),
+  profilePictureUrl: z.string().nullable().optional(),
   personalInfo: PersonalInfoSchema.nullable().optional(),
   contactInfo: ContactInfoSchema.nullable().optional(),
   locationInfo: LocationInfoSchema.nullable().optional(),

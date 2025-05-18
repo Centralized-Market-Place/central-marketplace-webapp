@@ -2,22 +2,14 @@
 
 import { useState } from "react";
 import type { Comment } from "@/comments/schema";
-import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useReaction } from "@/comments/hooks/useReaction";
 import { useReplyAction } from "@/comments/hooks/useReplyAction";
 import { useAuthContext } from "@/providers/auth-context";
-import { formatDistanceToNow } from "date-fns";
-import {
-  ThumbsDown,
-  ThumbsUp,
-  Trash2,
-  Edit,
-  X,
-  Check,
-  User2,
-} from "lucide-react";
+import { formatDistanceToNow } from "@/comments/utils";
+import { ProfileAvatar } from "@/profile/components/profile-avatar";
+import { ThumbsDown, ThumbsUp, Trash2, Edit, X, Check } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -122,18 +114,18 @@ export function ReplyItem({ rep, commentId }: ReplyItemProps) {
   return (
     <div className="py-2">
       <div className="flex gap-2">
-        <Avatar className="size-6 flex items-center justify-center border-[1px] rounded-full">
-          <User2 className="size-3" />
-        </Avatar>
+        <ProfileAvatar user={reply.user} size="xs" />
 
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm">User</span>
+              <span className="font-semibold text-sm">
+                {reply.user
+                  ? `${reply.user.firstName} ${reply.user.lastName}`
+                  : "Unknown User"}
+              </span>
               <span className="text-xs text-muted-foreground">
-                {formatDistanceToNow(new Date(reply.createdAt), {
-                  addSuffix: true,
-                })}
+                {formatDistanceToNow(reply.createdAt)}
               </span>
             </div>
 

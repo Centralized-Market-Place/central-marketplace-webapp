@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "../ui/button";
-import { Menu, Moon, Sun, User } from "lucide-react";
+import { Menu, Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -14,6 +14,7 @@ import { useAuthContext } from "@/providers/auth-context";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
 import { NotificationBell } from "@/notifications/components/notification-bell";
+import { ProfileAvatar } from "@/profile/components/profile-avatar";
 
 export function Header() {
   const { user, logout } = useAuthContext();
@@ -51,7 +52,7 @@ export function Header() {
                   variant="ghost"
                   className="gap-2 hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
-                  <User className="h-5 w-5" />
+                  <ProfileAvatar user={user} size="sm" />
                   <span className="hidden sm:inline">{user.firstName}</span>
                 </Button>
               </DropdownMenuTrigger>
