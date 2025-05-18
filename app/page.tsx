@@ -10,7 +10,6 @@ import { EmptyState, ErrorState } from "@/components/common/empty-state";
 import { Search } from "lucide-react";
 import { ProductLoading } from "@/components/common/product-loading";
 
-
 export default function Home() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
@@ -64,8 +63,8 @@ export default function Home() {
           }
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {products.map((product) => (
-              <ProductCard key={product.id} prod={product} />
+            {products.map((product, index) => (
+              <ProductCard key={`${product.id}-${index}`} prod={product} />
             ))}
           </div>
         </InfiniteScroll>
