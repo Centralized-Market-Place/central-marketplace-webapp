@@ -2,7 +2,7 @@
 
 import { Notification } from "../schema";
 import { useNotificationAction } from "../hooks/use-notification-action";
-import { formatDistanceToNow } from "date-fns";
+import { cn, formatTimeAgo } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Trash2, Check } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useState } from "react";
 import {
   Tooltip,
@@ -77,9 +76,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
                 {notification.content}
               </p>
               <p className="text-xs text-muted-foreground">
-                {formatDistanceToNow(new Date(notification.createdAt), {
-                  addSuffix: true,
-                })}
+                {formatTimeAgo(notification.createdAt)}
               </p>
             </div>
           </div>

@@ -6,8 +6,8 @@ export const ReactionType = z.enum(["like", "dislike", "upvote", "downvote"]);
 
 export const CommentSchema = z.object({
   id: z.string(),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
   message: z.string(),
   likes: z.number(),
   dislikes: z.number(),
@@ -20,7 +20,8 @@ export const CommentSchema = z.object({
 
 export const ReactionSchema = z.object({
   id: z.string(),
-  createdAt: z.coerce.date(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
   userId: z.string(),
   targetId: z.string(),
   targetType: ReactionTarget,

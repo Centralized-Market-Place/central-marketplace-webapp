@@ -14,7 +14,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-// These sizes should match the ProfileAvatar component sizes
 const avatarSizeClass = {
   xs: "h-6 w-6",
   sm: "h-8 w-8",
@@ -66,7 +65,6 @@ export function AvatarUpload({
     xl: "h-5 w-5",
   };
 
-  // Button positions
   const buttonPositionClass = {
     xs: "-right-1 -bottom-1",
     sm: "-right-1.5 -bottom-1.5",

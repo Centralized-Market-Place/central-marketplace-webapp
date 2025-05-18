@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import type { Comment } from "@/comments/schema";
-import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -11,6 +10,7 @@ import { useReaction } from "@/comments/hooks/useReaction";
 import { useCommentAction } from "@/comments/hooks/useCommentAction";
 import { useAuthContext } from "@/providers/auth-context";
 import { formatDistanceToNow } from "@/comments/utils";
+import { ProfileAvatar } from "@/profile/components/profile-avatar";
 import {
   MessageSquare,
   ThumbsDown,
@@ -19,7 +19,6 @@ import {
   Edit,
   X,
   Check,
-  User2,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -128,14 +127,16 @@ export function CommentItem({ comm }: CommentItemProps) {
     <Card>
       <CardContent className="p-4">
         <div className="flex gap-3">
-          <Avatar className="size-8 flex items-center justify-center border-[1px] rounded-full">
-            <User2 className="size-4" />
-          </Avatar>
+          <ProfileAvatar user={comment.user} size="sm" />
 
           <div className="flex-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="font-semibold">User</span>
+                <span className="font-semibold">
+                  {comment.user
+                    ? `${comment.user.firstName} ${comment.user.lastName}`
+                    : "Unknown User"}
+                </span>
                 <span className="text-xs text-muted-foreground">
                   {formatDistanceToNow(comment.createdAt)}
                 </span>

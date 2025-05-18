@@ -1,7 +1,8 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8443'
+export const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8443";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -16,3 +17,26 @@ export function formatNumber(num: number): string {
     return num.toString();
   }
 }
+
+export function formatTimeAgo(dateOrString: string) {
+  const now = new Date();
+
+
+  const date = new Date(dateOrString + "Z")
+     
+
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 60) {
+    return `${diffInSeconds} seconds ago`;
+  } else if (diffInSeconds < 3600) {
+    return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+  } else if (diffInSeconds < 86400) {
+    return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+  } else if (diffInSeconds < 2592000) {
+    return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  } else {
+    return `${Math.floor(diffInSeconds / 2592000)} months ago`;
+  }
+}
+
