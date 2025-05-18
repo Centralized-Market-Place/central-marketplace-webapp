@@ -43,14 +43,14 @@ export function ProfileAvatar({
   };
 
   const getInitials = () => {
-    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`;
+    return `${user.firstName.charAt(0).toUpperCase()}${user.lastName?.charAt(0).toUpperCase() || ""}`;
   };
 
   return (
     <Avatar className={cn(sizeClasses[size], className)}>
       <AvatarImage
         src={getProfilePictureUrl()}
-        alt={`${user.firstName} ${user.lastName}`}
+        alt={`${user.firstName.toUpperCase()} ${user.lastName?.toUpperCase() || ""}`}
         className="object-cover"
       />
       <AvatarFallback className={cn(textSizeClasses[size])}>

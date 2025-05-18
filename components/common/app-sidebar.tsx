@@ -350,7 +350,7 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-        {user.role === "ADMIN" && (
+        {(user.role === "ADMIN" || user.role === "SUPER_ADMIN") && (
           <SidebarGroup>
             <SidebarGroupLabel
               className={cn("px-2 py-1", state === "collapsed" && "sr-only")}
@@ -435,10 +435,11 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={
+                {user.role === "SUPER_ADMIN" && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      tooltip={
                       state === "collapsed" ? "User Management" : undefined
                     }
                     className={menuButtonHoverClass}
@@ -455,7 +456,7 @@ export function AppSidebar() {
                       </span>
                     </Link>
                   </SidebarMenuButton>
-                </SidebarMenuItem>
+                </SidebarMenuItem>)}
 
                 <SidebarMenuItem>
                   <SidebarMenuButton

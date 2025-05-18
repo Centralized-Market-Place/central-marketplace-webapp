@@ -41,8 +41,8 @@ export const TelegramDataSchema = z.object({
 export const UserSchema = z.object({
   id: z.string(),
   firstName: z.string(),
-  lastName: z.string(),
-  email: z.string(),
+  lastName: z.string().nullable(),
+  email: z.string().nullable(),
   profilePictureUrl: z.string().nullable().optional(),
   personalInfo: PersonalInfoSchema.nullable().optional(),
   contactInfo: ContactInfoSchema.nullable().optional(),

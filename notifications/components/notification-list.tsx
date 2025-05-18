@@ -28,6 +28,7 @@ export function NotificationList() {
     page: 1,
     pageSize: 20,
   });
+  const [isRefetching, setIsRefetching] = useState(false);
 
   const { notifications, isLoading, error, hasMore, refetch } =
     useNotifications(filter);
@@ -36,6 +37,12 @@ export function NotificationList() {
 
   const handleDeleteAll = () => {
     deleteAll();
+  };
+
+  const handleRefetch = async () => {
+    setIsRefetching(true);
+    await refetch();
+    setIsRefetching(false);
   };
 
   const loadMore = () => {
@@ -74,7 +81,7 @@ export function NotificationList() {
   }
 
   if (error) {
-    return <ErrorState message={error} onRetry={() => refetch()} />;
+    return <ErrorState message={error} onRetry={() => handleRefetch()} />;
   }
 
   if (notifications.length === 0) {
@@ -88,8 +95,20 @@ export function NotificationList() {
           When you receive notifications, they will appear here. Check back
           later or refresh to see new notifications.
         </p>
-        <Button variant="outline" className="mt-6" onClick={() => refetch()}>
-          Refresh
+        <Button
+          variant="outline"
+          className="mt-6"
+          onClick={() => handleRefetch()}
+          disabled={isRefetching}
+        >
+          {isRefetching ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <span>Refreshing...</span>
+            </>
+          ) : (
+            <span>Refresh</span>
+          )}
         </Button>
       </div>
     );
