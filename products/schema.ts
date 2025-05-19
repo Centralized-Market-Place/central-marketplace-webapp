@@ -34,6 +34,7 @@ export const ProductSchema = z.object({
   location: z.string().nullable(),
   link: z.array(z.string()),
   phone: z.array(z.string()),
+  categories: z.array(z.string()),
   
 });
 
