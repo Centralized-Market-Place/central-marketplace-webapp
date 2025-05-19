@@ -10,8 +10,8 @@ import {
 import { useState } from "react";
 import { ProductLoading } from "@/components/common/product-loading";
 import { useDebounce } from "@/hooks/use-debounce";
-import { Input } from "@/components/ui/input";
 import { ProductCard } from "@/products/components/product-card";
+import { SearchBar } from "@/components/ui/SearchBar";
 
 export default function BookmarksPage() {
   const [search, setSearch] = useState("");
@@ -23,12 +23,10 @@ export default function BookmarksPage() {
     <main className="container mt-20 px-4 mx-auto">
       <div className="max-w-2xl mx-auto text-center mb-4 space-y-4">
         <h1 className="text-3xl font-bold">My Bookmarks</h1>
-        <Input
-          type="search"
-          placeholder="Type to search..."
-          className="max-w-xl mx-auto"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+        <SearchBar
+          placeholder="Search for bookmarks"
+          onSearch={setSearch}
+          className="mx-auto"
         />
       </div>
 

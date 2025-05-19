@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { DEFAULT_FILTERS, useChannels } from "@/channels/hooks/useChannels";
 import { ChannelCard } from "@/channels/components/channel-card";
 import { Channel } from "@/channels/schema";
 import { Search } from "lucide-react";
+import { SearchBar } from "@/components/ui/SearchBar";
 
 function ChannelLoadingCard() {
   return (
@@ -46,15 +46,11 @@ export default function ChannelsPage() {
     <main className="container px-4 pt-1 mx-auto">
       {/* Fixed search bar with proper spacing */}
       <div className="sticky top-0 z-50 py-4 bg-background/80 backdrop-blur-sm border-b">
-        <div className="max-w-xl mx-auto">
-          <Input
-            type="search"
-            placeholder="Search for channels…"
-            className="w-full"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+        <SearchBar
+          placeholder="Search for channels…"
+          onSearch={setSearch}
+          className="mx-auto"
+        />
       </div>
 
       <div className="py-6">
