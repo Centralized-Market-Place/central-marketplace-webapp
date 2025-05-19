@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "../components/ui/input";
 import { ProductCard } from "@/products/components/product-card";
 import { useDebounce } from "../hooks/use-debounce";
 import InfiniteScroll from "react-infinite-scroll-component";

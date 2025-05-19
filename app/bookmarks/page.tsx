@@ -10,7 +10,6 @@ import {
 import { useState } from "react";
 import { ProductLoading } from "@/components/common/product-loading";
 import { useDebounce } from "@/hooks/use-debounce";
-import { Input } from "@/components/ui/input";
 import { ProductCard } from "@/products/components/product-card";
 import { SearchBar } from "@/components/ui/SearchBar";
 
