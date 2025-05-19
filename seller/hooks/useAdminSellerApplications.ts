@@ -47,7 +47,7 @@ export function useAdminSellerApplications(
   const applicationsQuery = useQuery({
     queryKey: adminSellerApplicationQueryKey.list(queryParams.toString()),
     queryFn: getApplications,
-    enabled: !!token && user?.role === "ADMIN",
+    enabled: !!token && (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN"),
   });
 
   return {

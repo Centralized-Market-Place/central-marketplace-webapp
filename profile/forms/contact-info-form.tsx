@@ -64,7 +64,7 @@ export function ContactInfoForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h3 className="text-sm font-medium text-gray-500">Email</h3>
-            <p className="mt-1">{user.email}</p>
+            <p className="mt-1">{user.email || "Not specified"}</p>
           </div>
           <div>
             <h3 className="text-sm font-medium text-gray-500">
@@ -101,7 +101,11 @@ export function ContactInfoForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <FormLabel>Email (Primary)</FormLabel>
-            <Input value={user.email} disabled className="bg-gray-50" />
+            <Input
+              value={user.email || "Not specified"}
+              disabled
+              className="bg-gray-50"
+            />
             <p className="text-xs text-gray-500">
               Primary email cannot be changed here
             </p>

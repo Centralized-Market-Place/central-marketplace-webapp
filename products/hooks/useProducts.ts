@@ -9,7 +9,7 @@ export const DEFAULT_FILTERS: ProductFilter = {
   pageSize: 10,
   page: 1,
   query: "",
-  sortBy: "createdAt",
+  sortBy: "date",
   sortDesc: true,
   channelId: "",
 };
@@ -20,13 +20,13 @@ const buildQuery = (filters: ProductFilter) => {
     query += `&query=${filters.query}`;
   }
   if (filters.sortBy) {
-    query += `&sortBy=${filters.sortBy}`;
+    query += `&sort_by=${filters.sortBy}`;
   }
   if (filters.sortDesc) {
-    query += `&sortDesc=${filters.sortDesc}`;
+    query += `&sort_desc=${filters.sortDesc}`;
   }
   if (filters.channelId) {
-    query += `&channelId=${filters.channelId}`;
+    query += `&channel_id=${filters.channelId}`;
   }
   return query;
 };

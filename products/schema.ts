@@ -11,14 +11,15 @@ export const CategorySchema = z.object({
 export const ProductSchema = z.object({
   channelId: z.string(),
   messageId: z.number().nullable(),
+  telegramChannelId: z.number().nullable(),
+  date: z.coerce.date(),
+  title: z.string().nullable(),
   forwards: z.number(),
   views: z.number(),
   id: z.string(),
-  name: z.string().optional().nullable(),
-  description: z.string().optional().nullable(),
-  summary: z.string().optional().nullable(),
-  price: z.number().optional().nullable(),
-  isAvailable: z.boolean().optional(),
+  description: z.string().nullable(),
+  price: z.number().nullable(),
+  isAvailable: z.boolean(),
   images: z.array(z.string()),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
@@ -26,10 +27,12 @@ export const ProductSchema = z.object({
   downvotes: z.number(),
   comments: z.number(),
   shares: z.number(),
+  clicks: z.number().optional().nullable(),
   channel: ChannelSchema.nullable(),
-  postedAt: z.coerce.date().optional(),
-  isBookmarked: z.boolean().optional().nullable(),
-  userReaction: ReactionType.nullable()
+  isBookmarked: z.boolean(),
+  userReaction: ReactionType.nullable(),
+  location: z.string().nullable(),
+  link: z.string().nullable(),
 });
 
 export const ProductsSchema = z.object({
@@ -53,7 +56,7 @@ export const BookmarkSchema = z.object({
   userId: z.string(),
   productId: z.string(),
   createdAt: z.coerce.date(),
-})
+});
 
 export type Bookmark = z.infer<typeof BookmarkSchema>;
 export type Category = z.infer<typeof CategorySchema>;

@@ -41,7 +41,7 @@ export default function AdminSellerApplicationsPage() {
     search: searchQuery,
   });
 
-  if (user?.role !== "ADMIN") {
+  if (user?.role !== "ADMIN" && user?.role !== "SUPER_ADMIN") {
     router.push("/");
     return null;
   }

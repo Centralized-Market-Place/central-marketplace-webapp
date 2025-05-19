@@ -28,7 +28,7 @@ export function useSellerApplicationReview() {
     onSuccess?: () => void;
     onError?: () => void;
   }) => {
-    if (!token || user?.role !== "ADMIN") return;
+    if (!token || (user?.role !== "ADMIN" && user?.role !== "SUPER_ADMIN")) return;
     const reviewUrl = `${baseUrl}/${data.applicationId}/review`;
     return apiPost<SellerApplication>(
       reviewUrl,

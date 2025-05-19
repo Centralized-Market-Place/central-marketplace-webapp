@@ -66,7 +66,7 @@ export function PersonalInfoForm({
     resolver: zodResolver(PersonalInfoClientSchema),
     defaultValues: {
       firstName: user.firstName,
-      lastName: user.lastName,
+      lastName: user.lastName || "",
       dateOfBirth: user.personalInfo?.dateOfBirth || null,
       gender: user.personalInfo?.gender || null,
       nationality: user.personalInfo?.nationality || null,
@@ -114,7 +114,7 @@ export function PersonalInfoForm({
             <h3 className="text-sm font-medium text-muted-foreground">
               Last Name
             </h3>
-            <p className="mt-1 text-foreground">{user.lastName}</p>
+            <p className="mt-1 text-foreground">{user.lastName || "Not specified"}</p>
           </div>
           <div>
             <h3 className="text-sm font-medium text-muted-foreground">

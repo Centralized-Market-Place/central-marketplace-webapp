@@ -111,6 +111,8 @@ export function useAuth() {
     return null;
   }
 
+  console.log("telegram login error", telegramLoginMutation.error);
+
   return {
     login: loginMutation.mutate,
     signUp: signUpMutation.mutate,
