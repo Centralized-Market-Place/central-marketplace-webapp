@@ -50,6 +50,14 @@ export default function LoginPage() {
           >
             {"Need an account? Register"}
           </Button>
+          <Button
+            type="button"
+            variant="link"
+            className="w-full"
+            onClick={() => router.push("/forgot-password")}
+          >
+            {"Forgot password?"}
+          </Button>
         </CardFooter>
       </Card>
     </main>

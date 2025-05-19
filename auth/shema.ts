@@ -76,6 +76,18 @@ export const AuthResponseSchema = z.object({
   token: z.string(),
 });
 
+export const PasswordResetRequestSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+});
+
+export const PasswordResetConfirmSchema = z.object({
+  token: z.string(),
+  new_password: z.string().min(6, { message: "Password must be at least 6 characters long" }),
+});
+
+export const PasswordResetResponseSchema = z.object({
+  message: z.string(),
+});
 
 export type UserLogin = z.infer<typeof UserLoginSchema>;
 export type UserRegister = z.infer<typeof UserRegisterSchema>;
@@ -84,3 +96,6 @@ export type UserRoleType = z.infer<typeof UserRole>;
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;
 export type TelegramLogin = z.infer<typeof TelegramLoginSchema>;
 export type TelegramData = z.infer<typeof TelegramDataSchema>;
+export type PasswordResetRequest = z.infer<typeof PasswordResetRequestSchema>;
+export type PasswordResetConfirm = z.infer<typeof PasswordResetConfirmSchema>;
+export type PasswordResetResponse = z.infer<typeof PasswordResetResponseSchema>;
