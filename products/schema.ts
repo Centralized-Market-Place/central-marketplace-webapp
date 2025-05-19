@@ -32,7 +32,7 @@ export const ProductSchema = z.object({
   isBookmarked: z.boolean(),
   userReaction: ReactionType.nullable(),
   location: z.string().nullable(),
-  link: z.string().nullable(),
+  link: z.any().nullable(),
 });
 
 export const ProductsSchema = z.object({
