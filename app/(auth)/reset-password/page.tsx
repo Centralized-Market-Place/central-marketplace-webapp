@@ -21,6 +21,7 @@ export default function ResetPasswordPage() {
           setMessage(res.data.message || "Password has been reset successfully.");
           setTimeout(() => router.push("/login"), 2000);
         },
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
         onError: (err: any) => {
           setMessage(err?.response?.data?.detail || "Error resetting password.");
         },

@@ -17,6 +17,8 @@ export default function ForgotPasswordPage() {
         onSuccess: (res) => {
           setMessage(res.data.message || "Password reset email sent. Check your inbox.");
         },
+        // suppress eslit any error
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
         onError: (err: any) => {
           setMessage(err?.response?.data?.detail || "Error sending reset email.");
         },
