@@ -2,12 +2,19 @@
 
 import type { User } from "@/auth/shema";
 import { CheckCircle, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useEmailVerification } from "@/auth/hooks/useEmailVerification";
+import { useState } from "react";
+import LoadingIcon from "@/components/state/loading";
 
 interface VerificationStatusFormProps {
   user: User;
 }
 
 export function VerificationStatusForm({ user }: VerificationStatusFormProps) {
+  const { resendVerificationMutation } = useEmailVerification();
+  const [message, setMessage] = useState("");
+
   const StatusBadge = ({ verified }: { verified: boolean }) => (
     <div
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -28,6 +35,23 @@ export function VerificationStatusForm({ user }: VerificationStatusFormProps) {
     </div>
   );
 
+  const handleResendVerification = () => {
+    if (!user.email) return;
+    
+    setMessage("");
+    resendVerificationMutation.mutate(
+      { email: user.email as string },
+      {
+        onSuccess: (res) => {
+          setMessage(res.data?.message || "Verification email sent. Please check your inbox.");
+        },
+        onError: (err: any) => {
+          setMessage(err?.response?.data?.detail || "Error sending verification email.");
+        },
+      }
+    );
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">Verification Status</h2>
@@ -39,9 +63,24 @@ export function VerificationStatusForm({ user }: VerificationStatusFormProps) {
         <div className="flex justify-between items-center py-2 border-b">
           <div>
             <h3 className="font-medium">Email Verification</h3>
-            <p className="text-sm text-gray-500">{user.email}</p>
+            <p className="text-sm text-gray-500">{user.email || "No email provided"}</p>
           </div>
-          <StatusBadge verified={user.verificationStatus?.emailVerified || false} />
+          <div className="flex items-center gap-4">
+            <StatusBadge verified={user.verificationStatus?.emailVerified || false} />
+            {!user.verificationStatus?.emailVerified && user.email && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleResendVerification}
+                disabled={resendVerificationMutation.isPending}
+              >
+                {resendVerificationMutation.isPending ? (
+                  <LoadingIcon className="w-4 h-4 mr-2" />
+                ) : null}
+                Resend Verification
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="flex justify-between items-center py-2 border-b">
@@ -75,6 +114,12 @@ export function VerificationStatusForm({ user }: VerificationStatusFormProps) {
                 user.verificationStatus?.verificationDate || ""
               ).toLocaleDateString()}
             </p>
+          </div>
+        )}
+
+        {message && (
+          <div className="mt-4 p-3 rounded-md bg-blue-50 text-blue-700">
+            {message}
           </div>
         )}
       </div>
