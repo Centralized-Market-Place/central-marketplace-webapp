@@ -89,6 +89,20 @@ export const PasswordResetResponseSchema = z.object({
   message: z.string(),
 });
 
+export const EmailVerificationResponseSchema = z.object({
+  message: z.string(),
+});
+
+
+export const ResendVerificationRequest = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+});
+
+
+export const VerifyEmailRequest = z.object({
+  token: z.any(),
+});
+
 export type UserLogin = z.infer<typeof UserLoginSchema>;
 export type UserRegister = z.infer<typeof UserRegisterSchema>;
 export type User = z.infer<typeof UserSchema>;
@@ -99,3 +113,6 @@ export type TelegramData = z.infer<typeof TelegramDataSchema>;
 export type PasswordResetRequest = z.infer<typeof PasswordResetRequestSchema>;
 export type PasswordResetConfirm = z.infer<typeof PasswordResetConfirmSchema>;
 export type PasswordResetResponse = z.infer<typeof PasswordResetResponseSchema>;
+export type EmailVerificationResponse = z.infer<typeof EmailVerificationResponseSchema>;
+export type ResendVerificationRequest = z.infer<typeof ResendVerificationRequest>;
+export type VerifyEmailRequest = z.infer<typeof VerifyEmailRequest>;
