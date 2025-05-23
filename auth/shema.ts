@@ -1,5 +1,12 @@
 import { SellerInfoSchema } from "@/seller/schema";
-import { PersonalInfoSchema, ContactInfoSchema, LocationInfoSchema, CommunicationPreferencesSchema, PrivacySettingsSchema, VerificationStatusSchema } from "@/profile/schemas";
+import {
+  PersonalInfoSchema,
+  ContactInfoSchema,
+  LocationInfoSchema,
+  CommunicationPreferencesSchema,
+  PrivacySettingsSchema,
+  VerificationStatusSchema,
+} from "@/profile/schemas";
 import { User } from "lucide-react";
 import { z } from "zod";
 
@@ -47,7 +54,8 @@ export const UserSchema = z.object({
   personalInfo: PersonalInfoSchema.nullable().optional(),
   contactInfo: ContactInfoSchema.nullable().optional(),
   locationInfo: LocationInfoSchema.nullable().optional(),
-  communicationPreferences: CommunicationPreferencesSchema.nullable().optional(),
+  communicationPreferences:
+    CommunicationPreferencesSchema.nullable().optional(),
   privacySettings: PrivacySettingsSchema.nullable().optional(),
   verificationStatus: VerificationStatusSchema.nullable().optional(),
   role: UserRole,
@@ -59,7 +67,6 @@ export const UserSchema = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
-
 
 export const TelegramLoginSchema = z.object({
   id: z.number(),
@@ -76,28 +83,13 @@ export const AuthResponseSchema = z.object({
   token: z.string(),
 });
 
-export const PasswordResetRequestSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-});
-
-export const PasswordResetConfirmSchema = z.object({
-  token: z.string(),
-  new_password: z.string().min(6, { message: "Password must be at least 6 characters long" }),
-});
-
-export const PasswordResetResponseSchema = z.object({
-  message: z.string(),
-});
-
 export const EmailVerificationResponseSchema = z.object({
   message: z.string(),
 });
 
-
 export const ResendVerificationRequest = z.object({
   email: z.string().email({ message: "Invalid email address" }),
 });
-
 
 export const VerifyEmailRequest = z.object({
   token: z.any(),
@@ -110,9 +102,10 @@ export type UserRoleType = z.infer<typeof UserRole>;
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;
 export type TelegramLogin = z.infer<typeof TelegramLoginSchema>;
 export type TelegramData = z.infer<typeof TelegramDataSchema>;
-export type PasswordResetRequest = z.infer<typeof PasswordResetRequestSchema>;
-export type PasswordResetConfirm = z.infer<typeof PasswordResetConfirmSchema>;
-export type PasswordResetResponse = z.infer<typeof PasswordResetResponseSchema>;
-export type EmailVerificationResponse = z.infer<typeof EmailVerificationResponseSchema>;
-export type ResendVerificationRequest = z.infer<typeof ResendVerificationRequest>;
+export type EmailVerificationResponse = z.infer<
+  typeof EmailVerificationResponseSchema
+>;
+export type ResendVerificationRequest = z.infer<
+  typeof ResendVerificationRequest
+>;
 export type VerifyEmailRequest = z.infer<typeof VerifyEmailRequest>;
