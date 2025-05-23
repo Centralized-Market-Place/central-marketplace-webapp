@@ -6,13 +6,15 @@ import { Button } from "@/components/ui/button";
 import { useEmailVerification } from "@/auth/hooks/useEmailVerification";
 import { useState } from "react";
 import LoadingIcon from "@/components/state/loading";
+import { AxiosError } from "axios";
 
 interface VerificationStatusFormProps {
   user: User;
 }
 
 export function VerificationStatusForm({ user }: VerificationStatusFormProps) {
-  const { resendVerificationMutation } = useEmailVerification();
+  const { resendVerification, isResendingVerification } =
+    useEmailVerification();
   const [message, setMessage] = useState("");
 
   const StatusBadge = ({ verified }: { verified: boolean }) => (
@@ -37,19 +39,23 @@ export function VerificationStatusForm({ user }: VerificationStatusFormProps) {
 
   const handleResendVerification = () => {
     if (!user.email) return;
-    
+
     setMessage("");
-    resendVerificationMutation.mutate(
-      { email: user.email as string },
-      {
-        onSuccess: (res) => {
-          setMessage(res.data?.message || "Verification email sent. Please check your inbox.");
-        },
-        onError: (err: any) => {
-          setMessage(err?.response?.data?.detail || "Error sending verification email.");
-        },
-      }
-    );
+    resendVerification({
+      data: { email: user.email as string },
+      onSuccess: (res) => {
+        setMessage(
+          res?.message || "Verification email sent. Please check your inbox."
+        );
+      },
+      onError: (err: Error) => {
+        if (err instanceof AxiosError) {
+          setMessage(
+            err?.response?.data?.detail || "Error sending verification email."
+          );
+        }
+      },
+    });
   };
 
   return (
@@ -63,18 +69,22 @@ export function VerificationStatusForm({ user }: VerificationStatusFormProps) {
         <div className="flex justify-between items-center py-2 border-b">
           <div>
             <h3 className="font-medium">Email Verification</h3>
-            <p className="text-sm text-gray-500">{user.email || "No email provided"}</p>
+            <p className="text-sm text-gray-500">
+              {user.email || "No email provided"}
+            </p>
           </div>
           <div className="flex items-center gap-4">
-            <StatusBadge verified={user.verificationStatus?.emailVerified || false} />
+            <StatusBadge
+              verified={user.verificationStatus?.emailVerified || false}
+            />
             {!user.verificationStatus?.emailVerified && user.email && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleResendVerification}
-                disabled={resendVerificationMutation.isPending}
+                disabled={isResendingVerification}
               >
-                {resendVerificationMutation.isPending ? (
+                {isResendingVerification ? (
                   <LoadingIcon className="w-4 h-4 mr-2" />
                 ) : null}
                 Resend Verification
@@ -90,7 +100,9 @@ export function VerificationStatusForm({ user }: VerificationStatusFormProps) {
               {user.contactInfo?.phoneNumber || "No phone number"}
             </p>
           </div>
-          <StatusBadge verified={user.verificationStatus?.phoneVerified || false} />
+          <StatusBadge
+            verified={user.verificationStatus?.phoneVerified || false}
+          />
         </div>
 
         <div className="flex justify-between items-center py-2 border-b">
@@ -101,7 +113,9 @@ export function VerificationStatusForm({ user }: VerificationStatusFormProps) {
                 "No verification method"}
             </p>
           </div>
-          <StatusBadge verified={user.verificationStatus?.identityVerified || false} />
+          <StatusBadge
+            verified={user.verificationStatus?.identityVerified || false}
+          />
         </div>
 
         {user.verificationStatus?.verificationDate && (
