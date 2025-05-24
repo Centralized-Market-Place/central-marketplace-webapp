@@ -22,7 +22,6 @@ import {
   Copy,
   ExternalLink,
   Forward,
-  Badge,
 } from "lucide-react";
 import { cn, formatNumber } from "@/lib/utils";
 import { useAuthContext } from "@/providers/auth-context";
@@ -43,6 +42,7 @@ import Link from "next/link";
 import { ProductImageSlider } from "./product-image-slider";
 import { FullScreenImageViewer } from "./full-screen-image-viewer";
 import { ProductDescription } from "./product-description";
+import { Badge } from "@/components/ui/badge";
 
 interface ProductModalProps {
   product: Product;
@@ -357,13 +357,15 @@ export function ProductModal({
         </DialogContent>
       </Dialog>
 
-      <FullScreenImageViewer
-        images={product.images}
-        isOpen={fullScreenImage !== null}
-        initialIndex={fullScreenIndex}
-        productName={product.title || "Product"}
-        onClose={closeFullScreenImage}
-      />
+      {product.images.length > 0 && (
+        <FullScreenImageViewer
+          images={product.images}
+          isOpen={fullScreenImage !== null}
+          initialIndex={fullScreenIndex}
+          productName={product.title || "Product"}
+          onClose={closeFullScreenImage}
+        />
+      )}
     </>
   );
 }
