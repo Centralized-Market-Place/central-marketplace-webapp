@@ -10,6 +10,7 @@ import {
 
 export function useEmailVerification() {
   const baseUrl = `${API_URL}/api/v1/users`;
+  
 
   const verifyEmail = async ({
     data,

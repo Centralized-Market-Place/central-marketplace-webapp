@@ -50,7 +50,7 @@ export function ProfilePage() {
 
   if (showEmailSetup) {
     return (
-      <div className="container max-w-lg py-10">
+      <div className="container max-w-lg mx-auto py-10">
         <TelegramEmailSetup />
       </div>
     );

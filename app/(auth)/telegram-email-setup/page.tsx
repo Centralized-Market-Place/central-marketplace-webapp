@@ -49,7 +49,7 @@ export default function TelegramEmailSetupPage() {
               This verification link is invalid or has expired. Please request a
               new verification email.
             </p>
-            <Button onClick={() => router.push("/profile")} className="mt-4">
+            <Button onClick={() => router.push("/settings")} className="mt-4">
               Return to Profile
             </Button>
           </CardContent>
@@ -60,7 +60,7 @@ export default function TelegramEmailSetupPage() {
 
   if (!isVerified) {
     return (
-      <div className="container max-w-lg py-10">
+      <div className="container mx-auto max-w-lg py-10">
         <Card>
           <CardHeader>
             <CardTitle>Verify Email</CardTitle>
@@ -94,7 +94,7 @@ export default function TelegramEmailSetupPage() {
 
                 {verificationMessage.includes("expired") && (
                   <Button
-                    onClick={() => router.push("/profile")}
+                    onClick={() => router.push("/settings")}
                     variant="outline"
                     className="mt-2"
                   >
@@ -110,7 +110,7 @@ export default function TelegramEmailSetupPage() {
   }
 
   return (
-    <div className="container max-w-lg py-10">
+    <div className="container mx-auto max-w-lg py-10">
       <Card>
         <CardHeader>
           <CardTitle>Set Up Password</CardTitle>
@@ -119,7 +119,7 @@ export default function TelegramEmailSetupPage() {
           <PasswordSetupForm
             token={token}
             onSuccess={() => {
-              router.push("/profile");
+              router.push("/settings");
             }}
           />
         </CardContent>

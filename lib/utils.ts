@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -40,3 +41,10 @@ export function formatTimeAgo(dateOrString: string) {
   }
 }
 
+export function getErrorDetailMsg(error: Error): string | undefined {
+  if (error instanceof AxiosError) {
+    const data = error.response?.data as {details?: string};
+    return data.details;
+  }
+  return undefined;
+}

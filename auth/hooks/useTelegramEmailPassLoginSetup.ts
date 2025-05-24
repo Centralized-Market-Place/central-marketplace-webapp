@@ -1,4 +1,4 @@
-import { API_URL } from "@/lib/utils";
+import { API_URL, getErrorDetailMsg } from "@/lib/utils";
 import { useAlert } from "@/providers/alert-provider";
 import {
   TelegramEmailAddRequest,
@@ -8,10 +8,12 @@ import {
 } from "../shema";
 import { apiPost } from "@/services/api";
 import { useMutation } from "@tanstack/react-query";
+import { useAuthContext } from "@/providers/auth-context";
 
 export function useTelegramEmailPassLoginSetup() {
   const baseUrl = `${API_URL}/api/v1/users/telegram`;
   const alert = useAlert();
+  const { token } = useAuthContext();
 
   const addEmailRequest = ({
     data,
@@ -20,7 +22,7 @@ export function useTelegramEmailPassLoginSetup() {
     onSuccess?: () => void;
     onError?: () => void;
   }) => {
-    return apiPost<User>(`${baseUrl}/add-email`, UserSchema, data);
+    return apiPost<User>(`${baseUrl}/add-email`, UserSchema, data, token ?? undefined);
   };
 
   const setPasswordRequest = ({
@@ -30,7 +32,7 @@ export function useTelegramEmailPassLoginSetup() {
     onSuccess?: () => void;
     onError?: () => void;
   }) => {
-    return apiPost<User>(`${baseUrl}/complete-setup`, UserSchema, data);
+    return apiPost<User>(`${baseUrl}/complete-setup`, UserSchema, data, token ?? undefined);
   };
 
   const addEmailMutation = useMutation({
@@ -38,12 +40,12 @@ export function useTelegramEmailPassLoginSetup() {
     onSuccess: (_, variables) => {
       const { onSuccess } = variables;
       onSuccess?.();
-      alert?.success("Email added successfully!");
+      alert?.success("Email sent successfully!");
     },
-    onError: (_, variables) => {
+    onError: (error, variables) => {
       const { onError } = variables;
       onError?.();
-      alert?.error("Failed to add email!");
+      alert?.error(getErrorDetailMsg(error) || "Failed to send email!");
     },
   });
 
@@ -55,10 +57,10 @@ export function useTelegramEmailPassLoginSetup() {
       onSuccess?.();
       alert?.success("Password set successfully!");
     },
-    onError: (_, variables) => {
+    onError: (error, variables) => {
       const { onError } = variables;
       onError?.();
-      alert?.error("Failed to set password!");
+      alert?.error(getErrorDetailMsg(error) || "Failed to set password!");
     },
   });
 

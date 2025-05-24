@@ -19,7 +19,7 @@ export default function VerifyEmailPage() {
       data: { token },
       onSuccess: (res) => {
         setMessage(res?.message || "Email verified successfully!");
-        setTimeout(() => router.push("/profile"), 20000);
+        setTimeout(() => router.push("/settings"), 20000);
       },
       onError: (err) => {
         setMessage(
@@ -58,8 +58,7 @@ export default function VerifyEmailPage() {
                 </p>
                 <Button
                   onClick={() => {
-                    router.prefetch("/profile");
-                    router.push("/profile");
+                    router.push("/settings");
                   }}
                 >
                   Return to Profile
