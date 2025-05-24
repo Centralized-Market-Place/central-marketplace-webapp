@@ -6,7 +6,6 @@ import {
   Phone,
   MapPin,
   Bell,
-  Shield,
   CheckCircle,
   LogOut,
 } from "lucide-react";
@@ -18,7 +17,6 @@ type CategoryType =
   | "contactInfo"
   | "locationInfo"
   | "communicationPreferences"
-  | "privacySettings"
   | "verificationStatus";
 
 interface SidebarProps {
@@ -54,11 +52,6 @@ export function Sidebar({
       id: "communicationPreferences",
       label: "Communication",
       icon: <Bell className="h-5 w-5" />,
-    },
-    {
-      id: "privacySettings",
-      label: "Privacy Settings",
-      icon: <Shield className="h-5 w-5" />,
     },
     {
       id: "verificationStatus",

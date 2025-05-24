@@ -4,7 +4,6 @@ import {
   ContactInfoSchema,
   LocationInfoSchema,
   CommunicationPreferencesSchema,
-  PrivacySettingsSchema,
   VerificationStatusSchema,
 } from "@/profile/schemas";
 import { User } from "lucide-react";
@@ -56,7 +55,6 @@ export const UserSchema = z.object({
   locationInfo: LocationInfoSchema.nullable().optional(),
   communicationPreferences:
     CommunicationPreferencesSchema.nullable().optional(),
-  privacySettings: PrivacySettingsSchema.nullable().optional(),
   verificationStatus: VerificationStatusSchema.nullable().optional(),
   role: UserRole,
   isVerified: z.boolean(),

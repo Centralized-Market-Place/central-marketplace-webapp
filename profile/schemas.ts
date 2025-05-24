@@ -29,14 +29,6 @@ export const CommunicationPreferencesSchema = z.object({
   notificationFrequency: z.string(),
 });
 
-export const PrivacySettingsSchema = z.object({
-  profileVisibility: z.string(),
-  showEmail: z.boolean(),
-  showPhone: z.boolean(),
-  showLocation: z.boolean(),
-  showActivity: z.boolean(),
-});
-
 export const VerificationStatusSchema = z.object({
   emailVerified: z.boolean(),
   phoneVerified: z.boolean(),
@@ -53,7 +45,6 @@ export const updateUserInfoSchema = z.object({
   contactInfo: ContactInfoSchema.nullable().optional(),
   locationInfo: LocationInfoSchema.nullable().optional(),
   communicationPreferences: CommunicationPreferencesSchema.nullable().optional(),
-  privacySettings: PrivacySettingsSchema.nullable().optional(),
 });
 
 

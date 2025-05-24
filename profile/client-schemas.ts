@@ -36,22 +36,9 @@ export const CommunicationPreferencesClientSchema = z.object({
   notificationFrequency: z.string().default("daily"),
 });
 
-export const PrivacySettingsClientSchema = z.object({
-  profileVisibility: z
-    .string()
-    .min(1, "Profile visibility setting is required"),
-  showEmail: z.boolean().default(false),
-  showPhone: z.boolean().default(false),
-  showLocation: z.boolean().default(false),
-  showActivity: z.boolean().default(false),
-});
-
 export type PersonalInfoFormValues = z.infer<typeof PersonalInfoClientSchema>;
 export type ContactInfoFormValues = z.infer<typeof ContactInfoClientSchema>;
 export type LocationInfoFormValues = z.infer<typeof LocationInfoClientSchema>;
 export type CommunicationPreferencesFormValues = z.infer<
   typeof CommunicationPreferencesClientSchema
->;
-export type PrivacySettingsFormValues = z.infer<
-  typeof PrivacySettingsClientSchema
 >;

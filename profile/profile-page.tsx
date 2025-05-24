@@ -6,7 +6,6 @@ import { PersonalInfoForm } from "@/profile/forms/personal-info-form";
 import { ContactInfoForm } from "@/profile/forms/contact-info-form";
 import { LocationInfoForm } from "@/profile/forms/location-info-form";
 import { CommunicationPreferencesForm } from "@/profile/forms/communication-preferences-form";
-import { PrivacySettingsForm } from "@/profile/forms/privacy-settings-form";
 import { VerificationStatusForm } from "@/profile/forms/verification-status-form";
 import { useAuthContext } from "@/providers/auth-context";
 import { useProfileUpdate } from "@/profile/hooks/useProfileUpdate";
@@ -19,7 +18,6 @@ type CategoryType =
   | "contactInfo"
   | "locationInfo"
   | "communicationPreferences"
-  | "privacySettings"
   | "verificationStatus";
 
 export function ProfilePage() {
@@ -87,16 +85,6 @@ export function ProfilePage() {
             isLoading={isLoading}
           />
         );
-      case "privacySettings":
-        return (
-          <PrivacySettingsForm
-            user={user}
-            isEditing={isEditing}
-            onSave={handleUpdateUser}
-            onCancel={() => setIsEditing(false)}
-            isLoading={isLoading}
-          />
-        );
       case "verificationStatus":
         return <VerificationStatusForm user={user} />;
       default:
@@ -110,7 +98,7 @@ export function ProfilePage() {
         activeCategory={activeCategory}
         onCategoryChange={(category) => {
           setActiveCategory(category);
-          setIsEditing(false); // Reset editing state when changing categories
+          setIsEditing(false);
         }}
         user={user}
       />
