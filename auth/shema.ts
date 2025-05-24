@@ -13,7 +13,7 @@ export const UserLoginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   password: z
     .string()
-    .min(8, { message: "Password must be at least 8 characters long" }),
+    .min(6, { message: "Password must be at least 6 characters long" }),
 });
 
 export const UserRegisterSchema = z
@@ -23,10 +23,10 @@ export const UserRegisterSchema = z
     email: z.string().email({ message: "Invalid email address" }),
     password: z
       .string()
-      .min(8, { message: "Password must be at least 8 characters long" }),
+      .min(6, { message: "Password must be at least 6 characters long" }),
     confirmPassword: z
       .string()
-      .min(8, { message: "Password must be at least 8 characters long" }),
+      .min(6, { message: "Password must be at least 6 characters long" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -90,7 +90,18 @@ export const ResendVerificationRequest = z.object({
 });
 
 export const VerifyEmailRequest = z.object({
-  token: z.any(),
+  token: z.string(),
+});
+
+export const telegramEmailAddRequestSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+});
+
+export const telegramPasswordSetRequestSchema = z.object({
+  token: z.string(),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters long" }),
 });
 
 export type UserLogin = z.infer<typeof UserLoginSchema>;
@@ -107,3 +118,9 @@ export type ResendVerificationRequest = z.infer<
   typeof ResendVerificationRequest
 >;
 export type VerifyEmailRequest = z.infer<typeof VerifyEmailRequest>;
+export type TelegramEmailAddRequest = z.infer<
+  typeof telegramEmailAddRequestSchema
+>;
+export type TelegramPasswordSetRequest = z.infer<
+  typeof telegramPasswordSetRequestSchema
+>;
