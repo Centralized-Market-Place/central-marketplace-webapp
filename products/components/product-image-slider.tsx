@@ -14,6 +14,7 @@ import "swiper/css/pagination";
 interface ProductImageSliderProps {
   images: string[];
   altPrefix?: string;
+  
   isModal?: boolean;
   onImageClick?: (image: string, index: number) => void;
   aspectRatio?: "square" | "card" | "modal";
