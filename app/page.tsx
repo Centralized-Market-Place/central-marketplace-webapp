@@ -6,65 +6,182 @@ import { useDebounce } from "../hooks/use-debounce";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { DEFAULT_FILTERS, useProducts } from "@/products/hooks/useProducts";
 import { EmptyState, ErrorState } from "@/components/common/empty-state";
-import { Search } from "lucide-react";
+import { Search, Filter } from "lucide-react";
 import { ProductLoading } from "@/components/common/product-loading";
 import { SearchBar } from "../components/ui/SearchBar";
+import { useCategories } from "@/products/hooks/useCategoryAction";
+import { FilterContent } from "@/components/common/FilterProducts";
+
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+
+type PriceRange = {
+  label: string;
+  min: number;
+  max: number;
+};
+
+const PRICE_RANGES: PriceRange[] = [
+  { label: "ETB 0 – 500", min: 0, max: 500 },
+  { label: "ETB 500 – 1,000", min: 500, max: 1000 },
+  { label: "ETB 1,000 – 5,000", min: 1000, max: 5000 },
+  { label: "ETB 5,000 – 10,000", min: 5000, max: 10000 },
+  { label: "ETB 10,000 – 20,000", min: 10000, max: 20000 },
+  { label: "ETB 20,000 – 100,000", min: 20000, max: 100000 },
+  { label: "ETB 100,000+", min: 100000, max: Infinity },
+];
 
 export default function Home() {
+  // Search/filter values to be used when the user hits Apply
   const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search, 500);
+  const [filter, setFilter] = useState("all");
+  const [selectedPriceRanges, setSelectedPriceRanges] = useState<PriceRange[]>([]);
+  const [customMinPrice, setCustomMinPrice] = useState<string>("");
+  const [customMaxPrice, setCustomMaxPrice] = useState<string>("");
 
-  const { products, isLoading, isError, hasNextPage, fetchNextPage } =
-    useProducts({
-      ...DEFAULT_FILTERS,
-      query: debouncedSearch,
-    });
+  // Temporary values before applying
+  const [pendingSearch, setPendingSearch] = useState("");
+  const [pendingFilter, setPendingFilter] = useState("all");
+  const [pendingPriceRanges, setPendingPriceRanges] = useState<PriceRange[]>([]);
+  const [pendingMin, setPendingMin] = useState("");
+  const [pendingMax, setPendingMax] = useState("");
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const debouncedSearch = useDebounce(search, 300);
+
+  // Create debounced values instead of functions
+  const debouncedPendingMin = useDebounce(pendingMin, 300);
+  const debouncedPendingMax = useDebounce(pendingMax, 300);
+
+  const {
+    categories,
+    isLoading: isCategoryLoading,
+    isError: isCategoryError,
+  } = useCategories();
+
+  const parsePrice = (value: string) => {
+    const parsed = parseFloat(value);
+    return isNaN(parsed) ? undefined : parsed;
+  };
+
+  const { products, isLoading, isError, hasNextPage, fetchNextPage } = useProducts({
+    ...DEFAULT_FILTERS,
+    query: debouncedSearch,
+    categories: filter !== "all" ? filter : undefined,
+    minPrice:
+      customMinPrice !== ""
+        ? parsePrice(customMinPrice)
+        : selectedPriceRanges.length > 0
+          ? Math.min(...selectedPriceRanges.map((r) => r.min))
+          : undefined,
+    maxPrice:
+      customMaxPrice !== ""
+        ? parsePrice(customMaxPrice)
+        : selectedPriceRanges.length > 0
+          ? Math.max(...selectedPriceRanges.map((r) => (r.max === Infinity ? Number.MAX_SAFE_INTEGER : r.max)))
+          : undefined,
+  });
+
+  const togglePendingPriceRange = (range: PriceRange) => {
+    const isAlreadySelected = pendingPriceRanges.some((r) => r.label === range.label);
+
+    if (isAlreadySelected) {
+      setPendingPriceRanges([]);
+    } else {
+      setPendingPriceRanges([range]);
+      setPendingMin("");
+      setPendingMax("");
+    }
+  };
+
+  const applyFilters = () => {
+    setSearch(pendingSearch);
+    setFilter(pendingFilter);
+    setSelectedPriceRanges(pendingPriceRanges);
+    setCustomMinPrice(debouncedPendingMin);
+    setCustomMaxPrice(debouncedPendingMax);
+    setIsFilterOpen(false);
+  };
+
+ 
 
   return (
-    <main className="px-4 mx-auto ">
-      <div className="mx-auto text-center space-y-4 my-16">
-        <SearchBar
-          placeholder="Type to search..."
-          onSearch={setSearch}
-          className="mx-auto "
-        />
-      </div>
-      {isError && (
-        <ErrorState
-          message="Something went wrong. Please try again."
-          onRetry={() => window.location.reload()}
-        />
-      )}
+    <main className="max-w-7xl mx-auto px-4 py-10">
+      <section className="lg:col-span-3 space-y-8">
+        <div className="sticky top-0 z-20 py-4 flex items-center gap-2 lg:gap-4">
+          <SearchBar
+            placeholder="Search products..."
+            onSearch={setPendingSearch}
+            className="w-full"
+            defaultValue={pendingSearch}
+          />
+          <div>
+            <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+              <SheetTrigger className="p-2 rounded-lg border">
+                <Filter className="h-5 w-5" />
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[80%] sm:w-[300px]">
+                 <FilterContent
+                  pendingFilter={pendingFilter}
+                  setPendingFilter={setPendingFilter}
+                  isCategoryLoading={isCategoryLoading}
+                  isCategoryError={isCategoryError}
+                  categories={categories}
+                  pendingPriceRanges={pendingPriceRanges}
+                  togglePendingPriceRange={togglePendingPriceRange}
+                  pendingMin={pendingMin}
+                  pendingMax={pendingMax}
+                  PRICE_RANGES={PRICE_RANGES}
+                  applyFilters={applyFilters}
+                />
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
 
-      {!isLoading && !isError && products.length === 0 && (
-        <EmptyState message="No products found." icon={Search} />
-      )}
+        {isError && (
+          <ErrorState
+            message="Something went wrong. Please try again."
+            onRetry={() => window.location.reload()}
+          />
+        )}
+        {!isLoading && !isError && products.length === 0 && (
+          <EmptyState message="No products found." icon={Search} />
+        )}
+        {isLoading && <ProductLoading />}
 
-      {isLoading && <ProductLoading />}
-
-      {
         <InfiniteScroll
           dataLength={products.length}
           next={fetchNextPage}
           hasMore={!!hasNextPage}
           loader={
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {Array.from({ length: 8 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="h-[28rem] bg-muted animate-pulse rounded-lg"
-                ></div>
+                <div key={index} className="h-[28rem] bg-gray-100 animate-pulse rounded-xl" />
               ))}
             </div>
           }
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((product, index) => (
               <ProductCard key={`${product.id}-${index}`} prod={product} />
             ))}
           </div>
         </InfiniteScroll>
-      }
+      </section>
     </main>
   );
 }

@@ -1,5 +1,6 @@
 import { ChannelSchema } from "@/channels/schema";
 import { ReactionType } from "@/comments/schema";
+import { Filter } from "lucide-react";
 import { z } from "zod";
 
 export const CategorySchema = z.object({
@@ -52,6 +53,9 @@ export const ProductFilterSchema = z.object({
   sortBy: z.string().optional(),
   sortDesc: z.boolean().optional(),
   channelId: z.string().optional(),
+  categories: z.string().optional(),
+  minPrice: z.number().optional(),
+  maxPrice: z.number().optional(),
 });
 
 export const BookmarkSchema = z.object({
@@ -61,8 +65,22 @@ export const BookmarkSchema = z.object({
   createdAt: z.coerce.date(),
 });
 
+// Update schema to match the API response structure
+export const FilterCategorySchema = z.object({
+    page: z.number(),
+    pageSize: z.number(),
+    total: z.number(),
+    items: z.array(z.object({
+        id: z.string(),
+        createdAt: z.string().nullable(),
+        updatedAt: z.string().nullable(),
+        categoryName: z.string(),
+    })),
+});
+
 export type Bookmark = z.infer<typeof BookmarkSchema>;
 export type Category = z.infer<typeof CategorySchema>;
 export type Product = z.infer<typeof ProductSchema>;
 export type Products = z.infer<typeof ProductsSchema>;
 export type ProductFilter = z.infer<typeof ProductFilterSchema>;
+export type FilterCategoryType = z.infer<typeof FilterCategorySchema>;
