@@ -26,8 +26,6 @@ import { useBookmarkAction } from "../hooks/useBookmarkAction";
 import { useProduct } from "../hooks/useProduct";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-
-// Import shared components
 import { ProductImageSlider } from "./product-image-slider";
 
 interface ProductCardProps {

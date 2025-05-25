@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { SwiperSlide, Swiper } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import { Swiper as SwiperType } from "swiper";
@@ -30,11 +30,40 @@ export function FullScreenImageViewer({
   const fullScreenSwiperRef = useRef<SwiperType | null>(null);
   const [failedImages, setFailedImages] = useState<Record<number, boolean>>({});
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose(e as unknown as React.MouseEvent);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
+    if (isOpen && fullScreenSwiperRef.current) {
+      fullScreenSwiperRef.current.update();
+    }
+  }, [isOpen]);
+
   const handleImageError = (index: number) => {
     setFailedImages((prev) => ({
       ...prev,
       [index]: true,
     }));
+  };
+
+  const handleCloseClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onClose(e);
+  };
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    // Only close if clicking directly on the overlay background
+    if (e.target === e.currentTarget) {
+      onClose(e);
+    }
   };
 
   if (!isOpen || !images || images.length === 0) {
@@ -44,20 +73,15 @@ export function FullScreenImageViewer({
   return (
     <div
       className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center"
-      onClick={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
+      onClick={handleOverlayClick}
     >
       <div className="relative w-full h-full max-w-screen-xl max-h-screen p-4 md:p-8">
         <Button
           className="absolute right-4 top-4 z-[101] rounded-full bg-black/50 hover:bg-black/70 text-white cursor-pointer"
           size="icon"
           variant="ghost"
-          onClick={(e) => {
-            e.stopPropagation();
-            onClose(e);
-          }}
+          onClick={handleCloseClick}
+          type="button"
         >
           <X size={24} />
           <span className="sr-only">Close</span>
@@ -75,6 +99,8 @@ export function FullScreenImageViewer({
             pagination={{ clickable: true }}
             initialSlide={initialIndex}
             onSwiper={(swiper) => (fullScreenSwiperRef.current = swiper)}
+            observer={true}
+            observeParents={true}
             className="w-full h-full flex items-center justify-center"
           >
             {images.map((image, index) => (
@@ -103,10 +129,16 @@ export function FullScreenImageViewer({
 
             {images.length > 1 && (
               <>
-                <div className="swiper-button-prev-fullscreen absolute left-4 top-1/2 z-[101] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 hover:bg-black/70 text-white cursor-pointer">
+                <div
+                  className="swiper-button-prev-fullscreen absolute left-4 top-1/2 z-[101] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 hover:bg-black/70 text-white cursor-pointer"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <ChevronLeft className="h-6 w-6" />
                 </div>
-                <div className="swiper-button-next-fullscreen absolute right-4 top-1/2 z-[101] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 hover:bg-black/70 text-white cursor-pointer">
+                <div
+                  className="swiper-button-next-fullscreen absolute right-4 top-1/2 z-[101] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 hover:bg-black/70 text-white cursor-pointer"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <ChevronRight className="h-6 w-6" />
                 </div>
               </>

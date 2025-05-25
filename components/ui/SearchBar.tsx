@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { Search, Mic, Camera } from "lucide-react";
+import { Search } from "lucide-react";
 
 interface GoogleSearchBarProps extends React.HTMLAttributes<HTMLDivElement> {
   onSearch?: (query: string) => void;
@@ -42,23 +42,6 @@ const SearchBar = React.forwardRef<HTMLDivElement, GoogleSearchBarProps>(
             {/* Search icon */}
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5 text-muted-foreground">
               <Search size={22} strokeWidth={1.5} />
-            </div>
-            {/* Right side icons */}
-            <div className="absolute inset-y-0 right-0 flex items-center pr-5 gap-2">
-              <button
-                type="button"
-                className="h-9 w-9 flex items-center justify-center rounded-full text-muted-foreground hover:bg-muted transition-colors"
-                aria-label="Search by voice"
-              >
-                <Mic size={20} strokeWidth={1.5} />
-              </button>
-              <button
-                type="button"
-                className="h-9 w-9 flex items-center justify-center rounded-full text-muted-foreground hover:bg-muted transition-colors"
-                aria-label="Search by image"
-              >
-                <Camera size={20} strokeWidth={1.5} />
-              </button>
             </div>
           </div>
         </form>

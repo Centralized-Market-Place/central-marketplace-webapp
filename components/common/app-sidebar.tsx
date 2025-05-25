@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import {
   Sidebar,
   SidebarContent,
@@ -52,8 +53,23 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="mt-16">
       <SidebarHeader className="flex flex-col items-start gap-4 px-4 pt-4 border-b border-sidebar-border pb-4">
         <div className="flex items-center">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
-            <Store className="size-5 text-primary-foreground" />
+          <div className="flex h-7 w-7 items-center justify-center">
+            <Image
+              src="/dark-theme-icon.png"
+              alt="Marketplace"
+              width={28}
+              height={28}
+              className="h-7 w-auto hidden dark:block"
+              priority
+            />
+            <Image
+              src="/light-theme-icon.png"
+              alt="Marketplace"
+              width={28}
+              height={28}
+              className="h-7 w-auto block dark:hidden"
+              priority
+            />
           </div>
           <span
             className={cn(
@@ -440,23 +456,24 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       asChild
                       tooltip={
-                      state === "collapsed" ? "User Management" : undefined
-                    }
-                    className={menuButtonHoverClass}
-                  >
-                    <Link href="/admin/users">
-                      <Users className="size-5" />
-                      <span
-                        className={cn(
-                          "ml-2 transition-opacity duration-200",
-                          state === "collapsed" && "opacity-0 w-0 -ml-0"
-                        )}
-                      >
-                        User Management
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>)}
+                        state === "collapsed" ? "User Management" : undefined
+                      }
+                      className={menuButtonHoverClass}
+                    >
+                      <Link href="/admin/users">
+                        <Users className="size-5" />
+                        <span
+                          className={cn(
+                            "ml-2 transition-opacity duration-200",
+                            state === "collapsed" && "opacity-0 w-0 -ml-0"
+                          )}
+                        >
+                          User Management
+                        </span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
 
                 <SidebarMenuItem>
                   <SidebarMenuButton

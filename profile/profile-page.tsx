@@ -6,20 +6,20 @@ import { PersonalInfoForm } from "@/profile/forms/personal-info-form";
 import { ContactInfoForm } from "@/profile/forms/contact-info-form";
 import { LocationInfoForm } from "@/profile/forms/location-info-form";
 import { CommunicationPreferencesForm } from "@/profile/forms/communication-preferences-form";
-import { PrivacySettingsForm } from "@/profile/forms/privacy-settings-form";
 import { VerificationStatusForm } from "@/profile/forms/verification-status-form";
 import { useAuthContext } from "@/providers/auth-context";
 import { useProfileUpdate } from "@/profile/hooks/useProfileUpdate";
 import { UpdateUserInfo } from "./schemas";
 import { User } from "@/auth/shema";
 import { Button } from "@/components/ui/button";
+import { TelegramEmailSetup } from "./components/telegram-email-setup";
+import { EmailSetupBanner } from "./components/email-setup-banner";
 
 type CategoryType =
   | "personalInfo"
   | "contactInfo"
   | "locationInfo"
   | "communicationPreferences"
-  | "privacySettings"
   | "verificationStatus";
 
 export function ProfilePage() {
@@ -27,9 +27,12 @@ export function ProfilePage() {
   const [activeCategory, setActiveCategory] =
     useState<CategoryType>("personalInfo");
   const [isEditing, setIsEditing] = useState(false);
+  const [showEmailSetup, setShowEmailSetup] = useState(false);
   const { updateProfile, isLoading } = useProfileUpdate();
 
   if (!user) return null;
+
+  const needsEmailSetup = user.telegram !== null && !user.email;
 
   const handleUpdateUser = (updatedData: UpdateUserInfo) => {
     updateProfile({
@@ -44,6 +47,14 @@ export function ProfilePage() {
       },
     });
   };
+
+  if (showEmailSetup) {
+    return (
+      <div className="container max-w-lg mx-auto py-10">
+        <TelegramEmailSetup />
+      </div>
+    );
+  }
 
   const renderForm = () => {
     switch (activeCategory) {
@@ -87,16 +98,6 @@ export function ProfilePage() {
             isLoading={isLoading}
           />
         );
-      case "privacySettings":
-        return (
-          <PrivacySettingsForm
-            user={user}
-            isEditing={isEditing}
-            onSave={handleUpdateUser}
-            onCancel={() => setIsEditing(false)}
-            isLoading={isLoading}
-          />
-        );
       case "verificationStatus":
         return <VerificationStatusForm user={user} />;
       default:
@@ -110,13 +111,16 @@ export function ProfilePage() {
         activeCategory={activeCategory}
         onCategoryChange={(category) => {
           setActiveCategory(category);
-          setIsEditing(false); // Reset editing state when changing categories
+          setIsEditing(false);
         }}
         user={user}
       />
       <main className="flex-1 mt-16 mb-8 border-l border-border">
         <div className="max-w-4xl mx-auto rounded-lg overflow-hidden">
           <div className="p-6">
+            {needsEmailSetup && (
+              <EmailSetupBanner onSetupClick={() => setShowEmailSetup(true)} />
+            )}
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-semibold text-foreground">
                 Your Profile Information

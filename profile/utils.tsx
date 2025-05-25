@@ -5,7 +5,6 @@ import {
   ContactInfoFormValues,
   LocationInfoFormValues,
   CommunicationPreferencesFormValues,
-  PrivacySettingsFormValues,
 } from "./client-schemas";
 import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
@@ -169,18 +168,6 @@ export function formDataToUpdateUserInfo(
           smsNotifications: data.smsNotifications,
           marketingEmails: data.marketingEmails,
           notificationFrequency: data.notificationFrequency,
-        },
-      };
-    }
-    case "privacySettings": {
-      const data = formData as PrivacySettingsFormValues;
-      return {
-        privacySettings: {
-          profileVisibility: data.profileVisibility,
-          showEmail: data.showEmail,
-          showPhone: data.showPhone,
-          showLocation: data.showLocation,
-          showActivity: data.showActivity,
         },
       };
     }

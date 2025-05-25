@@ -3,6 +3,7 @@
 import { Button } from "../ui/button";
 import { Menu, Moon, Sun } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,8 +39,23 @@ export function Header() {
               <span className="sr-only">Toggle menu</span>
             </Button>
           )}
-          <Link href="/" className="font-bold text-xl">
-            Marketplace
+          <Link href="/" className="font-bold text-xl flex items-center">
+            <Image
+              src="/central_marketplace_dark_theme_icon.png"
+              alt="Marketplace"
+              width={120}
+              height={40}
+              className="h-8 w-auto hidden dark:block"
+              priority
+            />
+            <Image
+              src="/central_marketplace_light_theme_icon.png"
+              alt="Marketplace"
+              width={120}
+              height={40}
+              className="h-8 w-auto block dark:hidden"
+              priority
+            />
           </Link>
         </div>
 
@@ -58,10 +74,10 @@ export function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem
-                  onClick={() => router.push("/profile")}
+                  onClick={() => router.push("/settings")}
                   className="cursor-pointer"
                 >
-                  Profile
+                  Settings
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={logout} className="cursor-pointer">
                   Logout

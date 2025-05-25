@@ -42,6 +42,7 @@ import Link from "next/link";
 import { ProductImageSlider } from "./product-image-slider";
 import { FullScreenImageViewer } from "./full-screen-image-viewer";
 import { ProductDescription } from "./product-description";
+import { Badge } from "@/components/ui/badge";
 
 interface ProductModalProps {
   product: Product;
@@ -59,12 +60,13 @@ export function ProductModal({
   isLoading,
   handleBookmark,
   isBookmarkLoading,
-  isOpen,
+  isOpen: isModalOpenProp,
   onClose,
 }: ProductModalProps) {
   const [activeTab, setActiveTab] = useState("details");
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
   const [fullScreenIndex, setFullScreenIndex] = useState<number>(0);
+  const [isModalOpen, setIsModalOpen] = useState(isModalOpenProp);
   const { isAuthenticated } = useAuthContext();
   const searchParams = useSearchParams();
   const { shareProduct, isSharing } = useShareAction(product.id);
@@ -76,6 +78,10 @@ export function ProductModal({
       setActiveTab(currentTab);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    setIsModalOpen(isModalOpenProp);
+  }, [isModalOpenProp]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -122,13 +128,13 @@ export function ProductModal({
   const openFullScreenImage = (image: string, index: number) => {
     setFullScreenImage(image);
     setFullScreenIndex(index);
+    setIsModalOpen(false);
   };
 
   const closeFullScreenImage = (e: React.MouseEvent) => {
-    if (e) {
-      e.stopPropagation();
-    }
+    e.stopPropagation();
     setFullScreenImage(null);
+    setIsModalOpen(true);
   };
 
   const telegramLink =
@@ -139,12 +145,11 @@ export function ProductModal({
   return (
     <>
       <Dialog
-        open={isOpen}
+        open={isModalOpen}
         onOpenChange={(open) => {
-          if (!open) {
-            if (fullScreenImage === null) {
-              onClose();
-            }
+          setIsModalOpen(open);
+          if (!open && fullScreenImage === null) {
+            onClose();
           }
         }}
       >
@@ -159,7 +164,10 @@ export function ProductModal({
           </DialogHeader>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="w-full rounded-md overflow-hidden">
+            <div
+              className="w-full rounded-md overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
               <ProductImageSlider
                 images={product.images}
                 aspectRatio="modal"
@@ -218,11 +226,9 @@ export function ProductModal({
               )}
 
               <div className="flex flex-wrap gap-2 mb-3">
-                {/* {product.categories.map((category) => (
-                  <Badge key={category.id} variant="secondary">
-                    {category.name}
-                  </Badge>
-                ))} */}
+                {product.categories.map((category) => (
+                  <Badge key={category}>{category}</Badge>
+                ))}
               </div>
 
               <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
@@ -351,13 +357,15 @@ export function ProductModal({
         </DialogContent>
       </Dialog>
 
-      <FullScreenImageViewer
-        images={product.images}
-        isOpen={fullScreenImage !== null}
-        initialIndex={fullScreenIndex}
-        productName={product.title || "Product"}
-        onClose={closeFullScreenImage}
-      />
+      {product.images.length > 0 && (
+        <FullScreenImageViewer
+          images={product.images}
+          isOpen={fullScreenImage !== null}
+          initialIndex={fullScreenIndex}
+          productName={product.title || "Product"}
+          onClose={closeFullScreenImage}
+        />
+      )}
     </>
   );
 }
