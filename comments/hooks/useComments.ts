@@ -3,14 +3,12 @@ import { Comments, CommentsSchema } from "../schema";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { commentKeys } from "../utils";
 import { API_URL } from "@/lib/utils";
-import { useAuthContext } from "@/providers/auth-context";
 
 const buildQuery = (page: number, size: number) => {
   return `?page=${page}&pageSize=${size}`;
 };
 export function useComments(size: number, productId: string) {
   const baseUrl = `${API_URL}/api/v1/products/${productId}/comments`;
-  const { token } = useAuthContext();
   const getComments = ({ pageParam = 1 }: { pageParam?: number }) => {
     const queryString = buildQuery(pageParam, size);
     return apiGet<Comments>(`${baseUrl}${queryString}`, CommentsSchema);
@@ -24,7 +22,6 @@ export function useComments(size: number, productId: string) {
       return allPages.length + 1;
     },
     refetchInterval: 1000 * 60 * 100,
-    enabled: !!token,
   });
 
   return {
