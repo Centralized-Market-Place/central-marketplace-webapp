@@ -45,13 +45,23 @@ export const ProductsSchema = z.object({
   pageSize: z.number(),
 });
 
+export const ProductUpdateSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
+  price: z.number().optional(),
+  isAvailable: z.boolean().optional(),
+  categories: z.array(z.string()).optional(),
+  phone: z.array(z.string()).optional(),
+  location: z.string().optional(),
+});
+
 export const ProductFilterSchema = z.object({
   page: z.number(),
   pageSize: z.number(),
   query: z.string().optional(),
   sortBy: z.string().optional(),
   sortDesc: z.boolean().optional(),
-  channelId: z.string().optional(),
+  channelIds: z.array(z.string()).optional(),
 });
 
 export const BookmarkSchema = z.object({
@@ -61,6 +71,7 @@ export const BookmarkSchema = z.object({
   createdAt: z.coerce.date(),
 });
 
+export type ProductUpdate = z.infer<typeof ProductUpdateSchema>;
 export type Bookmark = z.infer<typeof BookmarkSchema>;
 export type Category = z.infer<typeof CategorySchema>;
 export type Product = z.infer<typeof ProductSchema>;
