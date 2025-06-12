@@ -240,11 +240,13 @@ export default function SellerProductCard({ product }: SellerProductCardProps) {
         </CardContent>
       </Card>
 
-      <ProductEditModal
-        product={product}
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-      />
+      {product && isEditModalOpen && (
+        <ProductEditModal
+          product={product}
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+        />
+      )}
 
       <AlertDialog
         open={isDeleteDialogOpen}

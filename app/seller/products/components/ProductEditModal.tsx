@@ -63,7 +63,7 @@ export function ProductEditModal({
 
   const form = useForm<ProductEditFormValues>({
     resolver: zodResolver(ProductEditSchema),
-    defaultValues: {
+    values: {
       title: product.title || "",
       description: product.description || "",
       price: product.price || 0,
@@ -82,7 +82,6 @@ export function ProductEditModal({
 
   const validatePhoneNumbers = (phones: string[]): boolean => {
     return phones.every((phone) => {
-      // Only validate that it contains numbers, spaces, and basic formatting characters
       return /^[\d\s\-\+\(\)]+$/.test(phone) && /\d/.test(phone);
     });
   };
@@ -90,7 +89,6 @@ export function ProductEditModal({
   const handleSubmit = (data: ProductEditFormValues) => {
     const phoneNumbers = formatArrayInput(data.phone);
 
-    // Additional validation
     if (phoneNumbers.length === 0) {
       form.setError("phone", {
         message: "At least one phone number is required",
