@@ -26,13 +26,23 @@ import {
 import { useProductAction } from "@/products/hooks/useProductAction";
 
 const ProductEditSchema = z.object({
-  title: z.string().min(1, "Title is required").optional(),
-  description: z.string().optional(),
-  price: z.number().min(0, "Price must be non-negative").optional(),
-  location: z.string().optional(),
-  categories: z.string().optional(),
-  phone: z.string().optional(),
-  link: z.string().optional(),
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(200, "Title must be less than 200 characters"),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .max(1000, "Description must be less than 1000 characters"),
+  price: z
+    .number()
+    .min(0.01, "Price must be greater than 0")
+    .max(999999999, "Price is too high"),
+  location: z
+    .string()
+    .min(1, "Location is required")
+    .max(100, "Location must be less than 100 characters"),
+  phone: z.string().min(1, "At least one phone number is required"),
   isAvailable: z.boolean().default(true),
 });
 
@@ -58,9 +68,7 @@ export function ProductEditModal({
       description: product.description || "",
       price: product.price || 0,
       location: product.location || "",
-      categories: product.categories.join(", "),
       phone: product.phone.join(", "),
-      link: product.link.join(", "),
       isAvailable: product.isAvailable,
     },
   });
@@ -72,16 +80,38 @@ export function ProductEditModal({
       .filter((item) => item.length > 0);
   };
 
+  const validatePhoneNumbers = (phones: string[]): boolean => {
+    return phones.every((phone) => {
+      // Only validate that it contains numbers, spaces, and basic formatting characters
+      return /^[\d\s\-\+\(\)]+$/.test(phone) && /\d/.test(phone);
+    });
+  };
+
   const handleSubmit = (data: ProductEditFormValues) => {
+    const phoneNumbers = formatArrayInput(data.phone);
+
+    // Additional validation
+    if (phoneNumbers.length === 0) {
+      form.setError("phone", {
+        message: "At least one phone number is required",
+      });
+      return;
+    }
+
+    if (!validatePhoneNumbers(phoneNumbers)) {
+      form.setError("phone", {
+        message:
+          "Please enter valid phone numbers (numbers only, with optional formatting)",
+      });
+      return;
+    }
+
     const updateData: ProductUpdate = {
       title: data.title,
       description: data.description,
       price: data.price,
       location: data.location,
-      categories: data.categories
-        ? formatArrayInput(data.categories)
-        : undefined,
-      phone: data.phone ? formatArrayInput(data.phone) : undefined,
+      phone: phoneNumbers,
       isAvailable: data.isAvailable,
     };
 
@@ -99,7 +129,9 @@ export function ProductEditModal({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Product</DialogTitle>
-          <DialogDescription>Update your product information</DialogDescription>
+          <DialogDescription>
+            Update your product information. All fields are required.
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -112,11 +144,11 @@ export function ProductEditModal({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Title *</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isUpdating}
-                      placeholder="Product title"
+                      placeholder="Enter product title"
                       {...field}
                     />
                   </FormControl>
@@ -130,11 +162,11 @@ export function ProductEditModal({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Description *</FormLabel>
                   <FormControl>
                     <Textarea
                       disabled={isUpdating}
-                      placeholder="Product description"
+                      placeholder="Enter detailed product description"
                       rows={3}
                       {...field}
                     />
@@ -150,14 +182,18 @@ export function ProductEditModal({
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price (ETB)</FormLabel>
+                    <FormLabel>Price (ETB) *</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
+                        step="0.01"
                         disabled={isUpdating}
-                        placeholder="0"
+                        placeholder="0.00"
                         {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value);
+                          field.onChange(isNaN(value) ? 0 : value);
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -170,11 +206,11 @@ export function ProductEditModal({
                 name="location"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Location</FormLabel>
+                    <FormLabel>Location *</FormLabel>
                     <FormControl>
                       <Input
                         disabled={isUpdating}
-                        placeholder="Product location"
+                        placeholder="Enter location (e.g., Addis Ababa)"
                         {...field}
                       />
                     </FormControl>
@@ -186,32 +222,14 @@ export function ProductEditModal({
 
             <FormField
               control={form.control}
-              name="categories"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categories (comma-separated)</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isUpdating}
-                      placeholder="electronics, smartphones, etc."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone Numbers (comma-separated)</FormLabel>
+                  <FormLabel>Phone Numbers (comma-separated) *</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isUpdating}
-                      placeholder="+251911234567, +251922345678"
+                      placeholder="0911234567, 0922345678"
                       {...field}
                     />
                   </FormControl>

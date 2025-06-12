@@ -35,7 +35,6 @@ export const ProductSchema = z.object({
   link: z.array(z.string()),
   phone: z.array(z.string()),
   categories: z.array(z.string()),
-  
 });
 
 export const ProductsSchema = z.object({
@@ -50,7 +49,6 @@ export const ProductUpdateSchema = z.object({
   description: z.string().optional(),
   price: z.number().optional(),
   isAvailable: z.boolean().optional(),
-  categories: z.array(z.string()).optional(),
   phone: z.array(z.string()).optional(),
   location: z.string().optional(),
 });

@@ -26,14 +26,18 @@ import {
   MoreVertical,
   Edit,
   Trash2,
-  DollarSign,
   MapPin,
   Phone,
   ExternalLink,
+  Eye,
+  ThumbsUp,
+  MessageSquare,
 } from "lucide-react";
-import Image from "next/image";
 import { useProductAction } from "@/products/hooks/useProductAction";
 import { ProductEditModal } from "./ProductEditModal";
+import { ProductImageSlider } from "@/products/components/product-image-slider";
+import { FullScreenImageViewer } from "@/products/components/full-screen-image-viewer";
+import { formatNumber } from "@/lib/utils";
 
 interface SellerProductCardProps {
   product: Product;
@@ -42,6 +46,8 @@ interface SellerProductCardProps {
 export default function SellerProductCard({ product }: SellerProductCardProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
+  const [fullScreenIndex, setFullScreenIndex] = useState<number>(0);
   const { deleteProduct, isDeleting } = useProductAction();
 
   const handleDeleteProduct = () => {
@@ -53,103 +59,182 @@ export default function SellerProductCard({ product }: SellerProductCardProps) {
     });
   };
 
+  const openFullScreenImage = (image: string, index: number) => {
+    setFullScreenImage(image);
+    setFullScreenIndex(index);
+  };
+
+  const closeFullScreenImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFullScreenImage(null);
+  };
+
   return (
     <>
-      <Card className="overflow-hidden">
-        <CardContent className="p-6">
-          <div className="flex gap-6">
-            {product.images.length > 0 && (
-              <div className="flex-shrink-0">
-                <Image
-                  src={product.images[0]}
-                  alt={product.title || "Product"}
-                  width={120}
-                  height={120}
-                  className="rounded-lg object-cover w-30 h-30"
-                />
-              </div>
-            )}
-
-            <div className="flex-1 min-w-0">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-xl font-semibold line-clamp-1">
-                    {product.title || "Unnamed Product"}
-                  </h3>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <DollarSign size={14} />
-                      {product.price
-                        ? `${product.price.toLocaleString()} ETB`
-                        : "No price"}
-                    </span>
-                    <Badge
-                      variant={product.isAvailable ? "default" : "secondary"}
-                    >
-                      {product.isAvailable ? "Available" : "Unavailable"}
-                    </Badge>
-                  </div>
+      <Card className="overflow-hidden transition-all duration-200 hover:shadow-md">
+        <CardContent className="p-0">
+          <div className="flex flex-col lg:flex-row">
+            <div className="w-full lg:w-80 h-64 lg:h-56 flex-shrink-0 relative">
+              {product.images.length > 0 ? (
+                <div className="w-full h-full">
+                  <ProductImageSlider
+                    images={product.images}
+                    aspectRatio="card"
+                    altPrefix={product.title || "Product"}
+                    onImageClick={openFullScreenImage}
+                  />
                 </div>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <MoreVertical size={16} />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setIsEditModalOpen(true)}>
-                      <Edit size={16} className="mr-2" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => setIsDeleteDialogOpen(true)}
-                      className="text-destructive"
-                    >
-                      <Trash2 size={16} className="mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              <p className="text-muted-foreground line-clamp-2 mb-3">
-                {product.description || "No description available"}
-              </p>
-
-              <div className="flex flex-wrap gap-4 text-sm">
-                {product.location && (
-                  <span className="flex items-center gap-1 text-muted-foreground">
-                    <MapPin size={14} />
-                    {product.location}
-                  </span>
-                )}
-                {product.phone.length > 0 && (
-                  <span className="flex items-center gap-1 text-muted-foreground">
-                    <Phone size={14} />
-                    {product.phone.length} contact
-                    {product.phone.length > 1 ? "s" : ""}
-                  </span>
-                )}
-                {product.link.length > 0 && (
-                  <span className="flex items-center gap-1 text-muted-foreground">
-                    <ExternalLink size={14} />
-                    {product.link.length} link
-                    {product.link.length > 1 ? "s" : ""}
-                  </span>
-                )}
-              </div>
-
-              {product.categories.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {product.categories.map((category, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {category}
-                    </Badge>
-                  ))}
+              ) : (
+                <div className="w-full h-full bg-muted flex items-center justify-center">
+                  <p className="text-muted-foreground">No Images</p>
                 </div>
               )}
+            </div>
+
+            <div className="flex-1 p-4 sm:p-6">
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="mb-3">
+                    <h3 className="text-lg sm:text-xl font-semibold line-clamp-2 mb-2">
+                      {product.title || "Unnamed Product"}
+                    </h3>
+
+                    <div className="flex flex-wrap items-center gap-3 mb-3">
+                      {product.price !== null &&
+                        product.price !== undefined && (
+                          <span className="text-lg sm:text-xl font-bold text-primary">
+                            {product.price.toLocaleString("en-US", {
+                              style: "currency",
+                              currency: "ETB",
+                            })}
+                          </span>
+                        )}
+                      <Badge
+                        variant={product.isAvailable ? "default" : "secondary"}
+                        className={
+                          product.isAvailable
+                            ? "bg-green-100 text-green-800 border-green-200"
+                            : ""
+                        }
+                      >
+                        {product.isAvailable ? "Available" : "Unavailable"}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <p className="text-muted-foreground text-sm sm:text-base line-clamp-2 mb-4">
+                    {product.description || "No description available"}
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-4">
+                    <span className="flex items-center gap-1">
+                      <Eye size={14} />
+                      <span className="hidden xs:inline">
+                        {formatNumber(product.views)} views
+                      </span>
+                      <span className="xs:hidden">
+                        {formatNumber(product.views)}
+                      </span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <ThumbsUp size={14} />
+                      <span className="hidden xs:inline">
+                        {formatNumber(product.upvotes)} likes
+                      </span>
+                      <span className="xs:hidden">
+                        {formatNumber(product.upvotes)}
+                      </span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <MessageSquare size={14} />
+                      <span className="hidden xs:inline">
+                        {formatNumber(product.comments)} comments
+                      </span>
+                      <span className="xs:hidden">
+                        {formatNumber(product.comments)}
+                      </span>
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm mb-4">
+                    {product.location && (
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <MapPin size={14} />
+                        <span className="truncate max-w-[100px] sm:max-w-none">
+                          {product.location}
+                        </span>
+                      </span>
+                    )}
+                    {product.phone.length > 0 && (
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <Phone size={14} />
+                        <span className="hidden sm:inline">
+                          {product.phone.length} contact
+                          {product.phone.length > 1 ? "s" : ""}
+                        </span>
+                        <span className="sm:hidden">
+                          {product.phone.length}
+                        </span>
+                      </span>
+                    )}
+                    {product.link.length > 0 && (
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <ExternalLink size={14} />
+                        <span className="hidden sm:inline">
+                          {product.link.length} link
+                          {product.link.length > 1 ? "s" : ""}
+                        </span>
+                        <span className="sm:hidden">{product.link.length}</span>
+                      </span>
+                    )}
+                  </div>
+
+                  {product.categories.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {product.categories.slice(0, 3).map((category, index) => (
+                        <Badge
+                          key={index}
+                          variant="outline"
+                          className="text-xs"
+                        >
+                          {category}
+                        </Badge>
+                      ))}
+                      {product.categories.length > 3 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{product.categories.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-shrink-0">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <MoreVertical size={16} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => setIsEditModalOpen(true)}
+                      >
+                        <Edit size={16} className="mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => setIsDeleteDialogOpen(true)}
+                        className="text-destructive"
+                      >
+                        <Trash2 size={16} className="mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -185,6 +270,16 @@ export default function SellerProductCard({ product }: SellerProductCardProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {product.images.length > 0 && (
+        <FullScreenImageViewer
+          images={product.images}
+          isOpen={fullScreenImage !== null}
+          initialIndex={fullScreenIndex}
+          productName={product.title || "Product"}
+          onClose={closeFullScreenImage}
+        />
+      )}
     </>
   );
 }

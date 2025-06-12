@@ -39,14 +39,21 @@ export function useProductAction() {
   }) => {
     return await apiDelete(`${baseUrl}/${productId}`, token ?? undefined);
   };
+
   const updateProductQuery = useMutation({
     mutationFn: updateProduct,
     onSuccess: (data, variables) => {
       const { onSuccess } = variables;
       onSuccess?.();
+
       queryClient.invalidateQueries({
-        queryKey: productKeys.detail(data.data?.id),
+        queryKey: productKeys.detail(data.data.id),
       });
+
+      queryClient.invalidateQueries({
+        queryKey: productKeys.lists(),
+      });
+
       alert?.success("Product updated successfully");
     },
     onError: (error, variables) => {
@@ -61,9 +68,11 @@ export function useProductAction() {
     onSuccess: (data, variables) => {
       const { onSuccess } = variables;
       onSuccess?.();
+
       queryClient.invalidateQueries({
         queryKey: productKeys.lists(),
       });
+
       alert?.success("Product deleted successfully");
     },
     onError: (error, variables) => {

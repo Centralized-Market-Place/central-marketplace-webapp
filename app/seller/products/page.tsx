@@ -8,22 +8,79 @@ import { MessageSquare, Package } from "lucide-react";
 import Link from "next/link";
 import SellerProductsContent from "./components/SellerProductsContent";
 
+function SellerProductsPageSkeleton() {
+  return (
+    <div className="container mx-auto p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-4">
+        <div className="h-8 bg-muted animate-pulse rounded w-48"></div>
+        <div className="h-6 bg-muted animate-pulse rounded w-32 self-start sm:self-auto"></div>
+      </div>
+
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div className="h-6 bg-muted animate-pulse rounded w-32"></div>
+        </div>
+        <div className="grid gap-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i} className="overflow-hidden">
+              <CardContent className="p-0">
+                <div className="flex flex-col lg:flex-row">
+                  <div className="w-full lg:w-80 h-64 lg:h-56 flex-shrink-0 bg-muted animate-pulse"></div>
+
+                  <div className="flex-1 p-4 sm:p-6">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex-1 space-y-4">
+                        <div className="h-6 bg-muted animate-pulse rounded w-3/4"></div>
+
+                        <div className="flex items-center gap-3">
+                          <div className="h-5 bg-muted animate-pulse rounded w-24"></div>
+                          <div className="h-5 bg-muted animate-pulse rounded w-20"></div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="h-4 bg-muted animate-pulse rounded w-full"></div>
+                          <div className="h-4 bg-muted animate-pulse rounded w-2/3"></div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <div className="h-4 bg-muted animate-pulse rounded w-16"></div>
+                          <div className="h-4 bg-muted animate-pulse rounded w-16"></div>
+                          <div className="h-4 bg-muted animate-pulse rounded w-20"></div>
+                        </div>
+
+                        <div className="flex gap-3">
+                          <div className="h-4 bg-muted animate-pulse rounded w-20"></div>
+                          <div className="h-4 bg-muted animate-pulse rounded w-18"></div>
+                          <div className="h-4 bg-muted animate-pulse rounded w-16"></div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <div className="h-5 bg-muted animate-pulse rounded w-16"></div>
+                          <div className="h-5 bg-muted animate-pulse rounded w-20"></div>
+                          <div className="h-5 bg-muted animate-pulse rounded w-14"></div>
+                        </div>
+                      </div>
+
+                      <div className="flex-shrink-0">
+                        <div className="h-8 w-8 bg-muted animate-pulse rounded"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function SellerProductsPage() {
   const { channels, channelsLoading } = useSellerChannels();
 
   if (channelsLoading) {
-    return (
-      <div className="container mx-auto p-4 sm:p-6">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">
-          My Products
-        </h1>
-        <div className="grid gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-48 bg-muted animate-pulse rounded-lg" />
-          ))}
-        </div>
-      </div>
-    );
+    return <SellerProductsPageSkeleton />;
   }
 
   return (
