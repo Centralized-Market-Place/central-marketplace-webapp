@@ -11,27 +11,19 @@ import { ProductLoading } from "@/components/common/product-loading";
 import { SearchBar } from "../components/ui/SearchBar";
 import { useCategories } from "@/products/hooks/useCategoryAction";
 import { FilterContent } from "@/components/common/FilterProducts";
+import { FilterChips } from "@/components/common/FilterChips";
 
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+
 
 type PriceRange = {
   label: string;
   min: number;
-  max: number;
+  max: number | null;
 };
 
 const PRICE_RANGES: PriceRange[] = [
@@ -41,7 +33,7 @@ const PRICE_RANGES: PriceRange[] = [
   { label: "ETB 5,000 – 10,000", min: 5000, max: 10000 },
   { label: "ETB 10,000 – 20,000", min: 10000, max: 20000 },
   { label: "ETB 20,000 – 100,000", min: 20000, max: 100000 },
-  { label: "ETB 100,000+", min: 100000, max: Infinity },
+  { label: "ETB 100,000+", min: 100000, max: null },
 ];
 
 export default function Home() {
@@ -61,10 +53,6 @@ export default function Home() {
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const debouncedSearch = useDebounce(search, 300);
-
-  // Create debounced values instead of functions
-  const debouncedPendingMin = useDebounce(pendingMin, 300);
-  const debouncedPendingMax = useDebounce(pendingMax, 300);
 
   const {
     categories,
@@ -91,7 +79,7 @@ export default function Home() {
       customMaxPrice !== ""
         ? parsePrice(customMaxPrice)
         : selectedPriceRanges.length > 0
-          ? Math.max(...selectedPriceRanges.map((r) => (r.max === Infinity ? Number.MAX_SAFE_INTEGER : r.max)))
+          ? Math.max(...selectedPriceRanges.map((r) => (r.max === null ? Number.MAX_SAFE_INTEGER : r.max)))
           : undefined,
   });
 
@@ -111,17 +99,56 @@ export default function Home() {
     setSearch(pendingSearch);
     setFilter(pendingFilter);
     setSelectedPriceRanges(pendingPriceRanges);
-    setCustomMinPrice(debouncedPendingMin);
-    setCustomMaxPrice(debouncedPendingMax);
+    setCustomMinPrice(pendingMin);
+    setCustomMaxPrice(pendingMax);
     setIsFilterOpen(false);
   };
 
- 
+  const handleRemoveFilter = (filterType: "category" | "priceRange" | "customPrice") => {
+    if (filterType === "category") {
+      setFilter("all");
+      setPendingFilter("all");
+    }
+    if (filterType === "priceRange") {
+      setSelectedPriceRanges([]);
+      setPendingPriceRanges([]);
+    }
+    if (filterType === "customPrice") {
+        setCustomMinPrice("");
+        setCustomMaxPrice("");
+        setPendingMin("");
+        setPendingMax("");
+    }
+  };
+
+  const activeFilters = {
+    category: filter !== "all" ? categories.find(c => c.categoryName === filter)?.categoryName || "" : "",
+    priceRange: selectedPriceRanges.length > 0 ? selectedPriceRanges[0].label : "",
+    customPrice: customMinPrice || customMaxPrice ? `ETB ${customMinPrice || "0"} - ${customMaxPrice || "∞"}` : ""
+  }
+
+  const FilterContentWrapper = () => (
+    <FilterContent
+      pendingFilter={pendingFilter}
+      setPendingFilter={setPendingFilter}
+      isCategoryLoading={isCategoryLoading}
+      isCategoryError={isCategoryError}
+      categories={categories}
+      pendingPriceRanges={pendingPriceRanges as unknown as PriceRange[]}
+      togglePendingPriceRange={togglePendingPriceRange}
+      pendingMin={pendingMin}
+      pendingMax={pendingMax}
+      setPendingMin={setPendingMin}
+      setPendingMax={setPendingMax}
+      PRICE_RANGES={PRICE_RANGES as unknown as PriceRange[]}
+      applyFilters={applyFilters}
+    />
+  )
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-10">
       <section className="lg:col-span-3 space-y-8">
-        <div className="sticky top-0 z-20 py-4 flex items-center gap-2 lg:gap-4">
+        <div className="sticky top-0 z-20  flex items-center  ">
           <SearchBar
             placeholder="Search products..."
             onSearch={setPendingSearch}
@@ -133,24 +160,14 @@ export default function Home() {
               <SheetTrigger className="p-2 rounded-lg border">
                 <Filter className="h-5 w-5" />
               </SheetTrigger>
-              <SheetContent side="left" className="w-[80%] sm:w-[300px]">
-                 <FilterContent
-                  pendingFilter={pendingFilter}
-                  setPendingFilter={setPendingFilter}
-                  isCategoryLoading={isCategoryLoading}
-                  isCategoryError={isCategoryError}
-                  categories={categories}
-                  pendingPriceRanges={pendingPriceRanges}
-                  togglePendingPriceRange={togglePendingPriceRange}
-                  pendingMin={pendingMin}
-                  pendingMax={pendingMax}
-                  PRICE_RANGES={PRICE_RANGES}
-                  applyFilters={applyFilters}
-                />
+              <SheetContent side="right" className="w-[80%] sm:w-[300px]">
+                <FilterContentWrapper />
               </SheetContent>
             </Sheet>
           </div>
         </div>
+
+        <FilterChips activeFilters={activeFilters} onRemoveFilter={handleRemoveFilter} />
 
         {isError && (
           <ErrorState
