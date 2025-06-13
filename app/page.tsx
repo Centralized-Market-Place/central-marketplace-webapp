@@ -12,6 +12,7 @@ import { SearchBar } from "../components/ui/SearchBar";
 import { useCategories } from "@/products/hooks/useCategoryAction";
 import { FilterContent } from "@/components/common/FilterProducts";
 import { FilterChips } from "@/components/common/FilterChips";
+import { useChannels } from "@/channels/hooks/useChannels";
 
 import {
   Sheet,
@@ -43,6 +44,7 @@ export default function Home() {
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<PriceRange[]>([]);
   const [customMinPrice, setCustomMinPrice] = useState<string>("");
   const [customMaxPrice, setCustomMaxPrice] = useState<string>("");
+  const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
 
   // Temporary values before applying
   const [pendingSearch, setPendingSearch] = useState("");
@@ -50,6 +52,7 @@ export default function Home() {
   const [pendingPriceRanges, setPendingPriceRanges] = useState<PriceRange[]>([]);
   const [pendingMin, setPendingMin] = useState("");
   const [pendingMax, setPendingMax] = useState("");
+  const [pendingChannels, setPendingChannels] = useState<string[]>([]);
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const debouncedSearch = useDebounce(search, 300);
@@ -60,6 +63,12 @@ export default function Home() {
     isError: isCategoryError,
   } = useCategories();
 
+  const {
+    channels,
+    isLoading: isChannelLoading,
+    isError: isChannelError,
+  } = useChannels();
+
   const parsePrice = (value: string) => {
     const parsed = parseFloat(value);
     return isNaN(parsed) ? undefined : parsed;
@@ -69,6 +78,7 @@ export default function Home() {
     ...DEFAULT_FILTERS,
     query: debouncedSearch,
     categories: filter !== "all" ? filter : undefined,
+    channelIds: selectedChannels,
     minPrice:
       customMinPrice !== ""
         ? parsePrice(customMinPrice)
@@ -101,10 +111,11 @@ export default function Home() {
     setSelectedPriceRanges(pendingPriceRanges);
     setCustomMinPrice(pendingMin);
     setCustomMaxPrice(pendingMax);
+    setSelectedChannels(pendingChannels);
     setIsFilterOpen(false);
   };
 
-  const handleRemoveFilter = (filterType: "category" | "priceRange" | "customPrice") => {
+  const handleRemoveFilter = (filterType: "category" | "priceRange" | "customPrice" | "channels") => {
     if (filterType === "category") {
       setFilter("all");
       setPendingFilter("all");
@@ -119,12 +130,17 @@ export default function Home() {
         setPendingMin("");
         setPendingMax("");
     }
+    if (filterType === "channels") {
+        setSelectedChannels([]);
+        setPendingChannels([]);
+    }
   };
 
   const activeFilters = {
     category: filter !== "all" ? categories.find(c => c.categoryName === filter)?.categoryName || "" : "",
     priceRange: selectedPriceRanges.length > 0 ? selectedPriceRanges[0].label : "",
-    customPrice: customMinPrice || customMaxPrice ? `ETB ${customMinPrice || "0"} - ${customMaxPrice || "∞"}` : ""
+    customPrice: customMinPrice || customMaxPrice ? `ETB ${customMinPrice || "0"} - ${customMaxPrice || "∞"}` : "",
+    channels: selectedChannels.length > 0 ? `${selectedChannels.length} channel${selectedChannels.length > 1 ? 's' : ''}` : ""
   }
 
   const FilterContentWrapper = () => (
@@ -142,6 +158,11 @@ export default function Home() {
       setPendingMax={setPendingMax}
       PRICE_RANGES={PRICE_RANGES as unknown as PriceRange[]}
       applyFilters={applyFilters}
+      channels={channels}
+      isChannelLoading={isChannelLoading}
+      isChannelError={isChannelError}
+      pendingChannels={pendingChannels}
+      setPendingChannels={setPendingChannels}
     />
   )
 

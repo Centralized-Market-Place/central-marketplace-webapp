@@ -53,6 +53,7 @@ export const ProductFilterSchema = z.object({
   sortBy: z.string().optional(),
   sortDesc: z.boolean().optional(),
   channelId: z.string().optional(),
+  channelIds: z.array(z.string()).optional(),
   categories: z.string().optional(),
   minPrice: z.number().optional(),
   maxPrice: z.number().optional(),

@@ -8,8 +8,9 @@ interface FilterChipsProps {
     category: string;
     priceRange: string;
     customPrice: string;
+    channels: string;
   };
-  onRemoveFilter: (filterType: "category" | "priceRange" | "customPrice") => void;
+  onRemoveFilter: (filterType: "category" | "priceRange" | "customPrice" | "channels") => void;
 }
 
 export const FilterChips: React.FC<FilterChipsProps> = ({
@@ -46,6 +47,27 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
                 onClick={() => onRemoveFilter("category")}
                 className="rounded-full hover:bg-gray-200/50 p-0.5"
                 aria-label="Remove category filter"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          </motion.div>
+        )}
+        {activeFilters.channels && (
+          <motion.div
+            layout
+            variants={chipVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.2 }}
+          >
+            <Badge variant="secondary" className="flex items-center gap-1">
+              {activeFilters.channels}
+              <button
+                onClick={() => onRemoveFilter("channels")}
+                className="rounded-full hover:bg-gray-200/50 p-0.5"
+                aria-label="Remove channels filter"
               >
                 <X className="h-3 w-3" />
               </button>

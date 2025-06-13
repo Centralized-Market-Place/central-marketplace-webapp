@@ -12,6 +12,7 @@ export const DEFAULT_FILTERS: ProductFilter = {
   sortBy: "date",
   sortDesc: true,
   channelId: "",
+  channelIds: [],
   categories: undefined,
   minPrice: undefined,
   maxPrice: undefined,
@@ -30,6 +31,11 @@ const buildQuery = (filters: ProductFilter) => {
   }
   if (filters.channelId) {
     query += `&channel_id=${filters.channelId}`;
+  }
+  if (filters.channelIds && filters.channelIds.length > 0) {
+    filters.channelIds.forEach(channelId => {
+      query += `&channel_ids=${channelId}`;
+    });
   }
   if (filters.categories) {
     query += `&categories=${filters.categories}`;
