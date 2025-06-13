@@ -99,42 +99,44 @@ export function CommentSection({ productId }: CommentSectionProps) {
         </Alert>
       )}
 
-      <div className="space-y-4">
-        <h3 className="font-semibold text-lg">Comments</h3>
+      {
+        <div className="space-y-4">
+          <h3 className="font-semibold text-lg">Comments</h3>
 
-        {isLoading ? (
-          <div className="space-y-4">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <Skeleton className="h-4 w-40" />
+          {isLoading ? (
+            <div className="space-y-4">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <Skeleton className="h-4 w-40" />
+                  </div>
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
                 </div>
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-              </div>
-            ))}
-          </div>
-        ) : comments.length === 0 ? (
-          <p className="text-muted-foreground text-center py-6">
-            No comments yet. Be the first to comment!
-          </p>
-        ) : (
-          <div className="space-y-6">
-            {comments.map((comment) => (
-              <CommentItem key={comment.id} comm={comment} />
-            ))}
+              ))}
+            </div>
+          ) : comments.length === 0 ? (
+            <p className="text-muted-foreground text-center py-6">
+              No comments yet. Be the first to comment!
+            </p>
+          ) : (
+            <div className="space-y-6">
+              {comments.map((comment) => (
+                <CommentItem key={comment.id} comm={comment} />
+              ))}
 
-            {hasNextPage && (
-              <div className="flex justify-center">
-                <Button variant="outline" onClick={() => fetchNextPage()}>
-                  Load More Comments
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+              {hasNextPage && (
+                <div className="flex justify-center">
+                  <Button variant="outline" onClick={() => fetchNextPage()}>
+                    Load More Comments
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      }
     </div>
   );
 }

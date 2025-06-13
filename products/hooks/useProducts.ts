@@ -9,30 +9,42 @@ export const DEFAULT_FILTERS: ProductFilter = {
   pageSize: 10,
   page: 1,
   query: "",
-  sortBy: "date",
+  sortBy: "created_at",
   sortDesc: true,
-  channelId: "",
+  channelIds: [],
 };
 
 const buildQuery = (filters: ProductFilter) => {
-  let query = `?page=${filters.page}&pageSize=${filters.pageSize}`;
+  const searchParams = new URLSearchParams();
+
+  searchParams.append("page", filters.page.toString());
+  searchParams.append("pageSize", filters.pageSize.toString());
+
   if (filters.query) {
-    query += `&query=${filters.query}`;
+    searchParams.append("query", filters.query);
   }
+
   if (filters.sortBy) {
-    query += `&sort_by=${filters.sortBy}`;
+    searchParams.append("sort_by", filters.sortBy);
   }
-  if (filters.sortDesc) {
-    query += `&sort_desc=${filters.sortDesc}`;
+
+  if (filters.sortDesc !== undefined) {
+    searchParams.append("sort_desc", filters.sortDesc.toString());
   }
-  if (filters.channelId) {
-    query += `&channel_id=${filters.channelId}`;
+
+  if (filters.channelIds && filters.channelIds.length > 0) {
+    filters.channelIds.forEach((channelId) => {
+      searchParams.append("channel_ids", channelId);
+    });
   }
-  return query;
+
+  return `?${searchParams.toString()}`;
 };
 
-export function useProducts(filters: ProductFilter = DEFAULT_FILTERS) {
-  const baseUrl = `${API_URL}/api/v1/products/`;
+export function useProducts(
+  filters: ProductFilter = DEFAULT_FILTERS,
+) {
+  const baseUrl = `${API_URL}/api/v1/products`;
   const query = buildQuery(filters);
   const { token } = useAuthContext();
 

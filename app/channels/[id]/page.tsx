@@ -43,7 +43,7 @@ export default function ChannelPage() {
     fetchNextPage,
   } = useProducts({
     ...DEFAULT_FILTERS,
-    channelId: channelId as string,
+    channelIds: [channelId as string],
     query: debouncedSearch,
   });
 
