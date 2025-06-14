@@ -30,10 +30,17 @@ interface PriceState {
   availableRanges: PriceRange[];
 }
 
+interface ChannelState {
+  pending: string[];
+  setPending: (val: string[]) => void;
+}
+
 interface FilterContentProps {
   categoryState: CategoryState;
   priceState: PriceState;
+  channelState?: ChannelState;
   onApplyFilters: () => void;
+  hideChannelFilter?: boolean;
 }
 
 export const FilterContent: React.FC<FilterContentProps> = ({
