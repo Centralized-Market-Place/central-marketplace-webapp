@@ -159,7 +159,7 @@ export default function Home() {
     <main className=" mx-auto px-4 py-10">
       <section className="lg:col-span-3 space-y-8">
         <div className="sticky top-0 z-20  pb-4  border-gray-200 dark:border-gray-700 max-w-7xl mx-auto text-center">
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 max-w-4xl mx-auto">
             <SearchBar
               placeholder="Search products..."
               onSearch={setPendingSearch}
@@ -167,8 +167,8 @@ export default function Home() {
               defaultValue={pendingSearch}
             />
             <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-              <SheetTrigger className=" sm:p-3 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 flex-shrink-0">
-                <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-400" />
+              <SheetTrigger className="p-3 sm:p-3 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 flex-shrink-0">
+                <Filter className="h-5 w-5  dark:text-gray-400 p-0" />
               </SheetTrigger>
               <SheetContent 
                 side="right" 

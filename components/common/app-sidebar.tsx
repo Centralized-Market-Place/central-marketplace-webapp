@@ -7,7 +7,6 @@ import {
   Mail,
   MessageSquare,
   Package,
-  Search,
   Settings,
   ShieldCheck,
   ShoppingBag,
@@ -172,25 +171,7 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  tooltip={state === "collapsed" ? "Search" : undefined}
-                  className={menuButtonHoverClass}
-                >
-                  <Link href="/search">
-                    <Search className="size-5" />
-                    <span
-                      className={cn(
-                        "ml-2 transition-opacity duration-200",
-                        state === "collapsed" && "opacity-0 w-0 -ml-0"
-                      )}
-                    >
-                      Search
-                    </span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+             
 
               {user.role !== UserRole.Enum.ADMIN &&
                 user.role !== UserRole.Enum.SUPER_ADMIN && (
