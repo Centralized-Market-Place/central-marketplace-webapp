@@ -9,10 +9,7 @@ import { AlertProvider } from "@/providers/alert-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/common/app-sidebar";
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap", 
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,

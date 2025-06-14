@@ -12,9 +12,6 @@ export const DEFAULT_FILTERS: ProductFilter = {
   sortBy: "created_at",
   sortDesc: true,
   channelIds: [],
-  categories: undefined,
-  minPrice: undefined,
-  maxPrice: undefined,
 };
 
 const buildQuery = (filters: ProductFilter) => {
@@ -39,18 +36,6 @@ const buildQuery = (filters: ProductFilter) => {
     filters.channelIds.forEach((channelId) => {
       searchParams.append("channel_ids", channelId);
     });
-  }
-
-  if (filters.categories) {
-    searchParams.append("categories", filters.categories);
-  }
-
-  if (filters.minPrice !== undefined) {
-    searchParams.append("min_price", filters.minPrice.toString());
-  }
-
-  if (filters.maxPrice !== undefined) {
-    searchParams.append("max_price", filters.maxPrice.toString());
   }
 
   return `?${searchParams.toString()}`;
