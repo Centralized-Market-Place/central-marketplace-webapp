@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Channel } from "../schema";
 import { ArrowRight } from "lucide-react";
+import { ReportButton } from "@/reports/components/report-button";
 
 export function ChannelCard({ channel }: { channel: Channel }) {
   return (
@@ -38,7 +39,15 @@ export function ChannelCard({ channel }: { channel: Channel }) {
         )}
       </CardContent>
 
-      <CardFooter className="flex justify-end p-2 border-t">
+      <CardFooter className="flex justify-between items-center p-2 border-t">
+        <ReportButton
+          targetId={channel.id}
+          targetType="CHANNEL"
+          targetTitle={channel.title || "Channel"}
+          variant="ghost"
+          size="sm"
+          showText={false}
+        />
         <Link href={`/channels/${channel.id}`}>
           <Button variant="ghost" size="sm" className="gap-1">
             <span className="text-xs">View</span>
