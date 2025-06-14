@@ -12,6 +12,7 @@ export const DEFAULT_USER_FILTERS: UserFilter = {
   sortBy: "created_at",
   sortDesc: true,
   query: "",
+  role: UserRole.Enum.ADMIN,
 };
 
 const buildQuery = (filters: UserFilter) => {

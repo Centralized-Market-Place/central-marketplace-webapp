@@ -117,11 +117,8 @@ export default function AdminUsersPage() {
     const totalPages = Math.ceil(pagination.total / pagination.pageSize);
     const currentPage = pagination.page;
     const pages = [];
-
-    // Always show first page
     if (totalPages > 0) pages.push(1);
 
-    // Show pages around current page
     for (
       let i = Math.max(2, currentPage - 1);
       i <= Math.min(totalPages - 1, currentPage + 1);
@@ -130,7 +127,6 @@ export default function AdminUsersPage() {
       if (!pages.includes(i)) pages.push(i);
     }
 
-    // Always show last page if more than 1 page
     if (totalPages > 1 && !pages.includes(totalPages)) {
       pages.push(totalPages);
     }
@@ -154,7 +150,6 @@ export default function AdminUsersPage() {
             </div>
           </div>
 
-          {/* Search and Filters */}
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />

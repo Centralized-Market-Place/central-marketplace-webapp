@@ -36,8 +36,8 @@ import Link from "next/link";
 import { CustomSidebarTrigger } from "./sidebar-trigger";
 import { useAuthContext } from "@/providers/auth-context";
 import { NotificationBell } from "@/notifications/components/notification-bell";
+import { UserRole } from "@/auth/shema";
 
-// Define a constant for the common hover class
 const menuButtonHoverClass =
   "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:bg-sidebar-accent focus-visible:text-sidebar-accent-foreground transition-colors";
 
@@ -191,10 +191,11 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              {user.role !== "ADMIN" && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
+              {user.role !== UserRole.Enum.ADMIN &&
+                user.role !== UserRole.Enum.SUPER_ADMIN && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
                     tooltip={
                       state === "collapsed"
                         ? user?.role === "SELLER"
@@ -221,10 +222,11 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               )}
 
-              {user.role !== "ADMIN" && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
+              {user.role !== UserRole.Enum.ADMIN &&
+                user.role !== UserRole.Enum.SUPER_ADMIN && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
                     tooltip={
                       state === "collapsed" ? "My Applications" : undefined
                     }
@@ -248,7 +250,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {user.role === "SELLER" && (
+        {user.role === UserRole.Enum.SELLER && (
           <SidebarGroup>
             <SidebarGroupLabel
               className={cn("px-2 py-1", state === "collapsed" && "sr-only")}
@@ -325,7 +327,8 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-        {(user.role === "ADMIN" || user.role === "SUPER_ADMIN") && (
+        {(user.role === UserRole.Enum.ADMIN ||
+          user.role === UserRole.Enum.SUPER_ADMIN) && (
           <SidebarGroup>
             <SidebarGroupLabel
               className={cn("px-2 py-1", state === "collapsed" && "sr-only")}
@@ -379,7 +382,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
 
 
-                {user.role === "SUPER_ADMIN" && (
+                {user.role === UserRole.Enum.SUPER_ADMIN && (
                   <>
                     <SidebarMenuItem>
                       <SidebarMenuButton
