@@ -36,7 +36,7 @@ const SearchBar = React.forwardRef<HTMLDivElement, GoogleSearchBarProps>(
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="h-14 rounded-full bg-background pl-14 pr-24 text-base hover:shadow-xl  [&::-webkit-search-cancel-button]:appearance-none"
+              className="h-14 rounded-full bg-background pl-14 pr-14 text-base hover:shadow-xl  [&::-webkit-search-cancel-button]:appearance-none"
               placeholder={placeholder}
             />
             {/* Search icon */}
