@@ -37,8 +37,8 @@ import {
 import { useShareAction } from "../hooks/useShareAction";
 import { useAlert } from "@/providers/alert-provider";
 import Link from "next/link";
+import { ReportButton } from "@/reports/components/report-button";
 
-// Import shared components
 import { ProductImageSlider } from "./product-image-slider";
 import { ProductDescription } from "./product-description";
 import { Badge } from "@/components/ui/badge";
@@ -276,7 +276,7 @@ export function ProductModal({
               <Button
                 variant="outline"
                 size="sm"
-                className="flex items-center justify-center"
+                className="flex items-center justify-center px-2"
                 onClick={() => handleBookmark()}
                 disabled={isLoading || isBookmarkLoading || !isAuthenticated}
               >
@@ -285,6 +285,16 @@ export function ProductModal({
                   className={cn(product.isBookmarked && "fill-current")}
                 />
               </Button>
+
+              <ReportButton
+                targetId={product.id}
+                targetType="PRODUCT"
+                targetTitle={product.title || "Product"}
+                variant="outline"
+                size="sm"
+                className="px-2"
+                showText={false}
+              />
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
