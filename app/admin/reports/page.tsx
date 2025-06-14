@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useReports } from "@/reports/hooks/useReports";
 import { ReportStatus, ReportTarget, ReportType } from "@/reports/schema";
 import { LoadingSpinner } from "@/components/common/loading-spinner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -81,18 +81,15 @@ export default function AdminReportsPage() {
         <div className="bg-card rounded-xl shadow-sm border p-6 mb-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                Content Moderation
-              </h1>
-              <p className="text-muted-foreground mt-1">
+              <h1 className="text-2xl font-bold">Content Moderation</h1>
+              <p className="text-muted-foreground text-sm mt-1">
                 Review and manage user reports
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-yellow-500" />
+              <AlertTriangle className="h-4 w-4 text-yellow-500" />
               <span className="text-sm font-medium">
                 {reports.filter((r) => r.status === "PENDING").length} pending
-                reviews
               </span>
             </div>
           </div>
@@ -108,7 +105,7 @@ export default function AdminReportsPage() {
                   )
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-9">
                   <Filter className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
@@ -131,7 +128,7 @@ export default function AdminReportsPage() {
                   )
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-9">
                   <SelectValue placeholder="Filter by target type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -151,7 +148,7 @@ export default function AdminReportsPage() {
                   )
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-9">
                   <SelectValue placeholder="Filter by report type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -167,7 +164,7 @@ export default function AdminReportsPage() {
               </Select>
             </div>
 
-            <Button variant="outline" onClick={clearFilters}>
+            <Button variant="outline" onClick={clearFilters} size="sm">
               Clear Filters
             </Button>
           </div>
@@ -178,25 +175,20 @@ export default function AdminReportsPage() {
             </div>
           ) : reports.length === 0 ? (
             <Card className="border-dashed bg-card">
-              <CardHeader>
-                <CardTitle className="text-foreground">
-                  No Reports Found
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+              <CardContent className="py-8 text-center">
                 <p className="text-muted-foreground">
-                  There are no reports matching your current filters.
+                  No reports found matching your filters.
                 </p>
               </CardContent>
             </Card>
           ) : (
             <>
-              <div className="grid grid-cols-1 gap-4 mb-6">
+              <div className="space-y-3 mb-6">
                 {reports.map((report) => (
                   <Card
                     key={report.id}
                     className={cn(
-                      "overflow-hidden transition-all duration-200 hover:shadow-md bg-card",
+                      "transition-all duration-200 hover:shadow-sm",
                       report.status === "PENDING" &&
                         "border-l-4 border-l-yellow-500",
                       report.status === "UNDER_REVIEW" &&
@@ -207,19 +199,19 @@ export default function AdminReportsPage() {
                         "border-l-4 border-l-red-500"
                     )}
                   >
-                    <CardHeader className="pb-4">
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4">
-                        <div className="flex-1">
+                    <CardContent className="p-4">
+                      <div className="flex flex-col lg:flex-row justify-between gap-4">
+                        <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-2">
                             {report.targetType === "PRODUCT" ? (
-                              <Package className="h-4 w-4 text-muted-foreground" />
+                              <Package className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             ) : (
-                              <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                              <MessageSquare className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             )}
-                            <CardTitle className="text-lg text-foreground">
+                            <h3 className="font-medium text-sm truncate">
                               {report.targetTitle ||
                                 `${report.targetType} Report`}
-                            </CardTitle>
+                            </h3>
                             <Link
                               href={
                                 report.targetType === "PRODUCT"
@@ -227,15 +219,16 @@ export default function AdminReportsPage() {
                                   : `/channels/${report.targetId}`
                               }
                               target="_blank"
-                              className="inline-flex items-center text-primary hover:text-primary/80 transition-colors"
+                              className="inline-flex items-center text-primary hover:text-primary/80 transition-colors flex-shrink-0"
                             >
-                              <ExternalLink className="h-4 w-4" />
+                              <ExternalLink className="h-3 w-3" />
                             </Link>
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground mb-2">
                             <div className="flex items-center gap-1">
                               <User className="h-3 w-3" />
-                              <span>By {report.reporterName || "Unknown"}</span>
+                              <span>{report.reporterName || "Unknown"}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
@@ -243,44 +236,31 @@ export default function AdminReportsPage() {
                                 {new Date(report.createdAt).toLocaleDateString(
                                   undefined,
                                   {
-                                    year: "numeric",
                                     month: "short",
                                     day: "numeric",
                                   }
                                 )}
                               </span>
                             </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <ReportStatusBadge status={report.status} />
-                          <ReportTypeBadge type={report.reportType} />
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                        <div className="space-y-3">
-                          <div>
-                            <h4 className="text-sm font-medium text-muted-foreground">
-                              Target Type
-                            </h4>
-                            <p className="font-medium text-foreground">
-                              {report.targetType}
-                            </p>
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-medium text-muted-foreground">
-                              Report Type
-                            </h4>
-                            <p className="font-medium text-foreground">
+                            <span className="text-xs">
                               {report.reportType.replace("_", " ")}
-                            </p>
+                            </span>
                           </div>
-                          <div>
-                            <h4 className="text-sm font-medium text-muted-foreground">
-                              View Content
-                            </h4>
+
+                          {report.message && (
+                            <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                              {report.message}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col lg:flex-row items-start lg:items-center gap-3">
+                          <div className="flex items-center gap-2">
+                            <ReportStatusBadge status={report.status} />
+                            <ReportTypeBadge type={report.reportType} />
+                          </div>
+
+                          <div className="flex items-center gap-2">
                             <Link
                               href={
                                 report.targetType === "PRODUCT"
@@ -288,122 +268,79 @@ export default function AdminReportsPage() {
                                   : `/channels/${report.targetId}`
                               }
                               target="_blank"
-                              className="inline-flex items-center gap-1 text-primary hover:text-primary/80 transition-colors text-sm"
                             >
-                              <span>
-                                View {report.targetType.toLowerCase()}
-                              </span>
-                              <ExternalLink className="h-3 w-3" />
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 px-2 text-xs"
+                              >
+                                View
+                              </Button>
                             </Link>
+                            <ReportReviewDialog report={report}>
+                              <Button size="sm" className="h-8 px-3 text-xs">
+                                Review
+                              </Button>
+                            </ReportReviewDialog>
                           </div>
                         </div>
-                        <div className="space-y-3">
-                          <div>
-                            <h4 className="text-sm font-medium text-muted-foreground">
-                              Status
-                            </h4>
-                            <p className="font-medium text-foreground">
-                              {report.status.replace("_", " ")}
-                            </p>
-                          </div>
-                          {report.reviewedAt && (
-                            <div>
-                              <h4 className="text-sm font-medium text-muted-foreground">
-                                Reviewed At
-                              </h4>
-                              <p className="font-medium text-foreground">
-                                {new Date(
-                                  report.reviewedAt
-                                ).toLocaleDateString()}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {report.message && (
-                        <div className="mb-4">
-                          <h4 className="text-sm font-medium text-muted-foreground mb-2">
-                            Report Message
-                          </h4>
-                          <p className="text-sm bg-muted/30 dark:bg-muted/10 p-3 rounded-lg border">
-                            {report.message}
-                          </p>
-                        </div>
-                      )}
-
-                      {report.adminNotes && (
-                        <div className="mb-4">
-                          <h4 className="text-sm font-medium text-muted-foreground mb-2">
-                            Admin Notes
-                          </h4>
-                          <p className="text-sm bg-blue-50 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-                            {report.adminNotes}
-                          </p>
-                        </div>
-                      )}
-
-                      <div className="flex justify-end">
-                        <ReportReviewDialog report={report}>
-                          <Button variant="outline" size="sm">
-                            Review Report
-                          </Button>
-                        </ReportReviewDialog>
                       </div>
                     </CardContent>
                   </Card>
                 ))}
               </div>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    Showing {(page - 1) * pagination.pageSize + 1} to{" "}
-                    {Math.min(page * pagination.pageSize, pagination.total)} of{" "}
-                    {pagination.total} reports
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePageChange(page - 1)}
-                      disabled={page <= 1}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                      Previous
-                    </Button>
-                    <div className="flex items-center space-x-1">
-                      {Array.from(
-                        { length: Math.min(5, totalPages) },
-                        (_, i) => {
-                          const pageNum = i + 1;
-                          return (
-                            <Button
-                              key={pageNum}
-                              variant={page === pageNum ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => handlePageChange(pageNum)}
-                              className="w-8 h-8 p-0"
-                            >
-                              {pageNum}
-                            </Button>
-                          );
-                        }
-                      )}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePageChange(page + 1)}
-                      disabled={page >= totalPages}
-                    >
-                      Next
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
+              {/* Always show pagination */}
+              <div className="flex items-center justify-between border-t pt-4">
+                <div className="text-sm text-muted-foreground">
+                  Showing{" "}
+                  {Math.min(
+                    (page - 1) * pagination.pageSize + 1,
+                    pagination.total
+                  )}{" "}
+                  to {Math.min(page * pagination.pageSize, pagination.total)} of{" "}
+                  {pagination.total} reports
                 </div>
-              )}
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page <= 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Previous
+                  </Button>
+                  <div className="flex items-center space-x-1">
+                    {Array.from(
+                      { length: Math.min(5, totalPages || 1) },
+                      (_, i) => {
+                        const pageNum = i + 1;
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={page === pageNum ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handlePageChange(pageNum)}
+                            className="w-8 h-8 p-0"
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      }
+                    )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={page >= (totalPages || 1)}
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </>
           )}
         </div>
