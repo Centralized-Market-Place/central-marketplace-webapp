@@ -36,7 +36,6 @@ export const ProductSchema = z.object({
   link: z.array(z.string()),
   phone: z.array(z.string()),
   categories: z.array(z.string()),
-  
 });
 
 export const ProductsSchema = z.object({
@@ -44,6 +43,15 @@ export const ProductsSchema = z.object({
   total: z.number(),
   page: z.number(),
   pageSize: z.number(),
+});
+
+export const ProductUpdateSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
+  price: z.number().optional(),
+  isAvailable: z.boolean().optional(),
+  phone: z.array(z.string()).optional(),
+  location: z.string().optional(),
 });
 
 export const ProductFilterSchema = z.object({
@@ -57,6 +65,7 @@ export const ProductFilterSchema = z.object({
   categories: z.string().optional(),
   minPrice: z.number().optional(),
   maxPrice: z.number().optional(),
+  channelIds: z.array(z.string()).optional(),
 });
 
 export const BookmarkSchema = z.object({
@@ -65,6 +74,7 @@ export const BookmarkSchema = z.object({
   productId: z.string(),
   createdAt: z.coerce.date(),
 });
+
 
 // Update schema to match the API response structure
 export const FilterCategorySchema = z.object({
@@ -78,6 +88,9 @@ export const FilterCategorySchema = z.object({
         categoryName: z.string(),
     })),
 });
+
+
+export type ProductUpdate = z.infer<typeof ProductUpdateSchema>;
 
 export type Bookmark = z.infer<typeof BookmarkSchema>;
 export type Category = z.infer<typeof CategorySchema>;

@@ -1,4 +1,3 @@
-import { SellerInfoSchema } from "@/seller/schema";
 import {
   PersonalInfoSchema,
   ContactInfoSchema,
@@ -58,7 +57,6 @@ export const UserSchema = z.object({
   verificationStatus: VerificationStatusSchema.nullable().optional(),
   role: UserRole,
   isVerified: z.boolean(),
-  sellerInfos: z.array(SellerInfoSchema),
   telegram: TelegramDataSchema.nullable(),
   lastLogin: z.coerce.date().nullable(),
   lastActive: z.coerce.date().nullable(),

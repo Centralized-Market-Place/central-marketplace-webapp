@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  BarChart3,
   BookMarked,
   CheckCircle,
   FileText,
@@ -300,25 +299,6 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={state === "collapsed" ? "Analytics" : undefined}
-                    className={menuButtonHoverClass}
-                  >
-                    <Link href="/seller/analytics">
-                      <BarChart3 className="size-5" />
-                      <span
-                        className={cn(
-                          "ml-2 transition-opacity duration-200",
-                          state === "collapsed" && "opacity-0 w-0 -ml-0"
-                        )}
-                      >
-                        Analytics
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
 
                 <SidebarMenuItem>
                   <SidebarMenuButton
@@ -337,26 +317,6 @@ export function AppSidebar() {
                         )}
                       >
                         Channel Management
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={state === "collapsed" ? "Verification" : undefined}
-                    className={menuButtonHoverClass}
-                  >
-                    <Link href="/seller/verification">
-                      <CheckCircle className="size-5" />
-                      <span
-                        className={cn(
-                          "ml-2 transition-opacity duration-200",
-                          state === "collapsed" && "opacity-0 w-0 -ml-0"
-                        )}
-                      >
-                        Verification
                       </span>
                     </Link>
                   </SidebarMenuButton>

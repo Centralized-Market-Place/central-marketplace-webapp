@@ -50,7 +50,6 @@ export function useChannels(filters: ChannelFilter = DEFAULT_FILTERS) {
       return allPages.length + 1;
     },
   });
-  console.log("channelsQuery", channelsQuery.error);
 
   return {
     channels: channelsQuery.data?.pages.flatMap((page) => page.data.items) || [],

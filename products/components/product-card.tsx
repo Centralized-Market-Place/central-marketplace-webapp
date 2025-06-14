@@ -27,6 +27,7 @@ import { useProduct } from "../hooks/useProduct";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProductImageSlider } from "./product-image-slider";
+import { FullScreenImageViewer } from "./full-screen-image-viewer";
 
 interface ProductCardProps {
   prod: Product;
@@ -34,6 +35,8 @@ interface ProductCardProps {
 
 export function ProductCard({ prod }: ProductCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
+  const [fullScreenIndex, setFullScreenIndex] = useState<number>(0);
   const { user, isAuthenticated } = useAuthContext();
   const { createReaction, isLoading: isReactionLoading } = useReaction(prod.id);
   const { product, isLoading } = useProduct(prod.id);
@@ -62,14 +65,17 @@ export function ProductCard({ prod }: ProductCardProps) {
   };
 
   const handleModalClose = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("productId");
-
-    router.push(
-      params.toString() ? `?${params.toString()}` : window.location.pathname,
-      { scroll: false }
-    );
     setIsModalOpen(false);
+    setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("productId");
+      params.delete("tab");
+
+      router.push(
+        params.toString() ? `?${params.toString()}` : window.location.pathname,
+        { scroll: false }
+      );
+    }, 150);
   };
 
   const handleBookmark = () => {
@@ -94,6 +100,16 @@ export function ProductCard({ prod }: ProductCardProps) {
     });
   };
 
+  const openFullScreenImage = (image: string, index: number) => {
+    setFullScreenImage(image);
+    setFullScreenIndex(index);
+  };
+
+  const closeFullScreenImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFullScreenImage(null);
+  };
+
   if (!product || isLoading) {
     return <div className="h-[28rem] bg-muted animate-pulse rounded-lg"></div>;
   }
@@ -110,9 +126,8 @@ export function ProductCard({ prod }: ProductCardProps) {
           <ProductImageSlider
             images={product.images}
             aspectRatio="card"
-            isModal={false}
             altPrefix={product.title || "Product"}
-            onImageClick={() => handleModalOpen()}
+            onImageClick={openFullScreenImage}
           />
         </CardHeader>
         <CardContent className="h-[9rem] p-4 overflow-hidden">
@@ -237,6 +252,16 @@ export function ProductCard({ prod }: ProductCardProps) {
         isBookmarkLoading={isAddingBookmark || isRemovingBookmark}
         onClose={handleModalClose}
       />
+
+      {product.images.length > 0 && (
+        <FullScreenImageViewer
+          images={product.images}
+          isOpen={fullScreenImage !== null}
+          initialIndex={fullScreenIndex}
+          productName={product.title || "Product"}
+          onClose={closeFullScreenImage}
+        />
+      )}
     </>
   );
 }

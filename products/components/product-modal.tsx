@@ -40,7 +40,6 @@ import Link from "next/link";
 
 // Import shared components
 import { ProductImageSlider } from "./product-image-slider";
-import { FullScreenImageViewer } from "./full-screen-image-viewer";
 import { ProductDescription } from "./product-description";
 import { Badge } from "@/components/ui/badge";
 
@@ -60,28 +59,30 @@ export function ProductModal({
   isLoading,
   handleBookmark,
   isBookmarkLoading,
-  isOpen: isModalOpenProp,
+  isOpen,
   onClose,
 }: ProductModalProps) {
   const [activeTab, setActiveTab] = useState("details");
-  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
-  const [fullScreenIndex, setFullScreenIndex] = useState<number>(0);
-  const [isModalOpen, setIsModalOpen] = useState(isModalOpenProp);
+  const [isClosing, setIsClosing] = useState(false);
   const { isAuthenticated } = useAuthContext();
   const searchParams = useSearchParams();
   const { shareProduct, isSharing } = useShareAction(product.id);
   const alert = useAlert();
 
   useEffect(() => {
-    const currentTab = searchParams.get("tab");
-    if (currentTab === "comments" || currentTab === "details") {
-      setActiveTab(currentTab);
+    if (!isClosing) {
+      const currentTab = searchParams.get("tab");
+      if (currentTab === "comments" || currentTab === "details") {
+        setActiveTab(currentTab);
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, isClosing]);
 
   useEffect(() => {
-    setIsModalOpen(isModalOpenProp);
-  }, [isModalOpenProp]);
+    if (isOpen) {
+      setIsClosing(false);
+    }
+  }, [isOpen]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -125,247 +126,222 @@ export function ProductModal({
     }
   };
 
-  const openFullScreenImage = (image: string, index: number) => {
-    setFullScreenImage(image);
-    setFullScreenIndex(index);
-    setIsModalOpen(false);
-  };
-
-  const closeFullScreenImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setFullScreenImage(null);
-    setIsModalOpen(true);
-  };
-
   const telegramLink =
     product.channel?.username && product.messageId
       ? `https://t.me/${product.channel.username}/${product.messageId}`
       : null;
 
   return (
-    <>
-      <Dialog
-        open={isModalOpen}
-        onOpenChange={(open) => {
-          setIsModalOpen(open);
-          if (!open && fullScreenImage === null) {
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          setIsClosing(true);
+          setTimeout(() => {
             onClose();
-          }
-        }}
-      >
-        <DialogContent className="w-full md:max-w-3xl max-h-[90vh] overflow-y-auto hide-scrollbar">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">
-              {product.title || "Unnamed Product"}
-            </DialogTitle>
-            <DialogDescription className="sr-only">
-              Product details and information
-            </DialogDescription>
-          </DialogHeader>
+          }, 0);
+        }
+      }}
+    >
+      <DialogContent className="w-full md:max-w-3xl max-h-[90vh] overflow-y-auto hide-scrollbar">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold">
+            {product.title || "Unnamed Product"}
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Product details and information
+          </DialogDescription>
+        </DialogHeader>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div
-              className="w-full rounded-md overflow-hidden"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ProductImageSlider
-                images={product.images}
-                aspectRatio="modal"
-                isModal={true}
-                altPrefix={product.title || "Product"}
-                onImageClick={openFullScreenImage}
-              />
-            </div>
-
-            <div className="flex flex-col">
-              {product.price !== null && product.price !== undefined && (
-                <p className="text-2xl font-bold mb-2">
-                  {product.price.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "ETB",
-                  })}
-                </p>
-              )}
-
-              {product.channel && (
-                <div className="flex items-center gap-2 mb-3">
-                  <p className="text-sm">
-                    <Button
-                      variant="link"
-                      size="sm"
-                      className="h-auto p-0 font-medium"
-                      asChild
-                    >
-                      <Link
-                        href={`/channels/${product.channel.id}`}
-                        className="flex items-center gap-1"
-                      >
-                        {product.channel.title || product.channel.username}
-                      </Link>
-                    </Button>
-                  </p>
-                  {telegramLink && (
-                    <Button
-                      variant="link"
-                      size="sm"
-                      className="h-auto p-0"
-                      asChild
-                    >
-                      <a
-                        href={telegramLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1"
-                      >
-                        <span>View on Telegram</span>
-                        <ExternalLink size={14} />
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              )}
-
-              <div className="flex flex-wrap gap-2 mb-3">
-                {product.categories.map((category) => (
-                  <Badge key={category}>{category}</Badge>
-                ))}
-              </div>
-
-              <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Eye size={16} />
-                  {formatNumber(product.views)} views
-                </span>
-                <span className="flex items-center gap-1 font-medium">
-                  <Forward
-                    size={16}
-                    className={product.forwards > 0 ? "text-primary" : ""}
-                  />
-                  {formatNumber(product.forwards)} forwards
-                </span>
-              </div>
-
-              <ProductDescription
-                description={product.description}
-                className="mb-4"
-              />
-
-              {product.date && (
-                <p className="text-sm text-muted-foreground mb-4">
-                  Posted on: {format(product.date, "PPP")}
-                </p>
-              )}
-
-              <div className="flex items-center gap-2 mt-auto">
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-1"
-                  onClick={() => handleReaction("upvote")}
-                  disabled={isLoading || !isAuthenticated}
-                >
-                  <ThumbsUp
-                    className={cn(
-                      product.userReaction === "upvote" && "fill-current"
-                    )}
-                    size={16}
-                  />
-                  {formatNumber(product.upvotes)}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-1"
-                  onClick={() => handleReaction("downvote")}
-                  disabled={isLoading || !isAuthenticated}
-                >
-                  <ThumbsDown
-                    className={cn(
-                      product.userReaction === "downvote" && "fill-current"
-                    )}
-                    size={16}
-                  />
-                  {formatNumber(product.downvotes)}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center justify-center"
-                  onClick={() => handleBookmark()}
-                  disabled={isLoading || isBookmarkLoading || !isAuthenticated}
-                >
-                  <Bookmark
-                    size={14}
-                    className={cn(product.isBookmarked && "fill-current")}
-                  />
-                </Button>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="flex items-center gap-1 ml-auto"
-                      disabled={!isAuthenticated || isSharing}
-                    >
-                      <Share2 size={16} />
-                      Share{" "}
-                      {product.shares > 0 &&
-                        `(${formatNumber(product.shares)})`}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={handleCopyLink}>
-                      <Copy size={16} className="mr-2" />
-                      Copy Link
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleTelegramShare}>
-                      <ExternalLink size={16} className="mr-2" />
-                      Share on Telegram
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div
+            className="w-full rounded-md overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ProductImageSlider
+              images={product.images}
+              aspectRatio="modal"
+              altPrefix={product.title || "Product"}
+            />
           </div>
 
-          <Separator className="my-4" />
+          <div className="flex flex-col">
+            {product.price !== null && product.price !== undefined && (
+              <p className="text-2xl font-bold mb-2">
+                {product.price.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "ETB",
+                })}
+              </p>
+            )}
 
-          <Tabs
-            value={activeTab}
-            onValueChange={handleTabChange}
-            className="w-full"
-          >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="comments">
-                <div className="flex items-center gap-2">
-                  <div>Comments</div>{" "}
-                  <div>
-                    {product.comments < 100 ? `(${product.comments})` : `(99+)`}
-                  </div>{" "}
-                </div>
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="details" className="mt-4">
-              <div className="space-y-4">
-                <h3 className="font-semibold">Product Summary</h3>
+            {product.channel && (
+              <div className="flex items-center gap-2 mb-3">
+                <p className="text-sm">
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="h-auto p-0 font-medium"
+                    asChild
+                  >
+                    <Link
+                      href={`/channels/${product.channel.id}`}
+                      className="flex items-center gap-1"
+                    >
+                      {product.channel.title || product.channel.username}
+                    </Link>
+                  </Button>
+                </p>
+                {telegramLink && (
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="h-auto p-0"
+                    asChild
+                  >
+                    <a
+                      href={telegramLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1"
+                    >
+                      <span>View on Telegram</span>
+                      <ExternalLink size={14} />
+                    </a>
+                  </Button>
+                )}
               </div>
-            </TabsContent>
-            <TabsContent value="comments" className="mt-4">
-              <CommentSection productId={product.id} />
-            </TabsContent>
-          </Tabs>
-        </DialogContent>
-      </Dialog>
+            )}
 
-      {product.images.length > 0 && (
-        <FullScreenImageViewer
-          images={product.images}
-          isOpen={fullScreenImage !== null}
-          initialIndex={fullScreenIndex}
-          productName={product.title || "Product"}
-          onClose={closeFullScreenImage}
-        />
-      )}
-    </>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {product.categories.map((category) => (
+                <Badge key={category}>{category}</Badge>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Eye size={16} />
+                {formatNumber(product.views)} views
+              </span>
+              <span className="flex items-center gap-1 font-medium">
+                <Forward
+                  size={16}
+                  className={product.forwards > 0 ? "text-primary" : ""}
+                />
+                {formatNumber(product.forwards)} forwards
+              </span>
+            </div>
+
+            <ProductDescription
+              description={product.description}
+              className="mb-4"
+            />
+
+            {product.date && (
+              <p className="text-sm text-muted-foreground mb-4">
+                Posted on: {format(product.date, "PPP")}
+              </p>
+            )}
+
+            <div className="flex items-center gap-2 mt-auto">
+              <Button
+                variant="outline"
+                className="flex items-center gap-1"
+                onClick={() => handleReaction("upvote")}
+                disabled={isLoading || !isAuthenticated}
+              >
+                <ThumbsUp
+                  className={cn(
+                    product.userReaction === "upvote" && "fill-current"
+                  )}
+                  size={16}
+                />
+                {formatNumber(product.upvotes)}
+              </Button>
+              <Button
+                variant="outline"
+                className="flex items-center gap-1"
+                onClick={() => handleReaction("downvote")}
+                disabled={isLoading || !isAuthenticated}
+              >
+                <ThumbsDown
+                  className={cn(
+                    product.userReaction === "downvote" && "fill-current"
+                  )}
+                  size={16}
+                />
+                {formatNumber(product.downvotes)}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center justify-center"
+                onClick={() => handleBookmark()}
+                disabled={isLoading || isBookmarkLoading || !isAuthenticated}
+              >
+                <Bookmark
+                  size={14}
+                  className={cn(product.isBookmarked && "fill-current")}
+                />
+              </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-1 ml-auto"
+                    disabled={!isAuthenticated || isSharing}
+                  >
+                    <Share2 size={16} />
+                    Share{" "}
+                    {product.shares > 0 && `(${formatNumber(product.shares)})`}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleCopyLink}>
+                    <Copy size={16} className="mr-2" />
+                    Copy Link
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleTelegramShare}>
+                    <ExternalLink size={16} className="mr-2" />
+                    Share on Telegram
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </div>
+
+        <Separator className="my-4" />
+
+        <Tabs
+          value={activeTab}
+          onValueChange={handleTabChange}
+          className="w-full"
+        >
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="comments">
+              <div className="flex items-center gap-2">
+                <div>Comments</div>{" "}
+                <div>
+                  {product.comments < 100 ? `(${product.comments})` : `(99+)`}
+                </div>{" "}
+              </div>
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="details" className="mt-4">
+            <div className="space-y-4">
+              <h3 className="font-semibold">Product Summary</h3>
+            </div>
+          </TabsContent>
+          <TabsContent value="comments" className="mt-4">
+            <CommentSection productId={product.id} />
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
   );
 }
