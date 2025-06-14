@@ -28,7 +28,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProductImageSlider } from "./product-image-slider";
 import { FullScreenImageViewer } from "./full-screen-image-viewer";
-import { ReportButton } from "@/reports/components/report-button";
 
 interface ProductCardProps {
   prod: Product;
@@ -188,17 +187,17 @@ export function ProductCard({ prod }: ProductCardProps) {
             </Button>
           </div>
           {user && (
-            <div className="w-full flex justify-between items-center">
-              <div className="flex items-center gap-1">
+            <div className="w-full flex justify-between">
+              <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-1 px-2"
+                  className="flex items-center gap-1"
                   onClick={() => handleReaction("upvote")}
                   disabled={isReactionLoading}
                 >
                   <ThumbsUp
-                    size={12}
+                    size={14}
                     className={cn(
                       product.userReaction === "upvote" && "fill-current"
                     )}
@@ -208,12 +207,12 @@ export function ProductCard({ prod }: ProductCardProps) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-1 px-2"
+                  className="flex items-center gap-1"
                   onClick={() => handleReaction("downvote")}
                   disabled={isReactionLoading}
                 >
                   <ThumbsDown
-                    size={12}
+                    size={14}
                     className={cn(
                       product.userReaction === "downvote" && "fill-current"
                     )}
@@ -222,34 +221,23 @@ export function ProductCard({ prod }: ProductCardProps) {
                 </Button>
               </div>
 
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center justify-center px-2"
-                  onClick={() => handleBookmark()}
-                  disabled={
-                    isReactionLoading ||
-                    isAddingBookmark ||
-                    isRemovingBookmark ||
-                    !isAuthenticated
-                  }
-                >
-                  <Bookmark
-                    size={12}
-                    className={cn(product.isBookmarked && "fill-current")}
-                  />
-                </Button>
-                <ReportButton
-                  targetId={product.id}
-                  targetType="PRODUCT"
-                  targetTitle={product.title || "Product"}
-                  variant="outline"
-                  size="sm"
-                  className="px-2"
-                  showText={false}
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center justify-center"
+                onClick={() => handleBookmark()}
+                disabled={
+                  isReactionLoading ||
+                  isAddingBookmark ||
+                  isRemovingBookmark ||
+                  !isAuthenticated
+                }
+              >
+                <Bookmark
+                  size={14}
+                  className={cn(product.isBookmarked && "fill-current")}
                 />
-              </div>
+              </Button>
             </div>
           )}
         </CardFooter>

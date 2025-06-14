@@ -41,14 +41,10 @@ export function formatTimeAgo(dateOrString: string) {
   }
 }
 
-export function getErrorField<T = string>(
-  error: Error,
-  field: string
-): T | undefined {
+export function getErrorDetailMsg(error: Error): string | undefined {
   if (error instanceof AxiosError) {
-    const data = error.response?.data as Record<string, unknown>;
-    return data?.[field] as T | undefined;
+    const data = error.response?.data as {details?: string};
+    return data.details;
   }
   return undefined;
 }
-

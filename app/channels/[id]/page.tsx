@@ -12,7 +12,6 @@ import { useChannel } from "@/channels/hooks/useChannel";
 import { Search, ExternalLink } from "lucide-react";
 import { ProductLoading } from "@/components/common/product-loading";
 import { EmptyState, ErrorState } from "@/components/common/empty-state";
-import { ReportButton } from "@/reports/components/report-button";
 
 function ChannelHeaderSkeleton() {
   return (
@@ -77,25 +76,15 @@ export default function ChannelPage() {
             <div className="flex-1">
               <div className="flex gap-4 items-center mb-1">
                 <h1 className="text-2xl font-bold">{channel.data.title}</h1>
-                <div className="flex items-center gap-2">
-                  <a
-                    href={`https://t.me/${channel.data.username}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-blue-600 hover:text-blue-800"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    <span className="ml-1 text-sm">Visit Channel</span>
-                  </a>
-                  <ReportButton
-                    targetId={channel.data.id}
-                    targetType="CHANNEL"
-                    targetTitle={channel.data.title || "Channel"}
-                    variant="outline"
-                    size="sm"
-                    showText={false}
-                  />
-                </div>
+                <a
+                  href={`https://t.me/${channel.data.username}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-blue-600 hover:text-blue-800"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  <span className="ml-1 text-sm">Visit Channel</span>
+                </a>
               </div>
               {channel.data.participants && (
                 <p className="text-muted-foreground mb-1">
