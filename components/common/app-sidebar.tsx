@@ -2,9 +2,9 @@
 
 import {
   BookMarked,
-  CheckCircle,
   FileText,
   LayoutDashboard,
+  Mail,
   MessageSquare,
   Package,
   Search,
@@ -14,6 +14,7 @@ import {
   Store,
   Users,
   Zap,
+  AlertTriangle,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -36,8 +37,8 @@ import Link from "next/link";
 import { CustomSidebarTrigger } from "./sidebar-trigger";
 import { useAuthContext } from "@/providers/auth-context";
 import { NotificationBell } from "@/notifications/components/notification-bell";
+import { UserRole } from "@/auth/shema";
 
-// Define a constant for the common hover class
 const menuButtonHoverClass =
   "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:bg-sidebar-accent focus-visible:text-sidebar-accent-foreground transition-colors";
 
@@ -191,64 +192,66 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              {user.role !== "ADMIN" && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={
-                      state === "collapsed"
-                        ? user?.role === "SELLER"
-                          ? "Register your Channel"
-                          : "Become a Seller"
-                        : undefined
-                    }
-                    className={menuButtonHoverClass}
-                  >
-                    <Link href="/seller/apply">
-                      <Store className="size-5" />
-                      <span
-                        className={cn(
-                          "ml-2 transition-opacity duration-200",
-                          state === "collapsed" && "opacity-0 w-0 -ml-0"
-                        )}
-                      >
-                        {user?.role === "SELLER"
-                          ? "Register your Channel"
-                          : "Become a Seller"}
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
+              {user.role !== UserRole.Enum.ADMIN &&
+                user.role !== UserRole.Enum.SUPER_ADMIN && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      tooltip={
+                        state === "collapsed"
+                          ? user?.role === "SELLER"
+                            ? "Register your Channel"
+                            : "Become a Seller"
+                          : undefined
+                      }
+                      className={menuButtonHoverClass}
+                    >
+                      <Link href="/seller/apply">
+                        <Store className="size-5" />
+                        <span
+                          className={cn(
+                            "ml-2 transition-opacity duration-200",
+                            state === "collapsed" && "opacity-0 w-0 -ml-0"
+                          )}
+                        >
+                          {user?.role === "SELLER"
+                            ? "Register your Channel"
+                            : "Become a Seller"}
+                        </span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
 
-              {user.role !== "ADMIN" && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={
-                      state === "collapsed" ? "My Applications" : undefined
-                    }
-                    className={menuButtonHoverClass}
-                  >
-                    <Link href="/seller/applications">
-                      <FileText className="size-5" />
-                      <span
-                        className={cn(
-                          "ml-2 transition-opacity duration-200",
-                          state === "collapsed" && "opacity-0 w-0 -ml-0"
-                        )}
-                      >
-                        My Applications
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
+              {user.role !== UserRole.Enum.ADMIN &&
+                user.role !== UserRole.Enum.SUPER_ADMIN && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      tooltip={
+                        state === "collapsed" ? "My Applications" : undefined
+                      }
+                      className={menuButtonHoverClass}
+                    >
+                      <Link href="/seller/applications">
+                        <FileText className="size-5" />
+                        <span
+                          className={cn(
+                            "ml-2 transition-opacity duration-200",
+                            state === "collapsed" && "opacity-0 w-0 -ml-0"
+                          )}
+                        >
+                          My Applications
+                        </span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {user.role === "SELLER" && (
+        {user.role === UserRole.Enum.SELLER && (
           <SidebarGroup>
             <SidebarGroupLabel
               className={cn("px-2 py-1", state === "collapsed" && "sr-only")}
@@ -299,7 +302,6 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
-
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
@@ -326,7 +328,8 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-        {(user.role === "ADMIN" || user.role === "SUPER_ADMIN") && (
+        {(user.role === UserRole.Enum.ADMIN ||
+          user.role === UserRole.Enum.SUPER_ADMIN) && (
           <SidebarGroup>
             <SidebarGroupLabel
               className={cn("px-2 py-1", state === "collapsed" && "sr-only")}
@@ -361,6 +364,28 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     tooltip={
+                      state === "collapsed" ? "Content Moderation" : undefined
+                    }
+                    className={menuButtonHoverClass}
+                  >
+                    <Link href="/admin/reports">
+                      <AlertTriangle className="size-5" />
+                      <span
+                        className={cn(
+                          "ml-2 transition-opacity duration-200",
+                          state === "collapsed" && "opacity-0 w-0 -ml-0"
+                        )}
+                      >
+                        Content Moderation
+                      </span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={
                       state === "collapsed" ? "Seller Applications" : undefined
                     }
                     className={menuButtonHoverClass}
@@ -379,103 +404,53 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={
-                      state === "collapsed"
-                        ? "Verification Requests"
-                        : undefined
-                    }
-                    className={menuButtonHoverClass}
-                  >
-                    <Link href="/admin/verification-requests">
-                      <CheckCircle className="size-5" />
-                      <span
-                        className={cn(
-                          "ml-2 transition-opacity duration-200",
-                          state === "collapsed" && "opacity-0 w-0 -ml-0"
-                        )}
+                {user.role === UserRole.Enum.SUPER_ADMIN && (
+                  <>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        tooltip={
+                          state === "collapsed" ? "User Management" : undefined
+                        }
+                        className={menuButtonHoverClass}
                       >
-                        Verification Requests
-                      </span>
-                      <span
-                        className={cn(
-                          "ml-auto bg-primary/15 text-primary rounded-full px-2 py-0.5 text-xs font-medium",
-                          state === "collapsed" && "opacity-0 w-0"
-                        )}
-                      >
-                        5
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                        <Link href="/admin/users">
+                          <Users className="size-5" />
+                          <span
+                            className={cn(
+                              "ml-2 transition-opacity duration-200",
+                              state === "collapsed" && "opacity-0 w-0 -ml-0"
+                            )}
+                          >
+                            User Management
+                          </span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
 
-                {user.role === "SUPER_ADMIN" && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      tooltip={
-                        state === "collapsed" ? "User Management" : undefined
-                      }
-                      className={menuButtonHoverClass}
-                    >
-                      <Link href="/admin/users">
-                        <Users className="size-5" />
-                        <span
-                          className={cn(
-                            "ml-2 transition-opacity duration-200",
-                            state === "collapsed" && "opacity-0 w-0 -ml-0"
-                          )}
-                        >
-                          User Management
-                        </span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        tooltip={
+                          state === "collapsed" ? "Admin Invites" : undefined
+                        }
+                        className={menuButtonHoverClass}
+                      >
+                        <Link href="/admin/invites">
+                          <Mail className="size-5" />
+                          <span
+                            className={cn(
+                              "ml-2 transition-opacity duration-200",
+                              state === "collapsed" && "opacity-0 w-0 -ml-0"
+                            )}
+                          >
+                            Admin Invites
+                          </span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </>
                 )}
-
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={
-                      state === "collapsed" ? "Channel Management" : undefined
-                    }
-                    className={menuButtonHoverClass}
-                  >
-                    <Link href="/admin/channels">
-                      <MessageSquare className="size-5" />
-                      <span
-                        className={cn(
-                          "ml-2 transition-opacity duration-200",
-                          state === "collapsed" && "opacity-0 w-0 -ml-0"
-                        )}
-                      >
-                        Channel Management
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={state === "collapsed" ? "Reports" : undefined}
-                    className={menuButtonHoverClass}
-                  >
-                    <a href="/admin/reports">
-                      <FileText className="size-5" />
-                      <span
-                        className={cn(
-                          "ml-2 transition-opacity duration-200",
-                          state === "collapsed" && "opacity-0 w-0 -ml-0"
-                        )}
-                      >
-                        Reports
-                      </span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
