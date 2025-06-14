@@ -11,7 +11,6 @@ export const DEFAULT_FILTERS: ProductFilter = {
   query: "",
   sortBy: "created_at",
   sortDesc: true,
-  channelId: "",
   channelIds: [],
   categories: undefined,
   minPrice: undefined,
@@ -42,21 +41,19 @@ const buildQuery = (filters: ProductFilter) => {
     });
   }
 
-  if (filters.channelIds && filters.channelIds.length > 0) {
-    filters.channelIds.forEach(channelId => {
-      query += `&channel_ids=${channelId}`;
-    });
-  }
   if (filters.categories) {
-    query += `&categories=${filters.categories}`;
+    searchParams.append("categories", filters.categories);
   }
+
   if (filters.minPrice !== undefined) {
-    query += `&min_price=${filters.minPrice}`;
+    searchParams.append("min_price", filters.minPrice.toString());
   }
+
   if (filters.maxPrice !== undefined) {
-    query += `&max_price=${filters.maxPrice}`;
+    searchParams.append("max_price", filters.maxPrice.toString());
   }
-  return query;
+
+  return `?${searchParams.toString()}`;
 };
 
 export function useProducts(

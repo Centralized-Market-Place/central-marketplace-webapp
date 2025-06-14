@@ -1,15 +1,9 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import React from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import React, { useState } from "react";
 
 type PriceRange = {
   label: string;
@@ -17,196 +11,336 @@ type PriceRange = {
   max: number | null;
 };
 
-interface FilterContentProps {
-  pendingFilter: string;
-  setPendingFilter: (val: string) => void;
-  isCategoryLoading: boolean;
-  isCategoryError: boolean;
-  categories: { id: string; categoryName: string }[];
-  pendingPriceRanges: PriceRange[];
-  togglePendingPriceRange: (range: PriceRange) => void;
+// Grouped state interfaces for better maintainability
+interface CategoryState {
+  pending: string[];
+  setPending: (val: string[]) => void;
+  isLoading: boolean;
+  isError: boolean;
+  hierarchy: Record<string, string[]>;
+}
+
+interface PriceState {
+  pendingRanges: PriceRange[];
+  toggleRange: (range: PriceRange) => void;
   pendingMin: string;
   pendingMax: string;
   setPendingMin: (val: string) => void;
   setPendingMax: (val: string) => void;
-  PRICE_RANGES: PriceRange[];
-  applyFilters: () => void;
-  channels: { id: string; title?: string | null; username?: string | null }[];
-  isChannelLoading: boolean;
-  isChannelError: boolean;
-  pendingChannels: string[];
-  setPendingChannels: (val: string[]) => void;
+  availableRanges: PriceRange[];
+}
+
+interface ChannelState {
+  pending: string[];
+  setPending: (val: string[]) => void;
+  isLoading: boolean;
+  isError: boolean;
+  data: { id: string; title?: string | null; username?: string | null }[];
+}
+
+interface FilterContentProps {
+  categoryState: CategoryState;
+  priceState: PriceState;
+  channelState: ChannelState;
+  onApplyFilters: () => void;
 }
 
 export const FilterContent: React.FC<FilterContentProps> = ({
-  pendingFilter,
-  setPendingFilter,
-  isCategoryLoading,
-  isCategoryError,
-  categories,
-  pendingPriceRanges,
-  togglePendingPriceRange,
-  pendingMin,
-  pendingMax,
-  setPendingMin,
-  setPendingMax,
-  PRICE_RANGES,
-  applyFilters,
-  channels,
-  isChannelLoading,
-  isChannelError,
-  pendingChannels,
-  setPendingChannels,
+  categoryState,
+  priceState,
+  channelState,
+  onApplyFilters,
 }) => {
+  // Initialize expanded categories based on current selection
+  const getInitialExpandedCategories = () => {
+    const expanded = new Set<string>();
+    
+    // If any subcategories are selected, expand their parents
+    categoryState.pending.forEach(selectedCategory => {
+      Object.entries(categoryState.hierarchy).forEach(([parentCategory, subcategories]) => {
+        if (subcategories.includes(selectedCategory)) {
+          expanded.add(parentCategory);
+        }
+      });
+    });
+    
+    return expanded;
+  };
+
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(() => 
+    getInitialExpandedCategories()
+  );
+  
+  // Update expanded categories when pending categories or hierarchy changes
+  React.useEffect(() => {
+    categoryState.pending.forEach(selectedCategory => {
+      Object.entries(categoryState.hierarchy).forEach(([parentCategory, subcategories]) => {
+        if (subcategories.includes(selectedCategory)) {
+          setExpandedCategories(prev => new Set([...prev, parentCategory]));
+        }
+      });
+    });
+  }, [categoryState.pending, categoryState.hierarchy]);
+  
   const isMaxLessThanMin =
-    pendingMin !== "" &&
-    pendingMax !== "" &&
-    Number(pendingMax) < Number(pendingMin);
+    priceState.pendingMin !== "" &&
+    priceState.pendingMax !== "" &&
+    Number(priceState.pendingMax) < Number(priceState.pendingMin);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!isMaxLessThanMin) {
-      applyFilters();
+      onApplyFilters();
     }
   };
 
   const toggleChannel = (channelId: string) => {
-    setPendingChannels(
-      pendingChannels.includes(channelId)
-        ? pendingChannels.filter(id => id !== channelId)
-        : [...pendingChannels, channelId]
+    channelState.setPending(
+      channelState.pending.includes(channelId)
+        ? channelState.pending.filter(id => id !== channelId)
+        : [...channelState.pending, channelId]
     );
   };
 
+  const toggleCategoryExpansion = (parentCategory: string) => {
+    const newExpanded = new Set(expandedCategories);
+    if (newExpanded.has(parentCategory)) {
+      newExpanded.delete(parentCategory);
+    } else {
+      newExpanded.add(parentCategory);
+    }
+    setExpandedCategories(newExpanded);
+  };
+
+  const handleCategorySelect = (category: string) => {
+    const isSelected = categoryState.pending.includes(category);
+    
+    if (isSelected) {
+      // Remove category from selection
+      categoryState.setPending(categoryState.pending.filter(cat => cat !== category));
+    } else {
+      // Add category to selection
+      categoryState.setPending([...categoryState.pending, category]);
+      
+      // If selecting a subcategory, ensure its parent remains expanded
+      Object.entries(categoryState.hierarchy).forEach(([parentCategory, subcategories]) => {
+        if (subcategories.includes(category)) {
+          setExpandedCategories(prev => new Set([...prev, parentCategory]));
+        }
+      });
+    }
+  };
+
+  const clearAllCategories = () => {
+    categoryState.setPending([]);
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 flex flex-col h-full">
-      <div className="space-y-4 flex-grow">
-        <div className="space-y-4">
-          <h3 className="font-semibold text-lg">Category</h3>
-          <Select value={pendingFilter} onValueChange={setPendingFilter}>
-            <SelectTrigger className="w-full transition-all duration-300">
-              <SelectValue placeholder="Filter by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Products</SelectItem>
-              {isCategoryLoading && (
-                <SelectItem value="loading" disabled>
-                  Loading...
-                </SelectItem>
-              )}
-              {isCategoryError && (
-                <SelectItem value="error" disabled>
-                  Failed to load
-                </SelectItem>
-              )}
-              {!isCategoryLoading &&
-                !isCategoryError &&
-                categories.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.categoryName} className="transition-colors duration-200 hover:bg-blue-50">
-                    {cat.categoryName}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-4">
-          <h3 className="font-semibold text-lg">Channels</h3>
-          <div className="space-y-2 max-h-40 overflow-y-auto">
-            {isChannelLoading && (
-              <p className="text-sm text-gray-500">Loading channels...</p>
-            )}
-            {isChannelError && (
-              <p className="text-sm text-red-500">Failed to load channels</p>
-            )}
-            {!isChannelLoading &&
-              !isChannelError &&
-              channels.map((channel) => (
-                <label key={channel.id} className="flex items-center space-x-2 text-sm transition-all duration-200 hover:bg-blue-50 rounded px-2 py-1 cursor-pointer">
-                  <Checkbox
-                    id={channel.id}
-                    checked={pendingChannels.includes(channel.id)}
-                    onCheckedChange={() => toggleChannel(channel.id)}
-                    className="transition duration-200 focus:ring-2 focus:ring-blue-400"
-                  />
-                  <Label htmlFor={channel.id} className="text-sm">
-                    {channel.title || channel.username}
-                  </Label>
-                </label>
-              ))}
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <h3 className="font-semibold text-lg">Price Range</h3>
-          <div className="space-y-2">
-            {PRICE_RANGES.map((range) => {
-              const isChecked = pendingPriceRanges.some((r) => r.label === range.label);
-              return (
-                <label key={range.label} className="flex items-center space-x-2 text-sm transition-all duration-200 hover:bg-blue-50 rounded px-2 py-1 cursor-pointer">
-                  <Checkbox
-                    id={range.label}
-                    checked={isChecked}
-                    onCheckedChange={() => togglePendingPriceRange(range)}
-                    disabled={pendingMin !== "" || pendingMax !== ""}
-                    className="transition duration-200 focus:ring-2 focus:ring-blue-400"
-                  />
-                  <Label htmlFor={range.label} className="text-sm">
-                    {range.label}
-                  </Label>
-                </label>
-              );
-            })}
-          </div>
-
-          {/* Custom Price Range Inputs */}
-          <div className="space-y-3 pt-4 border-t">
-            <h4 className="font-medium text-sm text-gray-700">Custom Price Range</h4>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <Label htmlFor="min-price" className="text-xs text-gray-600">Min Price (ETB)</Label>
-                <Input
-                  id="min-price"
-                  type="number"
-                  min="0"
-                  placeholder="e.g. 200"
-                  value={pendingMin}
-                  onChange={(e) => setPendingMin(e.target.value)}
-                  disabled={pendingPriceRanges.length > 0}
-                  className="transition duration-200 focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
-              <div>
-                <Label htmlFor="max-price" className="text-xs text-gray-600">Max Price (ETB)</Label>
-                <Input
-                  id="max-price"
-                  type="number"
-                  min="0"
-                  placeholder="e.g. 10000"
-                  value={pendingMax}
-                  onChange={(e) => setPendingMax(e.target.value)}
-                  disabled={pendingPriceRanges.length > 0}
-                  className="transition duration-200 focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
-            </div>
-            {(pendingMin !== "" || pendingMax !== "") && !isMaxLessThanMin && (
-              <p className="text-xs text-blue-600">
-                Custom range: ETB {pendingMin || "0"} - {pendingMax || "∞"}
-              </p>
-            )}
-            {isMaxLessThanMin && (
-              <p className="text-xs text-red-600">
-                Max price cannot be less than min price.
-              </p>
-            )}
-          </div>
-        </div>
+    <div className="flex flex-col h-full max-h-screen">
+      {/* Header - Fixed */}
+      <div className="flex-shrink-0 pb-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Filters
+        </h2>
       </div>
 
-      <Button type="submit" className="w-full mt-4 transition-colors duration-200" disabled={isMaxLessThanMin}>
-        Apply Filters
-      </Button>
-    </form>
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto py-4 space-y-6 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Categories Section */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-base sm:text-lg text-gray-900 dark:text-gray-100">
+                Categories
+              </h3>
+              {categoryState.pending.length > 0 && (
+                <button
+                  type="button"
+                  onClick={clearAllCategories}
+                  className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200"
+                >
+                  Clear All ({categoryState.pending.length})
+                </button>
+              )}
+            </div>
+            
+            {categoryState.isLoading && (
+              <p className="text-sm text-gray-500 dark:text-gray-400">Loading categories...</p>
+            )}
+            {categoryState.isError && (
+              <p className="text-sm text-red-500 dark:text-red-400">Failed to load categories</p>
+            )}
+            
+            {!categoryState.isLoading && !categoryState.isError && (
+              <div className="space-y-2 max-h-48 sm:max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+                {/* Hierarchical categories */}
+                {Object.entries(categoryState.hierarchy).map(([parentCategory, subcategories]) => (
+                  <div key={parentCategory} className="space-y-1">
+                    {/* Parent category */}
+                    <div className="flex items-center space-x-1">
+                      <button
+                        type="button"
+                        onClick={() => toggleCategoryExpansion(parentCategory)}
+                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors duration-200 flex-shrink-0"
+                      >
+                        {expandedCategories.has(parentCategory) ? (
+                          <ChevronDown className="h-3 w-3 text-gray-600 dark:text-gray-400" />
+                        ) : (
+                          <ChevronRight className="h-3 w-3 text-gray-600 dark:text-gray-400" />
+                        )}
+                      </button>
+                      <label className="flex items-center space-x-2 text-sm transition-all duration-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded px-2 py-1 cursor-pointer flex-1 min-w-0">
+                        <Checkbox
+                          checked={categoryState.pending.includes(parentCategory)}
+                          onCheckedChange={() => handleCategorySelect(parentCategory)}
+                          className="transition duration-200 focus:ring-2 focus:ring-blue-400 flex-shrink-0"
+                        />
+                        <span className="font-medium capitalize text-gray-900 dark:text-gray-100 truncate">
+                          {parentCategory}
+                        </span>
+                      </label>
+                    </div>
+                    
+                    {/* Subcategories */}
+                    {expandedCategories.has(parentCategory) && (
+                      <div className="ml-6 space-y-1">
+                        {subcategories.map((subcategory) => (
+                          <label key={subcategory} className="flex items-center space-x-2 text-sm transition-all duration-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded px-2 py-1 cursor-pointer min-w-0">
+                            <Checkbox
+                              checked={categoryState.pending.includes(subcategory)}
+                              onCheckedChange={() => handleCategorySelect(subcategory)}
+                              className="transition duration-200 focus:ring-2 focus:ring-blue-400 flex-shrink-0"
+                            />
+                            <span className="capitalize text-gray-700 dark:text-gray-300 truncate">
+                              {subcategory}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Channels Section */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-base sm:text-lg text-gray-900 dark:text-gray-100">
+              Channels
+            </h3>
+            <div className="space-y-2 max-h-32 sm:max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+              {channelState.isLoading && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">Loading channels...</p>
+              )}
+              {channelState.isError && (
+                <p className="text-sm text-red-500 dark:text-red-400">Failed to load channels</p>
+              )}
+              {!channelState.isLoading &&
+                !channelState.isError &&
+                channelState.data.map((channel) => (
+                  <label key={channel.id} className="flex items-center space-x-2 text-sm transition-all duration-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded px-2 py-1 cursor-pointer min-w-0">
+                    <Checkbox
+                      id={channel.id}
+                      checked={channelState.pending.includes(channel.id)}
+                      onCheckedChange={() => toggleChannel(channel.id)}
+                      className="transition duration-200 focus:ring-2 focus:ring-blue-400 flex-shrink-0"
+                    />
+                    <Label htmlFor={channel.id} className="text-sm text-gray-700 dark:text-gray-300 truncate cursor-pointer">
+                      {channel.title || channel.username}
+                    </Label>
+                  </label>
+                ))}
+            </div>
+          </div>
+
+          {/* Price Range Section */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-base sm:text-lg text-gray-900 dark:text-gray-100">
+              Price Range
+            </h3>
+            <div className="space-y-2 max-h-40 sm:max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+              {priceState.availableRanges.map((range) => {
+                const isChecked = priceState.pendingRanges.some((r) => r.label === range.label);
+                return (
+                  <label key={range.label} className="flex items-center space-x-2 text-sm transition-all duration-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded px-2 py-1 cursor-pointer min-w-0">
+                    <Checkbox
+                      id={range.label}
+                      checked={isChecked}
+                      onCheckedChange={() => priceState.toggleRange(range)}
+                      disabled={priceState.pendingMin !== "" || priceState.pendingMax !== ""}
+                      className="transition duration-200 focus:ring-2 focus:ring-blue-400 flex-shrink-0"
+                    />
+                    <Label htmlFor={range.label} className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer truncate">
+                      {range.label}
+                    </Label>
+                  </label>
+                );
+              })}
+            </div>
+
+            {/* Custom Price Range Inputs */}
+            <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300">
+                Custom Price Range
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label htmlFor="min-price" className="text-xs text-gray-600 dark:text-gray-400">
+                    Min Price (ETB)
+                  </Label>
+                  <Input
+                    id="min-price"
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 200"
+                    value={priceState.pendingMin}
+                    onChange={(e) => priceState.setPendingMin(e.target.value)}
+                    disabled={priceState.pendingRanges.length > 0}
+                    className="transition duration-200 focus:ring-2 focus:ring-blue-400 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="max-price" className="text-xs text-gray-600 dark:text-gray-400">
+                    Max Price (ETB)
+                  </Label>
+                  <Input
+                    id="max-price"
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 10000"
+                    value={priceState.pendingMax}
+                    onChange={(e) => priceState.setPendingMax(e.target.value)}
+                    disabled={priceState.pendingRanges.length > 0}
+                    className="transition duration-200 focus:ring-2 focus:ring-blue-400 text-sm"
+                  />
+                </div>
+              </div>
+              {(priceState.pendingMin !== "" || priceState.pendingMax !== "") && !isMaxLessThanMin && (
+                <p className="text-xs text-blue-600 dark:text-blue-400">
+                  Custom range: ETB {priceState.pendingMin || "0"} - {priceState.pendingMax || "∞"}
+                </p>
+              )}
+              {isMaxLessThanMin && (
+                <p className="text-xs text-red-600 dark:text-red-400">
+                  Max price cannot be less than min price.
+                </p>
+              )}
+            </div>
+          </div>
+        </form>
+      </div>
+
+      {/* Footer - Fixed */}
+      <div className="flex-shrink-0 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <Button 
+          onClick={onApplyFilters}
+          className="w-full transition-colors duration-200 text-sm sm:text-base py-2 sm:py-3" 
+          disabled={isMaxLessThanMin}
+        >
+          Apply Filters
+        </Button>
+      </div>
+    </div>
   );
 };

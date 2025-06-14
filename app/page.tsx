@@ -9,7 +9,7 @@ import { EmptyState, ErrorState } from "@/components/common/empty-state";
 import { Search, Filter } from "lucide-react";
 import { ProductLoading } from "@/components/common/product-loading";
 import { SearchBar } from "../components/ui/SearchBar";
-import { useCategories } from "@/products/hooks/useCategoryAction";
+import { useCategoryHierarchy } from "@/products/hooks/useCategoryAction";
 import { FilterContent } from "@/components/common/FilterProducts";
 import { FilterChips } from "@/components/common/FilterChips";
 import { useChannels } from "@/channels/hooks/useChannels";
@@ -40,7 +40,7 @@ const PRICE_RANGES: PriceRange[] = [
 export default function Home() {
   // Search/filter values to be used when the user hits Apply
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<PriceRange[]>([]);
   const [customMinPrice, setCustomMinPrice] = useState<string>("");
   const [customMaxPrice, setCustomMaxPrice] = useState<string>("");
@@ -48,7 +48,7 @@ export default function Home() {
 
   // Temporary values before applying
   const [pendingSearch, setPendingSearch] = useState("");
-  const [pendingFilter, setPendingFilter] = useState("all");
+  const [pendingCategories, setPendingCategories] = useState<string[]>([]);
   const [pendingPriceRanges, setPendingPriceRanges] = useState<PriceRange[]>([]);
   const [pendingMin, setPendingMin] = useState("");
   const [pendingMax, setPendingMax] = useState("");
@@ -58,10 +58,10 @@ export default function Home() {
   const debouncedSearch = useDebounce(search, 300);
 
   const {
-    categories,
-    isLoading: isCategoryLoading,
-    isError: isCategoryError,
-  } = useCategories();
+    hierarchy: categoryHierarchy,
+    isLoading: isHierarchyLoading,
+    isError: isHierarchyError,
+  } = useCategoryHierarchy();
 
   const {
     channels,
@@ -77,7 +77,7 @@ export default function Home() {
   const { products, isLoading, isError, hasNextPage, fetchNextPage } = useProducts({
     ...DEFAULT_FILTERS,
     query: debouncedSearch,
-    categories: filter !== "all" ? filter : undefined,
+    categories: selectedCategories.length > 0 ? selectedCategories.join(',') : undefined,
     channelIds: selectedChannels,
     minPrice:
       customMinPrice !== ""
@@ -107,7 +107,7 @@ export default function Home() {
 
   const applyFilters = () => {
     setSearch(pendingSearch);
-    setFilter(pendingFilter);
+    setSelectedCategories(pendingCategories);
     setSelectedPriceRanges(pendingPriceRanges);
     setCustomMinPrice(pendingMin);
     setCustomMaxPrice(pendingMax);
@@ -117,8 +117,8 @@ export default function Home() {
 
   const handleRemoveFilter = (filterType: "category" | "priceRange" | "customPrice" | "channels") => {
     if (filterType === "category") {
-      setFilter("all");
-      setPendingFilter("all");
+      setSelectedCategories([]);
+      setPendingCategories([]);
     }
     if (filterType === "priceRange") {
       setSelectedPriceRanges([]);
@@ -137,52 +137,72 @@ export default function Home() {
   };
 
   const activeFilters = {
-    category: filter !== "all" ? categories.find(c => c.categoryName === filter)?.categoryName || "" : "",
+    category: selectedCategories.length > 0 ? `${selectedCategories.length} categor${selectedCategories.length > 1 ? 'ies' : 'y'}` : "",
     priceRange: selectedPriceRanges.length > 0 ? selectedPriceRanges[0].label : "",
     customPrice: customMinPrice || customMaxPrice ? `ETB ${customMinPrice || "0"} - ${customMaxPrice || "∞"}` : "",
     channels: selectedChannels.length > 0 ? `${selectedChannels.length} channel${selectedChannels.length > 1 ? 's' : ''}` : ""
   }
 
-  const FilterContentWrapper = () => (
-    <FilterContent
-      pendingFilter={pendingFilter}
-      setPendingFilter={setPendingFilter}
-      isCategoryLoading={isCategoryLoading}
-      isCategoryError={isCategoryError}
-      categories={categories}
-      pendingPriceRanges={pendingPriceRanges as unknown as PriceRange[]}
-      togglePendingPriceRange={togglePendingPriceRange}
-      pendingMin={pendingMin}
-      pendingMax={pendingMax}
-      setPendingMin={setPendingMin}
-      setPendingMax={setPendingMax}
-      PRICE_RANGES={PRICE_RANGES as unknown as PriceRange[]}
-      applyFilters={applyFilters}
-      channels={channels}
-      isChannelLoading={isChannelLoading}
-      isChannelError={isChannelError}
-      pendingChannels={pendingChannels}
-      setPendingChannels={setPendingChannels}
-    />
-  )
+  const FilterContentWrapper = () => {
+    // Group related state into objects for better maintainability
+    const categoryState = {
+      pending: pendingCategories,
+      setPending: setPendingCategories,
+      isLoading: isHierarchyLoading,
+      isError: isHierarchyError,
+      hierarchy: categoryHierarchy,
+    };
+
+    const priceState = {
+      pendingRanges: pendingPriceRanges,
+      toggleRange: togglePendingPriceRange,
+      pendingMin: pendingMin,
+      pendingMax: pendingMax,
+      setPendingMin: setPendingMin,
+      setPendingMax: setPendingMax,
+      availableRanges: PRICE_RANGES,
+    };
+
+    const channelState = {
+      pending: pendingChannels,
+      setPending: setPendingChannels,
+      isLoading: isChannelLoading,
+      isError: isChannelError,
+      data: channels,
+    };
+
+    return (
+      <FilterContent
+        categoryState={categoryState}
+        priceState={priceState}
+        channelState={channelState}
+        onApplyFilters={applyFilters}
+      />
+    );
+  };
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-10">
       <section className="lg:col-span-3 space-y-8">
-        <div className="sticky top-0 z-20  flex items-center  ">
-          <SearchBar
-            placeholder="Search products..."
-            onSearch={setPendingSearch}
-            className="w-full"
-            defaultValue={pendingSearch}
-          />
-          <div>
+        <div className="sticky top-0 z-20 bg-white dark:bg-gray-900 pb-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <SearchBar
+              placeholder="Search products..."
+              onSearch={setPendingSearch}
+              className="flex-1"
+              defaultValue={pendingSearch}
+            />
             <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-              <SheetTrigger className="p-2 rounded-lg border">
-                <Filter className="h-5 w-5" />
+              <SheetTrigger className="p-2 sm:p-3 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 flex-shrink-0">
+                <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-400" />
               </SheetTrigger>
-              <SheetContent side="right" className="w-[80%] sm:w-[300px]">
-                <FilterContentWrapper />
+              <SheetContent 
+                side="right" 
+                className="w-[85%] sm:w-[350px] md:w-[400px] p-0 overflow-hidden"
+              >
+                <div className="h-full p-4 sm:p-6">
+                  <FilterContentWrapper />
+                </div>
               </SheetContent>
             </Sheet>
           </div>
