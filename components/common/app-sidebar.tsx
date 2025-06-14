@@ -2,9 +2,9 @@
 
 import {
   BookMarked,
-  CheckCircle,
   FileText,
   LayoutDashboard,
+  Mail,
   MessageSquare,
   Package,
   Search,
@@ -299,7 +299,6 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
-
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
@@ -379,60 +378,53 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={
-                      state === "collapsed"
-                        ? "Verification Requests"
-                        : undefined
-                    }
-                    className={menuButtonHoverClass}
-                  >
-                    <Link href="/admin/verification-requests">
-                      <CheckCircle className="size-5" />
-                      <span
-                        className={cn(
-                          "ml-2 transition-opacity duration-200",
-                          state === "collapsed" && "opacity-0 w-0 -ml-0"
-                        )}
-                      >
-                        Verification Requests
-                      </span>
-                      <span
-                        className={cn(
-                          "ml-auto bg-primary/15 text-primary rounded-full px-2 py-0.5 text-xs font-medium",
-                          state === "collapsed" && "opacity-0 w-0"
-                        )}
-                      >
-                        5
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
 
                 {user.role === "SUPER_ADMIN" && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      tooltip={
-                        state === "collapsed" ? "User Management" : undefined
-                      }
-                      className={menuButtonHoverClass}
-                    >
-                      <Link href="/admin/users">
-                        <Users className="size-5" />
-                        <span
-                          className={cn(
-                            "ml-2 transition-opacity duration-200",
-                            state === "collapsed" && "opacity-0 w-0 -ml-0"
-                          )}
-                        >
-                          User Management
-                        </span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  <>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        tooltip={
+                          state === "collapsed" ? "User Management" : undefined
+                        }
+                        className={menuButtonHoverClass}
+                      >
+                        <Link href="/admin/users">
+                          <Users className="size-5" />
+                          <span
+                            className={cn(
+                              "ml-2 transition-opacity duration-200",
+                              state === "collapsed" && "opacity-0 w-0 -ml-0"
+                            )}
+                          >
+                            User Management
+                          </span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        tooltip={
+                          state === "collapsed" ? "Admin Invites" : undefined
+                        }
+                        className={menuButtonHoverClass}
+                      >
+                        <Link href="/admin/invites">
+                          <Mail className="size-5" />
+                          <span
+                            className={cn(
+                              "ml-2 transition-opacity duration-200",
+                              state === "collapsed" && "opacity-0 w-0 -ml-0"
+                            )}
+                          >
+                            Admin Invites
+                          </span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </>
                 )}
 
                 <SidebarMenuItem>

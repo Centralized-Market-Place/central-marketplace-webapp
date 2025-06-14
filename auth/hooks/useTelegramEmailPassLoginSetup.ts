@@ -1,4 +1,4 @@
-import { API_URL, getErrorDetailMsg } from "@/lib/utils";
+import { API_URL, getErrorField } from "@/lib/utils";
 import { useAlert } from "@/providers/alert-provider";
 import {
   TelegramEmailAddRequest,
@@ -45,7 +45,7 @@ export function useTelegramEmailPassLoginSetup() {
     onError: (error, variables) => {
       const { onError } = variables;
       onError?.();
-      alert?.error(getErrorDetailMsg(error) || "Failed to send email!");
+      alert?.error(getErrorField(error, "details") || "Failed to send email!");
     },
   });
 
@@ -60,7 +60,7 @@ export function useTelegramEmailPassLoginSetup() {
     onError: (error, variables) => {
       const { onError } = variables;
       onError?.();
-      alert?.error(getErrorDetailMsg(error) || "Failed to set password!");
+      alert?.error(getErrorField(error, "details") || "Failed to set password!");
     },
   });
 

@@ -9,7 +9,20 @@ import { apiGet } from "@/services/api";
 import { API_URL } from "@/lib/utils";
 import { AxiosError } from "axios";
 
-const PUBLIC_PATH = ["/login", "/signup", "/", "/forgot-password", "/reset-password", "/404"];
+const PUBLIC_PATH = [
+  "/login",
+  "/signup",
+  "/",
+  "/forgot-password",
+  "/reset-password",
+  "/404",
+];
+
+const isPublicPath = (pathname: string) => {
+  return (
+    PUBLIC_PATH.includes(pathname) || pathname.startsWith("/accept-invitation/")
+  );
+};
 
 interface AuthContextType {
   user: User | null;
@@ -68,7 +81,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!loading) {
-      if (!user && !PUBLIC_PATH.includes(pathName)) {
+      if (!user && !isPublicPath(pathName)) {
         localStorage.removeItem("token");
         router.push("/login");
         query.clear();
