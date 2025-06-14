@@ -24,7 +24,7 @@ const SearchBar = React.forwardRef<HTMLDivElement, GoogleSearchBarProps>(
       <div
         ref={ref}
         className={cn(
-          "max-w-4xl mx-auto my-16",
+          "max-w-4xl mx-auto",
           className
         )}
         {...props}
