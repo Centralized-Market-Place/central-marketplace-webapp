@@ -276,8 +276,13 @@ export const FilterContent: React.FC<FilterContentProps> = ({
                     min="0"
                     placeholder="e.g. 10000"
                     value={priceState.pendingMax}
-                    onChange={(e) => priceState.setPendingMax(e.target.value)}
-                    disabled={priceState.pendingRanges.length > 0}
+                    onChange={(e) => {
+                      // Clear predefined ranges when typing custom price
+                      if (priceState.pendingRanges.length > 0) {
+                        priceState.pendingRanges.forEach(range => priceState.toggleRange(range));
+                      }
+                      priceState.setPendingMax(e.target.value);
+                    }}
                     className="transition duration-200 focus:ring-2 focus:ring-blue-400 text-sm"
                   />
                 </div>
