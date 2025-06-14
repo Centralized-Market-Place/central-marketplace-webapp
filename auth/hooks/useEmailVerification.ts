@@ -71,5 +71,6 @@ export function useEmailVerification() {
     isResendingVerification: resendVerificationMutation.isPending,
     verifyEmailError: verifyEmailMutation.error,
     resendVerificationError: resendVerificationMutation.error,
+
   };
 }
