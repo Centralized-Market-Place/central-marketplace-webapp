@@ -1,6 +1,5 @@
 import { ChannelSchema } from "@/channels/schema";
 import { ReactionType } from "@/comments/schema";
-import { Filter } from "lucide-react";
 import { z } from "zod";
 
 export const CategorySchema = z.object({
@@ -60,8 +59,6 @@ export const ProductFilterSchema = z.object({
   query: z.string().optional(),
   sortBy: z.string().optional(),
   sortDesc: z.boolean().optional(),
-  channelId: z.string().optional(),
-  channelIds: z.array(z.string()).optional(),
   categories: z.string().optional(),
   minPrice: z.number().optional(),
   maxPrice: z.number().optional(),
