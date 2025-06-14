@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ProductCard } from "@/products/components/product-card";
 import { useDebounce } from "../hooks/use-debounce";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -12,7 +12,6 @@ import { SearchBar } from "../components/ui/SearchBar";
 import { useCategoryHierarchy } from "@/products/hooks/useCategoryAction";
 import { FilterContent } from "@/components/common/FilterProducts";
 import { FilterChips } from "@/components/common/FilterChips";
-import { useChannels } from "@/channels/hooks/useChannels";
 
 import {
   Sheet,
@@ -62,12 +61,6 @@ export default function Home() {
     isLoading: isHierarchyLoading,
     isError: isHierarchyError,
   } = useCategoryHierarchy();
-
-  const {
-    channels,
-    isLoading: isChannelLoading,
-    isError: isChannelError,
-  } = useChannels();
 
   const parsePrice = (value: string) => {
     const parsed = parseFloat(value);
@@ -143,48 +136,29 @@ export default function Home() {
     channels: selectedChannels.length > 0 ? `${selectedChannels.length} channel${selectedChannels.length > 1 ? 's' : ''}` : ""
   }
 
-  const FilterContentWrapper = () => {
-    // Group related state into objects for better maintainability
-    const categoryState = {
-      pending: pendingCategories,
-      setPending: setPendingCategories,
-      isLoading: isHierarchyLoading,
-      isError: isHierarchyError,
-      hierarchy: categoryHierarchy,
-    };
+  // Memoize state objects to prevent unnecessary re-renders
+  const categoryState = useMemo(() => ({
+    pending: pendingCategories,
+    setPending: setPendingCategories,
+    isLoading: isHierarchyLoading,
+    isError: isHierarchyError,
+    hierarchy: categoryHierarchy,
+  }), [pendingCategories, setPendingCategories, isHierarchyLoading, isHierarchyError, categoryHierarchy]);
 
-    const priceState = {
-      pendingRanges: pendingPriceRanges,
-      toggleRange: togglePendingPriceRange,
-      pendingMin: pendingMin,
-      pendingMax: pendingMax,
-      setPendingMin: setPendingMin,
-      setPendingMax: setPendingMax,
-      availableRanges: PRICE_RANGES,
-    };
-
-    const channelState = {
-      pending: pendingChannels,
-      setPending: setPendingChannels,
-      isLoading: isChannelLoading,
-      isError: isChannelError,
-      data: channels,
-    };
-
-    return (
-      <FilterContent
-        categoryState={categoryState}
-        priceState={priceState}
-        channelState={channelState}
-        onApplyFilters={applyFilters}
-      />
-    );
-  };
+  const priceState = useMemo(() => ({
+    pendingRanges: pendingPriceRanges,
+    toggleRange: togglePendingPriceRange,
+    pendingMin: pendingMin,
+    pendingMax: pendingMax,
+    setPendingMin: setPendingMin,
+    setPendingMax: setPendingMax,
+    availableRanges: PRICE_RANGES,
+  }), [pendingPriceRanges, togglePendingPriceRange, pendingMin, pendingMax, setPendingMin, setPendingMax]);
 
   return (
-    <main className="max-w-7xl mx-auto px-4 py-10">
+    <main className=" mx-auto px-4 py-10">
       <section className="lg:col-span-3 space-y-8">
-        <div className="sticky top-0 z-20 bg-white dark:bg-gray-900 pb-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="sticky top-0 z-20  pb-4  border-gray-200 dark:border-gray-700 max-w-7xl mx-auto text-center">
           <div className="flex items-center gap-2 sm:gap-3">
             <SearchBar
               placeholder="Search products..."
@@ -193,7 +167,7 @@ export default function Home() {
               defaultValue={pendingSearch}
             />
             <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-              <SheetTrigger className="p-2 sm:p-3 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 flex-shrink-0">
+              <SheetTrigger className=" sm:p-3 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 flex-shrink-0">
                 <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-400" />
               </SheetTrigger>
               <SheetContent 
@@ -201,7 +175,11 @@ export default function Home() {
                 className="w-[85%] sm:w-[350px] md:w-[400px] p-0 overflow-hidden"
               >
                 <div className="h-full p-4 sm:p-6">
-                  <FilterContentWrapper />
+                  <FilterContent
+                    categoryState={categoryState}
+                    priceState={priceState}
+                    onApplyFilters={applyFilters}
+                  />
                 </div>
               </SheetContent>
             </Sheet>

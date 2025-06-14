@@ -30,25 +30,15 @@ interface PriceState {
   availableRanges: PriceRange[];
 }
 
-interface ChannelState {
-  pending: string[];
-  setPending: (val: string[]) => void;
-  isLoading: boolean;
-  isError: boolean;
-  data: { id: string; title?: string | null; username?: string | null }[];
-}
-
 interface FilterContentProps {
   categoryState: CategoryState;
   priceState: PriceState;
-  channelState: ChannelState;
   onApplyFilters: () => void;
 }
 
 export const FilterContent: React.FC<FilterContentProps> = ({
   categoryState,
   priceState,
-  channelState,
   onApplyFilters,
 }) => {
   // Initialize expanded categories based on current selection
@@ -92,14 +82,6 @@ export const FilterContent: React.FC<FilterContentProps> = ({
     if (!isMaxLessThanMin) {
       onApplyFilters();
     }
-  };
-
-  const toggleChannel = (channelId: string) => {
-    channelState.setPending(
-      channelState.pending.includes(channelId)
-        ? channelState.pending.filter(id => id !== channelId)
-        : [...channelState.pending, channelId]
-    );
   };
 
   const toggleCategoryExpansion = (parentCategory: string) => {
@@ -224,51 +206,30 @@ export const FilterContent: React.FC<FilterContentProps> = ({
             )}
           </div>
 
-          {/* Channels Section */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-base sm:text-lg text-gray-900 dark:text-gray-100">
-              Channels
-            </h3>
-            <div className="space-y-2 max-h-32 sm:max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
-              {channelState.isLoading && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">Loading channels...</p>
-              )}
-              {channelState.isError && (
-                <p className="text-sm text-red-500 dark:text-red-400">Failed to load channels</p>
-              )}
-              {!channelState.isLoading &&
-                !channelState.isError &&
-                channelState.data.map((channel) => (
-                  <label key={channel.id} className="flex items-center space-x-2 text-sm transition-all duration-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded px-2 py-1 cursor-pointer min-w-0">
-                    <Checkbox
-                      id={channel.id}
-                      checked={channelState.pending.includes(channel.id)}
-                      onCheckedChange={() => toggleChannel(channel.id)}
-                      className="transition duration-200 focus:ring-2 focus:ring-blue-400 flex-shrink-0"
-                    />
-                    <Label htmlFor={channel.id} className="text-sm text-gray-700 dark:text-gray-300 truncate cursor-pointer">
-                      {channel.title || channel.username}
-                    </Label>
-                  </label>
-                ))}
-            </div>
-          </div>
-
           {/* Price Range Section */}
           <div className="space-y-4">
             <h3 className="font-semibold text-base sm:text-lg text-gray-900 dark:text-gray-100">
               Price Range
             </h3>
-            <div className="space-y-2 max-h-40 sm:max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+            <div className="space-y-2 max-h-40 sm:max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
               {priceState.availableRanges.map((range) => {
                 const isChecked = priceState.pendingRanges.some((r) => r.label === range.label);
+                
+                const handleRangeToggle = () => {
+                  // Clear custom price inputs when selecting a predefined range
+                  if (!isChecked) {
+                    priceState.setPendingMin("");
+                    priceState.setPendingMax("");
+                  }
+                  priceState.toggleRange(range);
+                };
+                
                 return (
                   <label key={range.label} className="flex items-center space-x-2 text-sm transition-all duration-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded px-2 py-1 cursor-pointer min-w-0">
                     <Checkbox
                       id={range.label}
                       checked={isChecked}
-                      onCheckedChange={() => priceState.toggleRange(range)}
-                      disabled={priceState.pendingMin !== "" || priceState.pendingMax !== ""}
+                      onCheckedChange={handleRangeToggle}
                       className="transition duration-200 focus:ring-2 focus:ring-blue-400 flex-shrink-0"
                     />
                     <Label htmlFor={range.label} className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer truncate">
@@ -295,8 +256,13 @@ export const FilterContent: React.FC<FilterContentProps> = ({
                     min="0"
                     placeholder="e.g. 200"
                     value={priceState.pendingMin}
-                    onChange={(e) => priceState.setPendingMin(e.target.value)}
-                    disabled={priceState.pendingRanges.length > 0}
+                    onChange={(e) => {
+                      // Clear predefined ranges when typing custom price
+                      if (priceState.pendingRanges.length > 0) {
+                        priceState.pendingRanges.forEach(range => priceState.toggleRange(range));
+                      }
+                      priceState.setPendingMin(e.target.value);
+                    }}
                     className="transition duration-200 focus:ring-2 focus:ring-blue-400 text-sm"
                   />
                 </div>
