@@ -102,35 +102,6 @@ export const telegramPasswordSetRequestSchema = z.object({
     .min(6, { message: "Password must be at least 6 characters long" }),
 });
 
-export const userFilterSchema = z.object({
-  role: z
-    .enum([
-      UserRole.Enum.ADMIN,
-      UserRole.Enum.USER,
-      UserRole.Enum.SELLER,
-      UserRole.Enum.SUPER_ADMIN,
-    ])
-    .optional(),
-  page: z.number().optional(),
-  pageSize: z.number().optional(),
-  sortBy: z
-    .enum(["created_at", "updated_at", "first_name", "last_name", "email"])
-    .optional(),
-  sortDesc: z.boolean().optional(),
-  query: z.string().optional(),
-});
-
-export const UsersResponseSchema = z.object({
-  page: z.number(),
-  pageSize: z.number(),
-  total: z.number(),
-  items: z.array(UserSchema),
-});
-
-export const UserRoleUpdateSchema = z.object({
-  role: z.enum([UserRole.Enum.ADMIN, UserRole.Enum.USER]),
-});
-
 export type UserLogin = z.infer<typeof UserLoginSchema>;
 export type UserRegister = z.infer<typeof UserRegisterSchema>;
 export type User = z.infer<typeof UserSchema>;
@@ -151,6 +122,3 @@ export type TelegramEmailAddRequest = z.infer<
 export type TelegramPasswordSetRequest = z.infer<
   typeof telegramPasswordSetRequestSchema
 >;
-export type UserFilter = z.infer<typeof userFilterSchema>;
-export type UsersResponse = z.infer<typeof UsersResponseSchema>;
-export type UserRoleUpdate = z.infer<typeof UserRoleUpdateSchema>;
