@@ -180,7 +180,7 @@ export function AppSidebar() {
                       asChild
                       tooltip={
                         state === "collapsed"
-                          ? user?.role === "SELLER"
+                          ? user?.role === UserRole.Enum.SELLER
                             ? "Register your Channel"
                             : "Become a Seller"
                           : undefined

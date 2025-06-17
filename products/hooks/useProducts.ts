@@ -6,7 +6,7 @@ import { useAuthContext } from "@/providers/auth-context";
 import { API_URL } from "@/lib/utils";
 
 export const DEFAULT_FILTERS: ProductFilter = {
-  pageSize: 10,
+  pageSize: 20,
   page: 1,
   query: "",
   sortBy: "created_at",
@@ -21,7 +21,7 @@ const buildQuery = (filters: ProductFilter) => {
   const searchParams = new URLSearchParams();
 
   searchParams.append("page", filters.page.toString());
-  searchParams.append("pageSize", filters.pageSize.toString());
+  searchParams.append("page_size", filters.pageSize.toString());
 
   if (filters.query) {
     searchParams.append("query", filters.query);
@@ -56,9 +56,33 @@ const buildQuery = (filters: ProductFilter) => {
   return `?${searchParams.toString()}`;
 };
 
+export type ProductsContext =
+  | "home"
+  | "channel"
+  | "seller-dashboard"
+  | "seller-products";
+
+interface UseProductsOptions {
+  filters: ProductFilter;
+  context: ProductsContext;
+}
+
 export function useProducts(
-  filters: ProductFilter = DEFAULT_FILTERS,
+  filtersOrOptions: ProductFilter | UseProductsOptions = {
+    filters: DEFAULT_FILTERS,
+    context: "home",
+  }
 ) {
+  // Backward compatibility: if first param is filters object without context, treat as home context
+  const isLegacyCall =
+    !("context" in filtersOrOptions) && !("filters" in filtersOrOptions);
+  const options: UseProductsOptions = isLegacyCall
+    ? { filters: filtersOrOptions as ProductFilter, context: "home" }
+    : "context" in filtersOrOptions
+    ? (filtersOrOptions as UseProductsOptions)
+    : { filters: filtersOrOptions as ProductFilter, context: "home" };
+
+  const { filters, context } = options;
   const baseUrl = `${API_URL}/api/v1/products`;
   const query = buildQuery(filters);
   const { token } = useAuthContext();
@@ -73,7 +97,7 @@ export function useProducts(
   };
 
   const productsQuery = useInfiniteQuery({
-    queryKey: productKeys.list(query),
+    queryKey: productKeys.contextList(context, query),
     queryFn: getProducts,
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {

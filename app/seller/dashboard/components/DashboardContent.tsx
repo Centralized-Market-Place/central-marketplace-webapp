@@ -15,9 +15,12 @@ interface DashboardContentProps {
 
 export default function DashboardContent({ channels }: DashboardContentProps) {
   const { products, isLoading: productsLoading } = useProducts({
-    ...DEFAULT_FILTERS,
-    channelIds: channels.map((channel) => channel.id),
-    pageSize: 3,
+    filters: {
+      ...DEFAULT_FILTERS,
+      channelIds: channels.map((channel) => channel.id),
+      pageSize: 3,
+    },
+    context: "seller-dashboard",
   });
 
   const { sellerAnalytics, sellerAnalyticsLoading } = useSellerAnalytics();

@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuthContext } from "@/providers/auth-context";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { UserRole } from "@/auth/shema";
 
@@ -12,6 +12,12 @@ export default function SellerLayout({
 }) {
   const { user, isAuthenticated, loading } = useAuthContext();
   const router = useRouter();
+  const pathname = usePathname();
+
+  const publicSellerRoutes = ["/seller/apply", "/seller/applications"];
+  const isPublicSellerRoute = publicSellerRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
 
   useEffect(() => {
     if (!loading) {
@@ -21,6 +27,7 @@ export default function SellerLayout({
       }
 
       if (
+        !isPublicSellerRoute &&
         user &&
         user.role !== UserRole.Enum.SELLER &&
         user.role !== UserRole.Enum.ADMIN &&
@@ -30,7 +37,7 @@ export default function SellerLayout({
         return;
       }
     }
-  }, [isAuthenticated, loading, user, router]);
+  }, [isAuthenticated, loading, user, router, isPublicSellerRoute]);
 
   if (loading) {
     return (
@@ -42,6 +49,10 @@ export default function SellerLayout({
 
   if (!isAuthenticated || !user) {
     return null;
+  }
+
+  if (isPublicSellerRoute) {
+    return <>{children}</>;
   }
 
   if (

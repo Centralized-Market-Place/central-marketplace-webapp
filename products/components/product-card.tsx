@@ -7,7 +7,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ProductModal } from "./product-modal";
 import {
   MessageSquare,
@@ -38,6 +38,8 @@ export function ProductCard({ prod }: ProductCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
   const [fullScreenIndex, setFullScreenIndex] = useState<number>(0);
+  const [isModalOpening, setIsModalOpening] = useState(false);
+  const isManuallyOpening = useRef(false);
   const { user, isAuthenticated } = useAuthContext();
   const { createReaction, isLoading: isReactionLoading } = useReaction(prod.id);
   const { product, isLoading } = useProduct(prod.id);
@@ -48,12 +50,28 @@ export function ProductCard({ prod }: ProductCardProps) {
 
   useEffect(() => {
     const productIdParam = searchParams.get("productId");
-    if (productIdParam === prod.id) {
-      setIsModalOpen(true);
+    if (!isManuallyOpening.current) {
+      if (productIdParam === prod.id) {
+        setIsModalOpen(true);
+        setIsModalOpening(false);
+      } else if (productIdParam !== prod.id) {
+        setIsModalOpen(false);
+        setIsModalOpening(false);
+      }
     }
   }, [searchParams, prod.id]);
 
+  useEffect(() => {
+    isManuallyOpening.current = false;
+  });
+
   const handleModalOpen = () => {
+    if (isModalOpening || isModalOpen) return;
+
+    isManuallyOpening.current = true;
+    setIsModalOpening(true);
+    setIsModalOpen(true);
+
     const params = new URLSearchParams(searchParams.toString());
     params.set("productId", prod.id);
 
@@ -62,11 +80,17 @@ export function ProductCard({ prod }: ProductCardProps) {
     }
 
     router.push(`?${params.toString()}`, { scroll: false });
-    setIsModalOpen(true);
+
+    setTimeout(() => {
+      setIsModalOpening(false);
+    }, 100);
   };
 
   const handleModalClose = () => {
+    isManuallyOpening.current = true;
     setIsModalOpen(false);
+    setIsModalOpening(false);
+
     setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
       params.delete("productId");
@@ -182,7 +206,12 @@ export function ProductCard({ prod }: ProductCardProps) {
                 {formatNumber(product.shares)}
               </span>
             </div>
-            <Button variant="ghost" size="sm" onClick={handleModalOpen}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleModalOpen}
+              disabled={isModalOpening}
+            >
               <MessageSquare size={14} className="mr-1" />
               View Details
             </Button>

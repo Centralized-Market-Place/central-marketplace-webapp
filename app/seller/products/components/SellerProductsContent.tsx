@@ -63,8 +63,11 @@ export default function SellerProductsContent({
   channels,
 }: SellerProductsContentProps) {
   const { products, isLoading } = useProducts({
-    ...DEFAULT_FILTERS,
-    channelIds: channels.map((channel) => channel.id),
+    filters: {
+      ...DEFAULT_FILTERS,
+      channelIds: channels.map((channel) => channel.id),
+    },
+    context: "seller-products",
   });
 
   if (isLoading) {

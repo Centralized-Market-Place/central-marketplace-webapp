@@ -137,9 +137,7 @@ export function ProductModal({
       onOpenChange={(open) => {
         if (!open) {
           setIsClosing(true);
-          setTimeout(() => {
-            onClose();
-          }, 0);
+          onClose();
         }
       }}
     >
@@ -344,7 +342,147 @@ export function ProductModal({
           </TabsList>
           <TabsContent value="details" className="mt-4">
             <div className="space-y-4">
-              <h3 className="font-semibold">Product Summary</h3>
+              <div className="space-y-3">
+                {/* Availability Status */}
+                <div className="flex items-center justify-between p-3 bg-secondary/20 rounded-lg">
+                  <span className="font-medium">Availability</span>
+                  <Badge
+                    variant={product.isAvailable ? "default" : "secondary"}
+                  >
+                    {product.isAvailable ? "Available" : "Not Available"}
+                  </Badge>
+                </div>
+
+                {/* Location */}
+                {product.location && (
+                  <div className="flex items-start justify-between">
+                    <span className="font-medium text-sm">Location:</span>
+                    <span className="text-sm text-muted-foreground max-w-[200px] text-right">
+                      {product.location}
+                    </span>
+                  </div>
+                )}
+
+                {/* Contact Information */}
+                {product.phone && product.phone.length > 0 && (
+                  <div className="flex items-start justify-between">
+                    <span className="font-medium text-sm">Contact:</span>
+                    <div className="flex flex-col gap-1 max-w-[200px]">
+                      {product.phone.map((phone, index) => (
+                        <a
+                          key={index}
+                          href={`tel:${phone}`}
+                          className="text-sm text-primary hover:underline text-right"
+                        >
+                          {phone}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* External Links */}
+                {product.link && product.link.length > 0 && (
+                  <div className="flex items-start justify-between">
+                    <span className="font-medium text-sm">Links:</span>
+                    <div className="flex flex-col gap-1 max-w-[200px]">
+                      {product.link.map((link, index) => (
+                        <a
+                          key={index}
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-primary hover:underline text-right flex items-center gap-1"
+                        >
+                          <span className="truncate">{link}</span>
+                          <ExternalLink size={12} />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <Separator />
+
+                {/* Engagement Metrics */}
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm">Engagement</h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Views:</span>
+                      <span>{formatNumber(product.views)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Forwards:</span>
+                      <span>{formatNumber(product.forwards)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Comments:</span>
+                      <span>{formatNumber(product.comments)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Shares:</span>
+                      <span>{formatNumber(product.shares)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Timestamps */}
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm">Timeline</h4>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Posted:</span>
+                      <span>{format(product.date, "PPp")}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Added:</span>
+                      <span>{format(product.createdAt, "PPp")}</span>
+                    </div>
+                    {product.createdAt.getTime() !==
+                      product.updatedAt.getTime() && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Updated:</span>
+                        <span>{format(product.updatedAt, "PPp")}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Telegram Information */}
+                {(product.messageId || product.telegramChannelId) && (
+                  <>
+                    <Separator />
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-sm">Telegram Info</h4>
+                      <div className="space-y-1 text-sm">
+                        {product.messageId && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">
+                              Message ID:
+                            </span>
+                            <span className="font-mono">
+                              {product.messageId}
+                            </span>
+                          </div>
+                        )}
+                        {product.telegramChannelId && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">
+                              Channel ID:
+                            </span>
+                            <span className="font-mono">
+                              {product.telegramChannelId}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </TabsContent>
           <TabsContent value="comments" className="mt-4">
