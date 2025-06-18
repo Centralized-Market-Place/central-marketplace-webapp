@@ -2,8 +2,7 @@ import { AxiosError } from "axios";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8443";
+export const API_URL = "https://centralmarketplace.software";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
