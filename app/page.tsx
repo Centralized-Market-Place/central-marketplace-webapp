@@ -41,7 +41,6 @@ export default function Home() {
   const [customMaxPrice, setCustomMaxPrice] = useState<string>("");
   const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
 
-  const [pendingSearch, setPendingSearch] = useState("");
   const [pendingCategories, setPendingCategories] = useState<string[]>([]);
   const [pendingPriceRanges, setPendingPriceRanges] = useState<PriceRange[]>(
     []
@@ -112,7 +111,6 @@ export default function Home() {
   );
 
   const applyFilters = () => {
-    setSearch(pendingSearch);
     setSelectedCategories(pendingCategories);
     setSelectedPriceRanges(pendingPriceRanges);
     setCustomMinPrice(pendingMin);
@@ -122,8 +120,16 @@ export default function Home() {
   };
 
   const handleRemoveFilter = (
-    filterType: "category" | "priceRange" | "customPrice" | "channels"
+    filterType:
+      | "category"
+      | "priceRange"
+      | "customPrice"
+      | "channels"
+      | "search"
   ) => {
+    if (filterType === "search") {
+      setSearch("");
+    }
     if (filterType === "category") {
       setSelectedCategories([]);
       setPendingCategories([]);
@@ -144,7 +150,22 @@ export default function Home() {
     }
   };
 
+  const handleClearAllFilters = () => {
+    setSearch("");
+    setSelectedCategories([]);
+    setSelectedPriceRanges([]);
+    setCustomMinPrice("");
+    setCustomMaxPrice("");
+    setSelectedChannels([]);
+    setPendingCategories([]);
+    setPendingPriceRanges([]);
+    setPendingMin("");
+    setPendingMax("");
+    setPendingChannels([]);
+  };
+
   const activeFilters = {
+    search: search ? `"${search}"` : "",
     category:
       selectedCategories.length > 0
         ? `${selectedCategories.length} categor${
@@ -209,9 +230,10 @@ export default function Home() {
           <div className="flex items-center gap-2 sm:gap-3 max-w-4xl mx-auto">
             <SearchBar
               placeholder="Search products..."
-              onSearch={setPendingSearch}
+              onSearch={setSearch}
+              realTimeSearch={true}
               className="flex-1"
-              defaultValue={pendingSearch}
+              defaultValue={search}
             />
             <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
               <SheetTrigger className="p-3 sm:p-3 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 flex-shrink-0">
@@ -236,6 +258,7 @@ export default function Home() {
         <FilterChips
           activeFilters={activeFilters}
           onRemoveFilter={handleRemoveFilter}
+          onClearAll={handleClearAllFilters}
         />
 
         {isError && (
@@ -254,7 +277,7 @@ export default function Home() {
           next={fetchNextPage}
           hasMore={!!hasNextPage}
           loader={
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
               {Array.from({ length: 8 }).map((_, index) => (
                 <div
                   key={index}

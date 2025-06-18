@@ -6,12 +6,29 @@ import { Search } from "lucide-react";
 interface GoogleSearchBarProps extends React.HTMLAttributes<HTMLDivElement> {
   onSearch?: (query: string) => void;
   placeholder?: string;
+  defaultValue?: string;
+  realTimeSearch?: boolean;
 }
 
 const SearchBar = React.forwardRef<HTMLDivElement, GoogleSearchBarProps>(
-  ({ className, onSearch, placeholder = "Search ", ...props }, ref) => {
-    const [query, setQuery] = React.useState("");
+  (
+    {
+      className,
+      onSearch,
+      placeholder = "Search ",
+      defaultValue = "",
+      realTimeSearch = false,
+      ...props
+    },
+    ref
+  ) => {
+    const [query, setQuery] = React.useState(defaultValue);
     const inputRef = React.useRef<HTMLInputElement>(null);
+
+    // Update local state when defaultValue changes
+    React.useEffect(() => {
+      setQuery(defaultValue);
+    }, [defaultValue]);
 
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
@@ -20,22 +37,25 @@ const SearchBar = React.forwardRef<HTMLDivElement, GoogleSearchBarProps>(
       }
     };
 
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newQuery = e.target.value;
+      setQuery(newQuery);
+
+      // If real-time search is enabled, call onSearch immediately
+      if (realTimeSearch && onSearch) {
+        onSearch(newQuery);
+      }
+    };
+
     return (
-      <div
-        ref={ref}
-        className={cn(
-          "max-w-4xl mx-auto",
-          className
-        )}
-        {...props}
-      >
+      <div ref={ref} className={cn("max-w-4xl mx-auto", className)} {...props}>
         <form onSubmit={handleSubmit}>
           <div className="relative group">
             <Input
               ref={inputRef}
               type="search"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={handleInputChange}
               className="h-14 rounded-full bg-background pl-14 pr-14 text-base hover:shadow-xl  [&::-webkit-search-cancel-button]:appearance-none"
               placeholder={placeholder}
             />
@@ -52,4 +72,4 @@ const SearchBar = React.forwardRef<HTMLDivElement, GoogleSearchBarProps>(
 
 SearchBar.displayName = "SearchBar";
 
-export { SearchBar }; 
+export { SearchBar };

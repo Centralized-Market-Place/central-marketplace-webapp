@@ -73,7 +73,6 @@ export function useProducts(
     context: "home",
   }
 ) {
-  // Backward compatibility: if first param is filters object without context, treat as home context
   const isLegacyCall =
     !("context" in filtersOrOptions) && !("filters" in filtersOrOptions);
   const options: UseProductsOptions = isLegacyCall
