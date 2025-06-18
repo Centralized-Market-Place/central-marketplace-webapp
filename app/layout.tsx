@@ -11,7 +11,7 @@ import { AppSidebar } from "@/components/common/app-sidebar";
 
 const inter = Inter({
   subsets: ["latin"],
-  display: "swap", 
+  display: "swap",
 });
 
 export default function RootLayout({
@@ -21,6 +21,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta
+          httpEquiv="Content-Security-Policy"
+          content="upgrade-insecure-requests"
+        />
+      </head>
       <body className={inter.className} suppressHydrationWarning={true}>
         <QueryProvider>
           <AlertProvider>
