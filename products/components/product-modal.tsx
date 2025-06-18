@@ -22,6 +22,7 @@ import {
   Copy,
   ExternalLink,
   Forward,
+  CheckCircle,
 } from "lucide-react";
 import { cn, formatNumber } from "@/lib/utils";
 import { useAuthContext } from "@/providers/auth-context";
@@ -175,21 +176,24 @@ export function ProductModal({
 
             {product.channel && (
               <div className="flex items-center gap-2 mb-3">
-                <p className="text-sm">
+                <div className="flex items-center gap-2">
                   <Button
                     variant="link"
                     size="sm"
                     className="h-auto p-0 font-medium"
                     asChild
                   >
-                    <Link
-                      href={`/channels/${product.channel.id}`}
-                      className="flex items-center gap-1"
-                    >
+                    <Link href={`/channels/${product.channel.id}`}>
                       {product.channel.title || product.channel.username}
                     </Link>
                   </Button>
-                </p>
+                  {product.channel.isSellerVerified && (
+                    <Badge variant="secondary" className="text-xs">
+                      <CheckCircle size={12} className="mr-1" />
+                      Verified
+                    </Badge>
+                  )}
+                </div>
                 {telegramLink && (
                   <Button
                     variant="link"

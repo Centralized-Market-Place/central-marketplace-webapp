@@ -60,9 +60,8 @@ export default function ChannelPage() {
   const [customMaxPrice, setCustomMaxPrice] = useState<string>("");
   const [selectedChannels, setSelectedChannels] = useState<string[]>([
     channelId as string,
-  ]); // Default to current channel
+  ]); 
 
-  // Temporary values before applying
   const [pendingCategories, setPendingCategories] = useState<string[]>([]);
   const [pendingPriceRanges, setPendingPriceRanges] = useState<PriceRange[]>(
     []
@@ -71,7 +70,7 @@ export default function ChannelPage() {
   const [pendingMax, setPendingMax] = useState("");
   const [pendingChannels, setPendingChannels] = useState<string[]>([
     channelId as string,
-  ]); // Default to current channel
+  ]);
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const debouncedSearch = useDebounce(search, 500);
