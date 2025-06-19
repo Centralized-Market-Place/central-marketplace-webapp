@@ -13,6 +13,7 @@ interface ReportButtonProps {
   size?: "sm" | "default" | "lg";
   className?: string;
   showText?: boolean;
+  disabled?: boolean;
 }
 
 export function ReportButton({
@@ -23,6 +24,7 @@ export function ReportButton({
   size = "sm",
   className,
   showText = true,
+  disabled = false,
 }: ReportButtonProps) {
   return (
     <CreateReportDialog
@@ -30,7 +32,7 @@ export function ReportButton({
       targetType={targetType}
       targetTitle={targetTitle}
     >
-      <Button variant={variant} size={size} className={className}>
+      <Button variant={variant} size={size} className={className} disabled={disabled}>
         <Flag className={`h-4 w-4 ${showText ? "mr-2" : ""}`} />
         {showText && "Report"}
       </Button>

@@ -288,7 +288,7 @@ export function ProductModal({
                 />
               </Button>
 
-              <ReportButton
+             <ReportButton
                 targetId={product.id}
                 targetType="PRODUCT"
                 targetTitle={product.title || "Product"}
@@ -296,6 +296,7 @@ export function ProductModal({
                 size="sm"
                 className="px-2"
                 showText={false}
+                disabled={!isAuthenticated}
               />
 
               <DropdownMenu>

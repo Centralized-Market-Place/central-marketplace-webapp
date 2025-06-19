@@ -28,7 +28,7 @@ export function useAdminSellerApplications(
   queryParams.append("page_size", pageSize.toString());
 
   if (status) {
-    queryParams.append("status", status);
+    queryParams.append("application_status", status);
   }
 
   if (search) {

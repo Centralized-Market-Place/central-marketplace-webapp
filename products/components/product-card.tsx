@@ -277,6 +277,7 @@ export function ProductCard({ prod }: ProductCardProps) {
                   size="sm"
                   className="px-2"
                   showText={false}
+                  disabled={!isAuthenticated}
                 />
               </div>
             </div>
